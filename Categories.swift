@@ -1,0 +1,14 @@
+//
+//  Categories.swift
+//  Jump
+//
+//  Created by Vladislav Deba on 7/30/19.
+//  Copyright © 2019 Vladislav Deba. All rights reserved.
+//
+
+import Foundation
+
+class Categories {
+    static let characterCategory: UInt32 = 0x1 << 0
+    static let platformCategory: UInt32 = 0x1 << 1
+}

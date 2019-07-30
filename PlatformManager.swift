@@ -11,10 +11,10 @@ import SpriteKit
 
 class PlatformManager {
     var maxY: CGFloat
+    var step: CGFloat
     
     let width = UIScreen.main.bounds.width - 130
     let height = UIScreen.main.bounds.height + 50
-    var step: CGFloat
     
     init(step: CGFloat, maxY: CGFloat) {
         self.step = step * 100
@@ -22,31 +22,34 @@ class PlatformManager {
     }
     
     func canCreate(characterPosition: CGPoint) -> Bool {
-        let result = maxY + step < characterPosition.y + height
-        print(result)
-        return result
+        return maxY + step < characterPosition.y + height
     }
     
     func instantiate() -> SKSpriteNode {
-        let platform = SKSpriteNode(imageNamed: "platform_small")
-        let x = CGFloat.random(in: -width...width)
-        let y = maxY + step
+        let newPlatform = getNewPlatform()
+        let newX = CGFloat.random(in: -width...width)
+        let newY = maxY + step
         
-        platform.texture?.filteringMode = .nearest
-        platform.scale(to: CGSize(width: 5.5, height: 5.5))
-        platform.size = CGSize(width: 127, height: 50)
-        platform.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: platform.size.width, height: platform.size.height))
-        platform.physicsBody?.restitution = CGFloat(0.2)
-        platform.physicsBody?.friction = 0
-        platform.physicsBody?.linearDamping = 0
-        platform.physicsBody?.angularDamping = 0
-        platform.physicsBody?.categoryBitMask = 0x1 << 1
-        platform.physicsBody?.contactTestBitMask = 0
-        platform.physicsBody?.isDynamic = false
+        newPlatform.position = CGPoint(x: newX, y: newY)
+        maxY = newY
         
-        platform.position = CGPoint(x: x, y: y)
-        maxY = y
+        return newPlatform
+    }
+    
+    func getNewPlatform() -> SKSpriteNode {
+        let sample = SKSpriteNode(imageNamed: "platform")
+        sample.texture?.filteringMode = .nearest
+        sample.size = CGSize(width: 130, height: 50)
         
-        return platform
+        sample.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: sample.size.width, height: sample.size.height))
+        sample.physicsBody?.restitution = CGFloat(0.2)
+        sample.physicsBody?.friction = 0
+        sample.physicsBody?.linearDamping = 0
+        sample.physicsBody?.angularDamping = 0
+        sample.physicsBody?.categoryBitMask = Categories.platformCategory
+        sample.physicsBody?.contactTestBitMask = 0
+        sample.physicsBody?.isDynamic = false
+        
+        return sample
     }
 }
