@@ -35,9 +35,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if character.physicsBody!.velocity.dy < 0 {
             character.run(jumpAnimation)
             character.physicsBody?.velocity = CGVector()
-            character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 1200))
+            character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 700))
         }
-        
 //        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 //        if collision == characterCategory | platformCategory {
 //            //print("Collision between platform and character!")
