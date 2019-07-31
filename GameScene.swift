@@ -21,7 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         self.physicsWorld.contactDelegate = self
-        physicsWorld.gravity = CGVector(dx: 0, dy: -18)
+        physicsWorld.gravity = CGVector(dx: 0, dy: -20)
         
         sky = childNode(withName: "sky") as? SKSpriteNode
         platform = childNode(withName: "platform") as? SKSpriteNode
@@ -46,8 +46,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if character.physicsBody!.velocity.dy < 0 {
             character.run(jumpAnimation)
             character.physicsBody?.velocity = CGVector()
-            character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 70))
+            let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+            if collision == Categories.character | Categories.woodenPlatform {
+                character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 70))
+            } else {
+                character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 80))
+            }
+        
         }
+        
 //        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 //        if collision == characterCategory | platformCategory {
 //            //print("Collision between platform and character!")
