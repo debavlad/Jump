@@ -10,45 +10,33 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    var sky = SKSpriteNode()
-    var platform = SKSpriteNode()
-    var character = SKSpriteNode()
-    var line = SKSpriteNode()
-    var slider = SKSpriteNode()
+    var sky, platform, character, line, slider: SKSpriteNode!
+    var cam: SKCameraNode!
     
+    var platformManager: PlatformManager!
+    var bgCloudManager, fgCloudManager: CloudManager!
     var sliderIsTriggered = false
-    var characterLooksRight = true
-    
-    let cam = SKCameraNode()
     var jumpAnimation: SKAction!
-    var pm: PlatformManager!
-    
     var movement: CGFloat!
     
     override func didMove(to view: SKView) {
         self.physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0, dy: -18)
         
-        sky = childNode(withName: "sky") as! SKSpriteNode
-        platform = childNode(withName: "platform") as! SKSpriteNode
-        character = childNode(withName: "character") as! SKSpriteNode
-        line = childNode(withName: "line") as! SKSpriteNode
-        slider = childNode(withName: "slider") as! SKSpriteNode
-        pm = PlatformManager(step: 1.5, maxY: platform.position.y)
-            
+        sky = childNode(withName: "sky") as? SKSpriteNode
+        platform = childNode(withName: "platform") as? SKSpriteNode
+        character = childNode(withName: "character") as? SKSpriteNode
+        line = childNode(withName: "line") as? SKSpriteNode
+        slider = childNode(withName: "slider") as? SKSpriteNode
+        cam = SKCameraNode()
+        
+        platformManager = PlatformManager(150, platform.position.y, wOffset: -100, hOffset: 50)
+        bgCloudManager = CloudManager(250, frame.minY, wOffset: 0, hOffset: 50)
+        fgCloudManager = CloudManager(1200, frame.minY, wOffset: 50, hOffset: 50)
         slider.position.x = character.position.x
         movement = character.position.x
-        camera = cam
-        sky.removeFromParent()
-        slider.removeFromParent()
-        line.removeFromParent()
-        cam.addChild(sky)
-        cam.addChild(slider)
-        cam.addChild(line)
-//        cam.addChild(slider)
-//        cam.addChild(line)
-        addChild(cam)
         
+        setCamera()
         setPhysicsBodiesOptions()
         setFilteringMode()
         createJumpAnimation()
@@ -58,7 +46,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if character.physicsBody!.velocity.dy < 0 {
             character.run(jumpAnimation)
             character.physicsBody?.velocity = CGVector()
-            character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 400))
+            character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 70))
         }
 //        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 //        if collision == characterCategory | platformCategory {
@@ -67,17 +55,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        if pm.canCreate(characterPosition: character.position) {
-            let platform = pm.instantiate()
-            addChild(platform)
+        camera!.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)
+        character.position.x = movement
+        
+        if platformManager.canCreate(playerPosition: character.position) {
+            addChild(platformManager.instantiate())
         }
         
-//        if pm.canRemove(bottomCameraPosition: (cam.frame.minY) - 600) {
-//            pm.RemovePlatformsBeneath()
-//        }
+        if bgCloudManager.canCreate(playerPosition: character.position) {
+            addChild(bgCloudManager.getBackgroundCloud())
+        }
         
-        camera?.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)
-        character.position.x = movement
+        if fgCloudManager.canCreate(playerPosition: character.position) {
+            addChild(fgCloudManager.getForegroundCloud())
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -88,15 +79,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sliderIsTriggered = true
             slider.setScale(1.2)
         }
-        
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if sliderIsTriggered {
             let touchLocationX = touches.first!.location(in: self).x
-            let lineWidth = line.size.width / 2
+            let halfLine = line.size.width / 2
             
-            if touchLocationX > -lineWidth && touchLocationX < lineWidth {
+            if touchLocationX > -halfLine && touchLocationX < halfLine {
                 slider.position.x = touchLocationX
                 movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
                 if character.position.x < slider.position.x {
@@ -113,14 +103,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         slider.setScale(1)
     }
     
-    func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
-        return start + percent * (end - start)
+    //
+    
+    func setCamera() {
+        camera = cam
+        sky.move(toParent: cam)
+        slider.move(toParent: cam)
+        line.move(toParent: cam)
+        addChild(cam)
     }
     
-    // 
-    
     func setPhysicsBodiesOptions() {
-        character.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 120), center: CGPoint(x: -4, y: -4))
+        character.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
         character.physicsBody?.usesPreciseCollisionDetection = true
         character.physicsBody?.collisionBitMask = 0
         character.physicsBody?.categoryBitMask = Categories.characterCategory
@@ -146,5 +140,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             jumpTextures[i-1].filteringMode = .nearest
         }
         jumpAnimation = SKAction.animate(with: jumpTextures, timePerFrame: 0.12)
+    }
+    
+    func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
+        return start + percent * (end - start)
     }
 }
