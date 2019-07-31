@@ -16,7 +16,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var platformManager: PlatformManager!
     var bgCloudManager, fgCloudManager: CloudManager!
     var sliderIsTriggered = false
-    var jumpAnimation: SKAction!
+    var jumpUpAnimation, jumpSideAnimation: SKAction!
     var movement: CGFloat!
     
     override func didMove(to view: SKView) {
@@ -39,12 +39,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setCamera()
         setPhysicsBodiesOptions()
         setFilteringMode()
-        createJumpAnimation()
+        createJumpAnimations()
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
         if character.physicsBody!.velocity.dy < 0 {
-            character.run(jumpAnimation)
+            character.run(jumpSideAnimation)
             character.physicsBody?.velocity = CGVector()
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if collision == Categories.character | Categories.woodenPlatform {
@@ -84,7 +84,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if touchedNode == slider {
             sliderIsTriggered = true
-            slider.setScale(1.2)
+            slider.setScale(1.3)
         }
     }
     
@@ -139,14 +139,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         slider.texture?.filteringMode = .nearest
     }
     
-    func createJumpAnimation() {
-        var jumpTextures: [SKTexture] = []
-        
+    func createJumpAnimations() {
+        var jumpUpTextures: [SKTexture] = []
         for i in 1...6 {
-            jumpTextures.append(SKTexture(imageNamed: "fjump\(i)"))
-            jumpTextures[i-1].filteringMode = .nearest
+            jumpUpTextures.append(SKTexture(imageNamed: "fjump\(i)"))
+            jumpUpTextures[i-1].filteringMode = .nearest
         }
-        jumpAnimation = SKAction.animate(with: jumpTextures, timePerFrame: 0.12)
+        jumpUpAnimation = SKAction.animate(with: jumpUpTextures, timePerFrame: 0.12)
+        
+        //
+        
+        var jumpSideTextures: [SKTexture] = []
+        for i in 1...9 {
+            jumpSideTextures.append(SKTexture(imageNamed: "fjside\(i)"))
+            jumpSideTextures[i-1].filteringMode = .nearest
+        }
+        jumpSideAnimation = SKAction.animate(with: jumpSideTextures, timePerFrame: 0.11)
     }
     
     func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
