@@ -117,10 +117,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         character.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
         character.physicsBody?.usesPreciseCollisionDetection = true
         character.physicsBody?.collisionBitMask = 0
-        character.physicsBody?.categoryBitMask = Categories.characterCategory
-        character.physicsBody?.contactTestBitMask = Categories.platformCategory
+        character.physicsBody?.categoryBitMask = Categories.character
+        character.physicsBody?.contactTestBitMask = Categories.woodenPlatform | Categories.stonePlatform
         
-        platform.physicsBody?.categoryBitMask = Categories.platformCategory
+        platform.physicsBody?.categoryBitMask = Categories.woodenPlatform
         platform.physicsBody?.contactTestBitMask = 0
     }
     

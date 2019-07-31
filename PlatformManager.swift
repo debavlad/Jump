@@ -28,7 +28,7 @@ class PlatformManager {
     }
     
     func instantiate() -> SKSpriteNode {
-        let platform = getNewPlatform()
+        let platform = getSpriteNode(type: .wood)
         let x = CGFloat.random(in: -width...width)
         let y = maxY + distance
         maxY = y
@@ -38,20 +38,33 @@ class PlatformManager {
         return platform
     }
     
-    private func getNewPlatform() -> SKSpriteNode {
-        let sample = SKSpriteNode(imageNamed: "platform")
+    private func getSpriteNode(type: PlatformType) -> SKSpriteNode {
+        var sample: SKSpriteNode!
+        
+        switch type {
+            case .wood:
+                sample = SKSpriteNode(imageNamed: "platform-1")
+                sample.physicsBody?.categoryBitMask = Categories.woodenPlatform
+            case .stone:
+                sample = SKSpriteNode(imageNamed: "platform-2")
+                sample.physicsBody?.categoryBitMask = Categories.stonePlatform
+        }
+        
         sample.texture?.filteringMode = .nearest
         sample.size = CGSize(width: 130, height: 50)
-        
         sample.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 125, height: 1), center: CGPoint(x: 0, y: 20))
         sample.physicsBody?.restitution = CGFloat(0.2)
         sample.physicsBody?.friction = 0
         sample.physicsBody?.linearDamping = 0
         sample.physicsBody?.angularDamping = 0
-        sample.physicsBody?.categoryBitMask = Categories.platformCategory
         sample.physicsBody?.contactTestBitMask = 0
         sample.physicsBody?.isDynamic = false
         
         return sample
+    }
+    
+    enum PlatformType {
+        case wood
+        case stone
     }
 }

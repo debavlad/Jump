@@ -9,6 +9,7 @@
 import Foundation
 
 class Categories {
-    static let characterCategory: UInt32 = 0x1 << 0
-    static let platformCategory: UInt32 = 0x1 << 1
+    static let character: UInt32 = 0x1 << 0
+    static let woodenPlatform: UInt32 = 0x1 << 1
+    static let stonePlatform: UInt32 = 0x1 << 2
 }
