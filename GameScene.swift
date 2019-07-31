@@ -13,9 +13,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var sky = SKSpriteNode()
     var platform = SKSpriteNode()
     var character = SKSpriteNode()
+    var line = SKSpriteNode()
+    var slider = SKSpriteNode()
     
+    var sliderIsTriggered = false
+    var characterLooksRight = true
+    
+    let cam = SKCameraNode()
     var jumpAnimation: SKAction!
     var pm: PlatformManager!
+    
+    var movement: CGFloat!
     
     override func didMove(to view: SKView) {
         self.physicsWorld.contactDelegate = self
@@ -24,7 +32,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         sky = childNode(withName: "sky") as! SKSpriteNode
         platform = childNode(withName: "platform") as! SKSpriteNode
         character = childNode(withName: "character") as! SKSpriteNode
+        line = childNode(withName: "line") as! SKSpriteNode
+        slider = childNode(withName: "slider") as! SKSpriteNode
         pm = PlatformManager(step: 1.5, maxY: platform.position.y)
+            
+        slider.position.x = character.position.x
+        movement = character.position.x
+        camera = cam
+        sky.removeFromParent()
+        slider.removeFromParent()
+        line.removeFromParent()
+        cam.addChild(sky)
+        cam.addChild(slider)
+        cam.addChild(line)
+//        cam.addChild(slider)
+//        cam.addChild(line)
+        addChild(cam)
         
         setPhysicsBodiesOptions()
         setFilteringMode()
@@ -35,7 +58,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if character.physicsBody!.velocity.dy < 0 {
             character.run(jumpAnimation)
             character.physicsBody?.velocity = CGVector()
-            character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 700))
+            character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 400))
         }
 //        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 //        if collision == characterCategory | platformCategory {
@@ -48,11 +71,56 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let platform = pm.instantiate()
             addChild(platform)
         }
+        
+//        if pm.canRemove(bottomCameraPosition: (cam.frame.minY) - 600) {
+//            pm.RemovePlatformsBeneath()
+//        }
+        
+        camera?.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)
+        character.position.x = movement
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch = touches.first!
+        let touchedNode = atPoint(touch.location(in: self))
+        
+        if touchedNode == slider {
+            sliderIsTriggered = true
+            slider.setScale(1.2)
+        }
+        
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if sliderIsTriggered {
+            let touchLocationX = touches.first!.location(in: self).x
+            let lineWidth = line.size.width / 2
+            
+            if touchLocationX > -lineWidth && touchLocationX < lineWidth {
+                slider.position.x = touchLocationX
+                movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
+                if character.position.x < slider.position.x {
+                    character.xScale = 2.5
+                } else {
+                    character.xScale = -2.5
+                }
+            }
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        sliderIsTriggered = false
+        slider.setScale(1)
+    }
+    
+    func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
+        return start + percent * (end - start)
     }
     
     // 
     
     func setPhysicsBodiesOptions() {
+        character.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 120), center: CGPoint(x: -4, y: -4))
         character.physicsBody?.usesPreciseCollisionDetection = true
         character.physicsBody?.collisionBitMask = 0
         character.physicsBody?.categoryBitMask = Categories.characterCategory
@@ -66,6 +134,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         sky.texture?.filteringMode = .nearest
         platform.texture?.filteringMode = .nearest
         character.texture?.filteringMode = .nearest
+        line.texture?.filteringMode = .nearest
+        slider.texture?.filteringMode = .nearest
     }
     
     func createJumpAnimation() {
@@ -75,6 +145,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             jumpTextures.append(SKTexture(imageNamed: "fjump\(i)"))
             jumpTextures[i-1].filteringMode = .nearest
         }
-        jumpAnimation = SKAction.animate(with: jumpTextures, timePerFrame: 0.15)
+        jumpAnimation = SKAction.animate(with: jumpTextures, timePerFrame: 0.12)
     }
 }
