@@ -10,14 +10,18 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    var sky, platform, character, line, slider: SKSpriteNode!
+    var sky, platform, character, line, slider, button, black: SKSpriteNode!
+    var pause, play: SKTexture!
     var cam: SKCameraNode!
+    var worldNode: SKNode!
     
     var platformManager: PlatformManager!
     var bgCloudManager, fgCloudManager: CloudManager!
     var sliderIsTriggered = false
     var jumpUpAnimation, jumpSideAnimation: SKAction!
     var movement: CGFloat!
+    
+    var sliderTouch: UITouch!
     
     override func didMove(to view: SKView) {
         self.physicsWorld.contactDelegate = self
@@ -28,7 +32,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         character = childNode(withName: "character") as? SKSpriteNode
         line = childNode(withName: "line") as? SKSpriteNode
         slider = childNode(withName: "slider") as? SKSpriteNode
+        button = childNode(withName: "pause") as? SKSpriteNode
+        black = childNode(withName: "black") as? SKSpriteNode
         cam = SKCameraNode()
+        
+        pause = SKTexture(imageNamed: "pause")
+        pause.filteringMode = .nearest
+        play = SKTexture(imageNamed: "continue")
+        play.filteringMode = .nearest
         
         platformManager = PlatformManager(150, platform.position.y, wOffset: -100, hOffset: 50)
         bgCloudManager = CloudManager(250, frame.minY, wOffset: 0, hOffset: 50)
@@ -36,6 +47,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         slider.position.x = character.position.x
         movement = character.position.x
         
+        createWorldNode()
         setCamera()
         setPhysicsBodiesOptions()
         setFilteringMode()
@@ -52,13 +64,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else {
                 character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 80))
             }
-        
         }
-        
-//        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-//        if collision == characterCategory | platformCategory {
-//            //print("Collision between platform and character!")
-//        }
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -80,43 +86,76 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first!
-        let touchedNode = atPoint(touch.location(in: self))
+        let node = atPoint(touch.location(in: self))
         
-        if touchedNode == slider {
+        if node == slider {
             sliderIsTriggered = true
+            sliderTouch = touch
             slider.setScale(1.3)
+        } else if node == button {
+            sliderIsTriggered = false
+            if button.texture == play {
+                button.texture = pause
+                worldNode.isPaused = false
+                physicsWorld.speed = 1
+                line.isHidden = false
+                slider.isHidden = false
+                black.alpha = 0
+            } else {
+                button.texture = play
+                worldNode.isPaused = true
+                physicsWorld.speed = 0
+                line.isHidden = true
+                slider.isHidden = true
+                black.alpha = 0.3
+            }
         }
     }
-    
+        
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if sliderIsTriggered {
-            let touchLocationX = touches.first!.location(in: self).x
-            let halfLine = line.size.width / 2
             
-            if touchLocationX > -halfLine && touchLocationX < halfLine {
-                slider.position.x = touchLocationX
-                movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
-                if character.position.x < slider.position.x {
-                    character.xScale = 2.5
-                } else {
-                    character.xScale = -2.5
+            if let st = sliderTouch {
+                let touchLocationX = st.location(in: self).x
+                let halfLine = line.size.width / 2
+                
+                if touchLocationX > -halfLine && touchLocationX < halfLine {
+                    slider.position.x = touchLocationX
+                    movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
+                    if character.position.x < slider.position.x {
+                        character.xScale = 2.5
+                    } else {
+                        character.xScale = -2.5
+                    }
                 }
             }
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        sliderIsTriggered = false
-        slider.setScale(1)
+        if let st = sliderTouch {
+            if touches.contains(st) {
+                sliderIsTriggered = false
+                slider.setScale(1)
+            }
+        }
     }
     
     //
+    
+    func createWorldNode() {
+        worldNode = SKNode()
+        character.move(toParent: worldNode)
+        addChild(worldNode)
+    }
     
     func setCamera() {
         camera = cam
         sky.move(toParent: cam)
         slider.move(toParent: cam)
         line.move(toParent: cam)
+        button.move(toParent: cam)
+        black.move(toParent: cam)
         addChild(cam)
     }
     
@@ -137,6 +176,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         character.texture?.filteringMode = .nearest
         line.texture?.filteringMode = .nearest
         slider.texture?.filteringMode = .nearest
+        button.texture?.filteringMode = .nearest
     }
     
     func createJumpAnimations() {
