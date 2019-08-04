@@ -65,15 +65,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     fileprivate func setAnimations() {
         var jumpUpTextures: [SKTexture] = []
         for i in 0...5 {
-            jumpUpTextures.append(SKTexture(imageNamed: "fjump\(i)"))
-            jumpUpTextures[i].filteringMode = .nearest
+            jumpUpTextures.append(SKTexture(imageNamed: "fjump\(i)").pixelate())
         }
         jumpUpAnimation = SKAction.animate(with: jumpUpTextures, timePerFrame: 0.12)
         
         var jumpSideTextures: [SKTexture] = []
         for i in 0...8 {
-            jumpSideTextures.append(SKTexture(imageNamed: "fjside\(i)"))
-            jumpSideTextures[i].filteringMode = .nearest
+            jumpSideTextures.append(SKTexture(imageNamed: "fjside\(i)").pixelate())
         }
         jumpSideAnimation = SKAction.animate(with: jumpSideTextures, timePerFrame: 0.11)
     }
@@ -91,8 +89,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         character.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
         character.physicsBody?.usesPreciseCollisionDetection = true
         character.physicsBody?.collisionBitMask = 0
+        character.physicsBody?.allowsRotation = false
         character.physicsBody?.categoryBitMask = Categories.character
-        character.physicsBody?.contactTestBitMask = Categories.woodenPlatform | Categories.stonePlatform
+        character.physicsBody?.contactTestBitMask = Categories.coin | Categories.woodenPlatform | Categories.stonePlatform
+        character.physicsBody?.friction = 0
+        character.physicsBody?.restitution = 0
+        character.physicsBody?.linearDamping = 0
+        character.physicsBody?.angularDamping = 0
         
         platform.physicsBody?.categoryBitMask = Categories.woodenPlatform
         platform.physicsBody?.contactTestBitMask = 0
@@ -102,12 +105,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         if character.physicsBody!.velocity.dy < 0 {
             character.run(jumpSideAnimation)
-            character.physicsBody?.velocity = CGVector()
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if collision == Categories.character | Categories.woodenPlatform {
+                character.physicsBody?.velocity = CGVector()
                 character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 70))
-            } else {
+            } else if collision == Categories.character | Categories.stonePlatform {
+                character.physicsBody?.velocity = CGVector()
                 character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 80))
+            } else if collision == Categories.character | Categories.coin {
+                print("Coin")
             }
         }
     }
@@ -117,15 +123,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         character.position.x = movement
         
         if platformManager.canCreate(playerPosition: character.position) {
-            addChild(platformManager.instantiate())
+            worldNode.addChild(platformManager.instantiate())
         }
-        
+
         if bgCloudManager.canCreate(playerPosition: character.position) {
-            addChild(bgCloudManager.getBackgroundCloud())
+            worldNode.addChild(bgCloudManager.getBackgroundCloud())
         }
-        
+
         if fgCloudManager.canCreate(playerPosition: character.position) {
-            addChild(fgCloudManager.getForegroundCloud())
+            worldNode.addChild(fgCloudManager.getForegroundCloud())
         }
     }
     

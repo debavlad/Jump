@@ -12,12 +12,14 @@ import SpriteKit
 class PlatformManager {
     var distance, maxY: CGFloat
     let width, height: CGFloat
+    let coinManager: CoinManager!
     
     var platforms = Set<SKSpriteNode>()
     
     init(_ distance: CGFloat, _ maxY: CGFloat, wOffset: CGFloat, hOffset: CGFloat) {
         self.distance = distance
         self.maxY = maxY
+        coinManager = CoinManager()
         
         width = UIScreen.main.bounds.width + wOffset
         height = UIScreen.main.bounds.height + hOffset
@@ -62,7 +64,17 @@ class PlatformManager {
                     .pixelate()
         }
         
+        if hasCoin(chance: 0.3) {
+            let coin = coinManager.getCoin()
+            platform.addChild(coin)
+        }
+        
         return platform
+    }
+    
+    private func hasCoin(chance: Double) -> Bool {
+        let random = Double.random(in: 0...1)
+        return random <= chance
     }
 }
 
