@@ -10,49 +10,94 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    var sky, platform, character, line, slider, button, black: SKSpriteNode!
-    var pause, play: SKTexture!
     var cam: SKCameraNode!
     var worldNode: SKNode!
+    var sky, platform, character, line, slider, button, black: SKSpriteNode!
+    var jumpUpAnimation, jumpSideAnimation: SKAction!
+    var pauseTexture, playTexture: SKTexture!
+    var sliderTouch: UITouch!
     
+    var movement: CGFloat!
     var platformManager: PlatformManager!
     var bgCloudManager, fgCloudManager: CloudManager!
     var sliderIsTriggered = false
-    var jumpUpAnimation, jumpSideAnimation: SKAction!
-    var movement: CGFloat!
-    
-    var sliderTouch: UITouch!
     
     override func didMove(to view: SKView) {
-        self.physicsWorld.contactDelegate = self
-        physicsWorld.gravity = CGVector(dx: 0, dy: -20)
+        setNodes()
+        setPhysics()
+        setAnimations()
+        setManagers()
+        setCamera()
+    }
+    
+    fileprivate func setNodes() {
+        sky = childNode(withName: "sky")?.pixelate()
+        platform = childNode(withName: "platform")?.pixelate()
+        character = childNode(withName: "character")?.pixelate()
+        line = childNode(withName: "line")?.pixelate()
+        slider = childNode(withName: "slider")?.pixelate()
+        button = childNode(withName: "pause")?.pixelate()
+        black = childNode(withName: "black")?.pixelate()
+        playTexture = SKTexture(imageNamed: "continue").pixelate()
+        pauseTexture = SKTexture(imageNamed: "pause").pixelate()
         
-        sky = childNode(withName: "sky") as? SKSpriteNode
-        platform = childNode(withName: "platform") as? SKSpriteNode
-        character = childNode(withName: "character") as? SKSpriteNode
-        line = childNode(withName: "line") as? SKSpriteNode
-        slider = childNode(withName: "slider") as? SKSpriteNode
-        button = childNode(withName: "pause") as? SKSpriteNode
-        black = childNode(withName: "black") as? SKSpriteNode
-        cam = SKCameraNode()
-        
-        pause = SKTexture(imageNamed: "pause")
-        pause.filteringMode = .nearest
-        play = SKTexture(imageNamed: "continue")
-        play.filteringMode = .nearest
-        
-        platformManager = PlatformManager(150, platform.position.y, wOffset: -100, hOffset: 50)
-        bgCloudManager = CloudManager(250, frame.minY, wOffset: 0, hOffset: 50)
-        fgCloudManager = CloudManager(1200, frame.minY, wOffset: 50, hOffset: 50)
         slider.position.x = character.position.x
         movement = character.position.x
         
-        createWorldNode()
-        setCamera()
-        setPhysicsBodiesOptions()
-        setFilteringMode()
-        createJumpAnimations()
+        worldNode = SKNode()
+        character.move(toParent: worldNode)
+        addChild(worldNode)
     }
+    
+    fileprivate func setCamera() {
+        cam = SKCameraNode()
+        camera = cam
+        
+        sky.move(toParent: cam)
+        slider.move(toParent: cam)
+        line.move(toParent: cam)
+        button.move(toParent: cam)
+        black.move(toParent: cam)
+        
+        addChild(cam)
+    }
+    
+    fileprivate func setAnimations() {
+        var jumpUpTextures: [SKTexture] = []
+        for i in 0...5 {
+            jumpUpTextures.append(SKTexture(imageNamed: "fjump\(i)"))
+            jumpUpTextures[i].filteringMode = .nearest
+        }
+        jumpUpAnimation = SKAction.animate(with: jumpUpTextures, timePerFrame: 0.12)
+        
+        var jumpSideTextures: [SKTexture] = []
+        for i in 0...8 {
+            jumpSideTextures.append(SKTexture(imageNamed: "fjside\(i)"))
+            jumpSideTextures[i].filteringMode = .nearest
+        }
+        jumpSideAnimation = SKAction.animate(with: jumpSideTextures, timePerFrame: 0.11)
+    }
+    
+    fileprivate func setManagers() {
+        platformManager = PlatformManager(150, platform.position.y, wOffset: -100, hOffset: 50)
+        bgCloudManager = CloudManager(250, frame.minY, wOffset: 0, hOffset: 50)
+        fgCloudManager = CloudManager(1200, frame.minY, wOffset: 50, hOffset: 50)
+    }
+    
+    fileprivate func setPhysics() {
+        physicsWorld.contactDelegate = self
+        physicsWorld.gravity = CGVector(dx: 0, dy: -20)
+        
+        character.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
+        character.physicsBody?.usesPreciseCollisionDetection = true
+        character.physicsBody?.collisionBitMask = 0
+        character.physicsBody?.categoryBitMask = Categories.character
+        character.physicsBody?.contactTestBitMask = Categories.woodenPlatform | Categories.stonePlatform
+        
+        platform.physicsBody?.categoryBitMask = Categories.woodenPlatform
+        platform.physicsBody?.contactTestBitMask = 0
+    }
+    
     
     func didBegin(_ contact: SKPhysicsContact) {
         if character.physicsBody!.velocity.dy < 0 {
@@ -94,15 +139,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             slider.setScale(1.3)
         } else if node == button {
             sliderIsTriggered = false
-            if button.texture == play {
-                button.texture = pause
+            if button.texture == playTexture {
+                button.texture = pauseTexture
                 worldNode.isPaused = false
                 physicsWorld.speed = 1
                 line.isHidden = false
                 slider.isHidden = false
                 black.alpha = 0
             } else {
-                button.texture = play
+                button.texture = playTexture
                 worldNode.isPaused = true
                 physicsWorld.speed = 0
                 line.isHidden = true
@@ -111,7 +156,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
-        
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if sliderIsTriggered {
             
@@ -143,61 +188,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //
     
-    func createWorldNode() {
-        worldNode = SKNode()
-        character.move(toParent: worldNode)
-        addChild(worldNode)
-    }
-    
-    func setCamera() {
-        camera = cam
-        sky.move(toParent: cam)
-        slider.move(toParent: cam)
-        line.move(toParent: cam)
-        button.move(toParent: cam)
-        black.move(toParent: cam)
-        addChild(cam)
-    }
-    
-    func setPhysicsBodiesOptions() {
-        character.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
-        character.physicsBody?.usesPreciseCollisionDetection = true
-        character.physicsBody?.collisionBitMask = 0
-        character.physicsBody?.categoryBitMask = Categories.character
-        character.physicsBody?.contactTestBitMask = Categories.woodenPlatform | Categories.stonePlatform
-        
-        platform.physicsBody?.categoryBitMask = Categories.woodenPlatform
-        platform.physicsBody?.contactTestBitMask = 0
-    }
-    
-    func setFilteringMode() {
-        sky.texture?.filteringMode = .nearest
-        platform.texture?.filteringMode = .nearest
-        character.texture?.filteringMode = .nearest
-        line.texture?.filteringMode = .nearest
-        slider.texture?.filteringMode = .nearest
-        button.texture?.filteringMode = .nearest
-    }
-    
-    func createJumpAnimations() {
-        var jumpUpTextures: [SKTexture] = []
-        for i in 1...6 {
-            jumpUpTextures.append(SKTexture(imageNamed: "fjump\(i)"))
-            jumpUpTextures[i-1].filteringMode = .nearest
-        }
-        jumpUpAnimation = SKAction.animate(with: jumpUpTextures, timePerFrame: 0.12)
-        
-        //
-        
-        var jumpSideTextures: [SKTexture] = []
-        for i in 1...9 {
-            jumpSideTextures.append(SKTexture(imageNamed: "fjside\(i)"))
-            jumpSideTextures[i-1].filteringMode = .nearest
-        }
-        jumpSideAnimation = SKAction.animate(with: jumpSideTextures, timePerFrame: 0.11)
-    }
-    
     func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
         return start + percent * (end - start)
+    }
+}
+
+extension SKNode {
+    func pixelate() -> SKSpriteNode {
+        let node = self as! SKSpriteNode
+        node.texture?.filteringMode = .nearest
+        return node
+    }
+}
+
+extension SKTexture {
+    func pixelate() -> SKTexture {
+        self.filteringMode = .nearest
+        return self
     }
 }
