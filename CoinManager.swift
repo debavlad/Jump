@@ -34,6 +34,7 @@ class CoinManager {
 
 extension SKSpriteNode {
     func setCoinSettings() -> SKSpriteNode {
+        name = "coin"
         size = CGSize(width: 60, height: 66)
         position = CGPoint(x: -2, y: 70)
         physicsBody = SKPhysicsBody(circleOfRadius: size.width/4)

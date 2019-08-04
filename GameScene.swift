@@ -41,6 +41,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         playTexture = SKTexture(imageNamed: "continue").pixelate()
         pauseTexture = SKTexture(imageNamed: "pause").pixelate()
         
+        
         slider.position.x = character.position.x
         movement = character.position.x
         
@@ -113,7 +114,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 character.physicsBody?.velocity = CGVector()
                 character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 80))
             } else if collision == Categories.character | Categories.coin {
-                print("Coin")
+                let platform = contact.bodyA.node?.name == "coin" ? contact.bodyA.node?.parent : contact.bodyB.node?.parent
+                let explosion = SKEmitterNode(fileNamed: "Explosion")!
+                explosion.targetNode = platform
+                explosion.zPosition = 13
+                explosion.position = CGPoint(x: 0, y: 70)
+                print(explosion.position)
+                platform!.addChild(explosion)
+                platform?.children[0].removeFromParent()
             }
         }
     }
