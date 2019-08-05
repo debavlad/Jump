@@ -37,9 +37,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if character.physicsBody!.velocity.dy < 0 {
+            let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
             if collision == Collisions.characterAndWood {
+                let dust = SKEmitterNode(fileNamed: "DustParticles")!
+                dust.name = String()
+                platform.addChild(dust)
                 pushCharacter(power: 70)
             } else if collision == Collisions.characterAndStone {
+                let dust = SKEmitterNode(fileNamed: "DustParticles")!
+                dust.name = String()
+                platform.addChild(dust)
                 pushCharacter(power: 80)
             }
             
