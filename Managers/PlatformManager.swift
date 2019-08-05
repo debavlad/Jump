@@ -40,7 +40,7 @@ class PlatformManager {
         }
         platform.name = "platform"
         
-        if hasItem(chance: 0.2) {
+        if hasItem(chance: 0.3) {
             let coin = coins.instantiate(type: CoinType.dirt)
             platform.addChild(coin)
         } else {

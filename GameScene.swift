@@ -13,7 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var cam: SKCameraNode!
     var worldNode: SKNode!
     var sky, platform, character, line, slider, button, black: SKSpriteNode!
-    var jumpUpAnimation, jumpSideAnimation, scaleUpAnimation, scaleDownAnimation: SKAction!
+    var jumpUpAnimation, jumpSideAnimation, scaleUpAnimation, scaleDownAnimation, moveUpAnimation: SKAction!
     var pauseTexture, playTexture: SKTexture!
     var sliderTouch: UITouch!
     
@@ -61,6 +61,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         }
                         let particles = getParticles(type: type, targetNode: platform)
                         platform.addChild(particles)
+                        
+                        let label = getLabel(text: "+1")
+                        
+                        platform.addChild(label)
+                        label.run(moveUpAnimation)
+                        
                         coin.removeFromParent()
                     }
                 }
@@ -199,6 +205,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         scaleUpAnimation = SKAction.scale(to: 1.3, duration: 0.1)
         scaleDownAnimation = SKAction.scale(to: 1, duration: 0.1)
+        
+        let moveUp = SKAction.move(to: CGPoint(x: 70, y: 140), duration: 0.5)
+        let dissapear = SKAction.fadeAlpha(to: 0, duration: 0.5)
+        moveUpAnimation = SKAction.group([moveUp, dissapear])
     }
     
     fileprivate func setManagers() {
@@ -250,6 +260,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         particles.position = CGPoint(x: 0, y: 70)
         
         return particles
+    }
+    
+    fileprivate func getLabel(text: String) -> SKLabelNode {
+        let label = SKLabelNode(text: text)
+        label.fontName = "DisposableDroidBB"
+        label.name = String()
+        label.fontColor = UIColor.darkGray
+        label.position = CGPoint(x: 70, y: 70)
+        label.fontSize = 64
+        return label
     }
 }
 
