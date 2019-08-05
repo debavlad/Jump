@@ -273,7 +273,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let label = SKLabelNode(text: text)
         label.fontName = "DisposableDroidBB"
         label.name = String()
-        label.fontColor = UIColor.darkGray
+        label.fontColor = UIColor.gray
         label.position = CGPoint(x: 70, y: 70)
         label.fontSize = 64
         return label
