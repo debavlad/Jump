@@ -13,7 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var cam: SKCameraNode!
     var worldNode: SKNode!
     var sky, platform, character, line, slider, button, black: SKSpriteNode!
-    var jumpUpAnimation, jumpSideAnimation: SKAction!
+    var jumpUpAnimation, jumpSideAnimation, scaleUpAnimation, scaleDownAnimation: SKAction!
     var pauseTexture, playTexture: SKTexture!
     var sliderTouch: UITouch!
     
@@ -60,6 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     override func update(_ currentTime: TimeInterval) {
         camera!.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)
+        movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
         character.position.x = movement
         
         if manager.bgClouds.canCreate(playerY: character.position.y) {
@@ -85,7 +86,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if node == slider {
             sliderIsTriggered = true
             sliderTouch = touch
-            slider.setScale(1.3)
+            slider.run(scaleUpAnimation)
         } else if node == button {
             sliderIsTriggered = false
             if button.texture == playTexture {
@@ -115,7 +116,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if touchLocationX > -halfLine && touchLocationX < halfLine {
                     slider.position.x = touchLocationX
-                    movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
                     if character.position.x < slider.position.x {
                         character.xScale = 2.5
                     } else {
@@ -130,7 +130,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let st = sliderTouch {
             if touches.contains(st) {
                 sliderIsTriggered = false
-                slider.setScale(1)
+                slider.run(scaleDownAnimation)
             }
         }
     }
@@ -186,6 +186,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             jumpSideTextures.append(SKTexture(imageNamed: "fjside\(i)").pixelate())
         }
         jumpSideAnimation = SKAction.animate(with: jumpSideTextures, timePerFrame: 0.11)
+        
+        scaleUpAnimation = SKAction.scale(to: 1.3, duration: 0.1)
+        scaleDownAnimation = SKAction.scale(to: 1, duration: 0.1)
     }
     
     fileprivate func setManagers() {
