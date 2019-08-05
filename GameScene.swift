@@ -108,27 +108,56 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func didBegin(_ contact: SKPhysicsContact) {
+        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+        if collision == Categories.character | Categories.coin {
+            let coin = contact.bodyA.node?.name == "coin" ? contact.bodyA.node : contact.bodyB.node
+            coin?.userData?.setValue(true, forKey: "isPickedUp")
+        }
+        
         if character.physicsBody!.velocity.dy < 0 {
-            character.run(jumpSideAnimation)
-            let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if collision == Categories.character | Categories.woodenPlatform {
+                character.run(jumpSideAnimation)
                 character.physicsBody?.velocity = CGVector()
                 character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 70))
-            } else if collision == Categories.character | Categories.stonePlatform {
-                character.physicsBody?.velocity = CGVector()
-                character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 80))
-            } else if collision == Categories.character | Categories.coin {
-                let platform = contact.bodyA.node?.name == "coin" ? contact.bodyA.node?.parent : contact.bodyB.node?.parent
-                let explosion = SKEmitterNode(fileNamed: "Explosion")!
-                explosion.targetNode = platform
-                explosion.zPosition = 13
-                explosion.position = CGPoint(x: 0, y: 70)
-                print(explosion.position)
-                platform!.addChild(explosion)
-                platform?.children[0].removeFromParent()
+                
+                let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
+                guard let coin = platform.children.first(where: { (n) -> Bool in
+                    return n.name == "coin"
+                }) else { return }
+                if coin.userData?.value(forKey: "isPickedUp") as! Bool == true {
+                    let explosion = SKEmitterNode(fileNamed: "Explosion")!
+                    explosion.targetNode = platform
+                    explosion.zPosition = 13
+                    explosion.position = CGPoint(x: 0, y: 70)
+                    
+                    platform.addChild(explosion)
+                    platform.children[0].removeFromParent()
+                }
             }
+            
         }
     }
+//        if character.physicsBody!.velocity.dy < 0 {
+//            character.run(jumpSideAnimation)
+//            let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+//            if collision == Categories.character | Categories.woodenPlatform {
+//                character.physicsBody?.velocity = CGVector()
+//                character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 70))
+//            } else if collision == Categories.character | Categories.stonePlatform {
+//                character.physicsBody?.velocity = CGVector()
+//                character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 80))
+//            } else if collision == Categories.character | Categories.coin {
+//                let platform = contact.bodyA.node?.name == "coin" ? contact.bodyA.node?.parent : contact.bodyB.node?.parent
+//                let explosion = SKEmitterNode(fileNamed: "Explosion")!
+//                explosion.targetNode = platform
+//                explosion.zPosition = 13
+//                explosion.position = CGPoint(x: 0, y: 70)
+//
+//                platform!.addChild(explosion)
+//                platform?.children[0].removeFromParent()
+//            }
+//        }
+
     
     override func update(_ currentTime: TimeInterval) {
         camera!.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)

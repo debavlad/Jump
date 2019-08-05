@@ -11,18 +11,18 @@ import SpriteKit
 
 class PlatformManager {
     var distance, lastY: CGFloat
-//    let coinManager: CoinManager!
-    
+
     private let width, height: CGFloat
+    private let coins: CoinManager!
     private var collection = Set<SKSpriteNode>()
     
     init(_ distance: CGFloat, _ lastY: CGFloat) {
         self.distance = distance
         self.lastY = lastY
-//        coinManager = CoinManager()
         
         width = UIScreen.main.bounds.width - 100
         height = UIScreen.main.bounds.height + 50
+        coins = CoinManager()
     }
     
     func canCreate(playerY: CGFloat) -> Bool {
@@ -32,11 +32,17 @@ class PlatformManager {
     func instantiate() -> SKSpriteNode {
         let platform: SKSpriteNode!
         
-        let isWooden = Bool.random()
-        if isWooden {
-            platform = getPlatform(type: .wood)
-        } else {
-            platform = getPlatform(type: .stone)
+        //        let isWooden = Bool.random()
+        //        if isWooden {
+        platform = getPlatform(type: .wood)
+        //        } else {
+        //            platform = getPlatform(type: .stone)
+        //        }
+        platform.name = "platform"
+        
+        if hasItem(chance: 0.3) {
+            let coin = coins.instantiate()
+            platform.addChild(coin)
         }
         
         // TO-DO: random platform distance
@@ -73,10 +79,10 @@ class PlatformManager {
         return platform
     }
     
-//    private func hasCoin(chance: Double) -> Bool {
-//        let random = Double.random(in: 0...1)
-//        return random <= chance
-//    }
+    private func hasItem(chance: Double) -> Bool {
+        let random = Double.random(in: 0...1)
+        return random <= chance
+    }
 }
 
 enum PlatformType {

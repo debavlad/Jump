@@ -10,22 +10,24 @@ import Foundation
 import SpriteKit
 
 class CoinManager {
-    var coins = Set<SKSpriteNode>()
-    let coinAnimation: SKAction!
+    var collection = Set<SKSpriteNode>()
+    let animation: SKAction!
     
     init() {
-        var coinTextures: [SKTexture] = []
+        var textures: [SKTexture] = []
         for i in 0...7 {
-            coinTextures.append(SKTexture(imageNamed: "coin\(i)").pixelate())
+            textures.append(SKTexture(imageNamed: "coin\(i)").pixelate())
         }
-        coinAnimation = SKAction.animate(with: coinTextures, timePerFrame: 0.1)
+        animation = SKAction.animate(with: textures, timePerFrame: 0.1)
     }
     
-    func getCoin() -> SKSpriteNode {
-        let coin = SKSpriteNode(imageNamed: "coin")
+    func instantiate() -> SKSpriteNode {
+        let coin = SKSpriteNode(imageNamed: "coin0")
             .setCoinSettings()
             .pixelate()
-        coin.run(SKAction.repeatForever(coinAnimation))
+        coin.userData = NSMutableDictionary(capacity: 1)
+        coin.userData?.setValue(false, forKey: "isPickedUp")
+        coin.run(SKAction.repeatForever(animation))
         return coin
     }
     
