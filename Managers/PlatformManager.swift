@@ -32,12 +32,12 @@ class PlatformManager {
     func instantiate() -> SKSpriteNode {
         let platform: SKSpriteNode!
         
-        //        let isWooden = Bool.random()
-        //        if isWooden {
-        platform = getPlatform(type: .wood)
-        //        } else {
-        //            platform = getPlatform(type: .stone)
-        //        }
+        let isWooden = Bool.random()
+        if isWooden {
+            platform = getPlatform(type: .wood)
+        } else {
+            platform = getPlatform(type: .stone)
+        }
         platform.name = "platform"
         
         if hasItem(chance: 0.3) {
