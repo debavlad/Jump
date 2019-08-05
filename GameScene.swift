@@ -18,8 +18,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var sliderTouch: UITouch!
     
     var movement: CGFloat!
-    var platformManager: PlatformManager!
-    var bgCloudManager, fgCloudManager: CloudManager!
+//    var platformManager: PlatformManager!
+//    var bgCloudManager, fgCloudManager: CloudManager!
+    var manager: Manager!
     var sliderIsTriggered = false
     
     override func didMove(to view: SKView) {
@@ -78,9 +79,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     fileprivate func setManagers() {
-        platformManager = PlatformManager(150, platform.position.y, wOffset: -100, hOffset: 50)
-        bgCloudManager = CloudManager(250, frame.minY, wOffset: 0, hOffset: 50)
-        fgCloudManager = CloudManager(1200, frame.minY, wOffset: 50, hOffset: 50)
+        // TO-DO: change hardcoded frameMinY value
+        manager = Manager(startY: platform.position.y, frameMinY: -900)
+        
+//        platformManager = PlatformManager(150, platform.position.y)
+//        bgCloudManager = CloudManager(250, frame.minY)
+//        fgCloudManager = CloudManager(1200, frame.minY)
     }
     
     fileprivate func setPhysics() {
@@ -130,16 +134,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         camera!.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)
         character.position.x = movement
         
-        if platformManager.canCreate(playerPosition: character.position) {
-            worldNode.addChild(platformManager.instantiate())
+        if manager.bgClouds.canCreate(playerY: character.position.y) {
+            let cloud = manager.bgClouds.instantiate()
+            worldNode.addChild(cloud)
         }
-
-        if bgCloudManager.canCreate(playerPosition: character.position) {
-            worldNode.addChild(bgCloudManager.getBackgroundCloud())
+        
+        if manager.fgClouds.canCreate(playerY: character.position.y) {
+            let cloud = manager.fgClouds.instantiate()
+            worldNode.addChild(cloud)
         }
-
-        if fgCloudManager.canCreate(playerPosition: character.position) {
-            worldNode.addChild(fgCloudManager.getForegroundCloud())
+        
+        if manager.platforms.canCreate(playerY: character.position.y) {
+            let platform = manager.platforms.instantiate()
+            worldNode.addChild(platform)
         }
     }
     

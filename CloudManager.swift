@@ -10,61 +10,58 @@ import Foundation
 import SpriteKit
 
 class CloudManager {
-    var distance, maxY: CGFloat
-    let width, height: CGFloat
+    var distance, lastY: CGFloat
     
-    var clouds = Set<SKSpriteNode>()
+    private let width, height: CGFloat
+    private var collection = Set<SKSpriteNode>()
     
-    init(_ distance: CGFloat, _ maxY: CGFloat, wOffset: CGFloat, hOffset: CGFloat) {
+    init(_ distance: CGFloat, _ lastY: CGFloat) {
         self.distance = distance
-        self.maxY = maxY
+        self.lastY = lastY
         
-        width = UIScreen.main.bounds.width + wOffset
-        height = UIScreen.main.bounds.height + hOffset
+        width = UIScreen.main.bounds.width + 0
+        height = UIScreen.main.bounds.height + 50
     }
     
-    func canCreate(playerPosition: CGPoint) -> Bool {
-        return maxY + distance < playerPosition.y + height
+    func canCreate(playerY: CGFloat) -> Bool {
+        return lastY + distance < playerY + height
     }
     
-    func getBackgroundCloud() -> SKSpriteNode {
-        let bgCloud = getCloud(zPos: -5, scale: 12, alpha: 1)
+    func instantiate() -> SKSpriteNode {
+        let cloud: SKSpriteNode!
+        // TO-DO: random clouds scales
+        if isBackground() {
+            cloud = getCloud(zPos: -5, scale: 12, alpha: 1)
+        } else {
+            cloud = getCloud(zPos: 15, scale: 24, alpha: 0.5)
+        }
         
         let x = CGFloat.random(in: -width...width)
-        let y = maxY + distance
-        bgCloud.position = CGPoint(x: x, y: y)
-        maxY = y
+        let y = lastY + distance
+        cloud.position = CGPoint(x: x, y: y)
+        lastY = y
         
-        clouds.insert(bgCloud)
-        return bgCloud
-        
+        collection.insert(cloud)
+        return cloud
     }
     
-    func getForegroundCloud() -> SKSpriteNode {
-        let fgCloud = getCloud(zPos: 15, scale: 24, alpha: 0.5)
-        
-        let x = CGFloat.random(in: -width...width)
-        let y = maxY + distance
-        fgCloud.position = CGPoint(x: x, y: y)
-        maxY = y
-        
-        clouds.insert(fgCloud)
-        return fgCloud
+    private func isBackground() -> Bool {
+        return distance <= 500
     }
     
-    func getCloud(zPos: CGFloat, scale: CGFloat, alpha: CGFloat ) -> SKSpriteNode {
-        let random = Int.random(in: 0...3)
-        let imageName = "cloud-\(random)"
-        let newCloud = SKSpriteNode(imageNamed: imageName).pixelate()
+    private func getCloud(zPos: CGFloat, scale: CGFloat, alpha: CGFloat ) -> SKSpriteNode {
+        let index = Int.random(in: 0...3)
+        let imageName = "cloud-\(index)"
+        let cloud = SKSpriteNode(imageNamed: imageName).pixelate()
         
-        newCloud.zPosition = zPos
-        newCloud.setScale(scale)
-        newCloud.alpha = alpha
+        cloud.zPosition = zPos
+        cloud.setScale(scale)
+        cloud.alpha = alpha
         
         let isMirrored = Bool.random()
         if isMirrored {
-            newCloud.xScale = -scale
+            cloud.xScale = -scale
         }
-        return newCloud
+        return cloud
     }
 }

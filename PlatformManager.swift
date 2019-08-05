@@ -10,23 +10,23 @@ import Foundation
 import SpriteKit
 
 class PlatformManager {
-    var distance, maxY: CGFloat
-    let width, height: CGFloat
-    let coinManager: CoinManager!
+    var distance, lastY: CGFloat
+//    let coinManager: CoinManager!
     
-    var platforms = Set<SKSpriteNode>()
+    private let width, height: CGFloat
+    private var collection = Set<SKSpriteNode>()
     
-    init(_ distance: CGFloat, _ maxY: CGFloat, wOffset: CGFloat, hOffset: CGFloat) {
+    init(_ distance: CGFloat, _ lastY: CGFloat) {
         self.distance = distance
-        self.maxY = maxY
-        coinManager = CoinManager()
+        self.lastY = lastY
+//        coinManager = CoinManager()
         
-        width = UIScreen.main.bounds.width + wOffset
-        height = UIScreen.main.bounds.height + hOffset
+        width = UIScreen.main.bounds.width - 100
+        height = UIScreen.main.bounds.height + 50
     }
     
-    func canCreate(playerPosition: CGPoint) -> Bool {
-        return maxY + distance < playerPosition.y + height
+    func canCreate(playerY: CGFloat) -> Bool {
+        return lastY + distance < playerY + height
     }
     
     func instantiate() -> SKSpriteNode {
@@ -39,12 +39,13 @@ class PlatformManager {
             platform = getPlatform(type: .stone)
         }
         
+        // TO-DO: random platform distance
         let x = CGFloat.random(in: -width...width)
-        let y = maxY + distance
+        let y = lastY + distance
         platform.position = CGPoint(x: x, y: y)
-        maxY = y
+        lastY = y
         
-        platforms.insert(platform)
+        collection.insert(platform)
         return platform
     }
     
@@ -64,18 +65,18 @@ class PlatformManager {
                     .pixelate()
         }
         
-        if hasCoin(chance: 0.3) {
-            let coin = coinManager.getCoin()
-            platform.addChild(coin)
-        }
+//        if hasCoin(chance: 0.3) {
+//            let coin = coinManager.getCoin()
+//            platform.addChild(coin)
+//        }
         
         return platform
     }
     
-    private func hasCoin(chance: Double) -> Bool {
-        let random = Double.random(in: 0...1)
-        return random <= chance
-    }
+//    private func hasCoin(chance: Double) -> Bool {
+//        let random = Double.random(in: 0...1)
+//        return random <= chance
+//    }
 }
 
 enum PlatformType {
