@@ -45,14 +45,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
                 let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
-                guard let coin = platform.children.first(where: { (n) -> Bool in
-                    return n.name == "coin"
-                }) else { return }
-                
-                if coin.userData?.value(forKey: "isPickedUp") as! Bool == true {
-                    let particles = getParticles(targetNode: platform)
-                    platform.addChild(particles)
-                    coin.removeFromParent()
+                if platform.children.count > 0 {
+                    guard let coin = platform.children.first(where: { (n) -> Bool in
+                        return n.name!.contains("coin")
+                    }) else { return }
+                    
+                    if coin.userData?.value(forKey: "isPickedUp") as! Bool == true {
+                        let type: CoinType!
+                        if coin.name!.contains("dirt") {
+                            type = CoinType.dirt
+                        } else if coin.name!.contains("bronze") {
+                            type = CoinType.bronze
+                        } else {
+                            type = CoinType.golden
+                        }
+                        let particles = getParticles(type: type, targetNode: platform)
+                        platform.addChild(particles)
+                        coin.removeFromParent()
+                    }
                 }
             }
         }
@@ -223,8 +233,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: power))
     }
     
-    fileprivate func getParticles(targetNode: SKNode) -> SKEmitterNode {
-        let particles = SKEmitterNode(fileNamed: "Explosion")!
+    fileprivate func getParticles(type: CoinType, targetNode: SKNode) -> SKEmitterNode {
+        let particles: SKEmitterNode!
+        
+        switch (type) {
+        case .dirt:
+            particles = SKEmitterNode(fileNamed: "DirtParticles")!
+        case .bronze:
+            particles = SKEmitterNode(fileNamed: "BronzeParticles")!
+        case .golden:
+            particles = SKEmitterNode(fileNamed: "GoldenParticles")!
+        }
+        
+        particles.name = String()
         particles.targetNode = targetNode
         particles.position = CGPoint(x: 0, y: 70)
         

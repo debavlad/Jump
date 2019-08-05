@@ -11,32 +11,63 @@ import SpriteKit
 
 class CoinManager {
     var collection = Set<SKSpriteNode>()
-    let animation: SKAction!
+    let dirtAnimation, bronzeAnimation, goldenAnimation: SKAction!
     
     init() {
-        var textures: [SKTexture] = []
+        var dirtTextures: [SKTexture] = []
+        var goldenTextures: [SKTexture] = []
+        var bronzeTextures: [SKTexture] = []
+        
         for i in 0...7 {
-            textures.append(SKTexture(imageNamed: "coin\(i)").pixelate())
+            dirtTextures.append(SKTexture(imageNamed: "dirt\(i)").pixelate())
+            bronzeTextures.append(SKTexture(imageNamed: "bronze\(i)").pixelate())
+            goldenTextures.append(SKTexture(imageNamed: "golden\(i)").pixelate())
         }
-        animation = SKAction.animate(with: textures, timePerFrame: 0.1)
+        dirtAnimation = SKAction.animate(with: dirtTextures, timePerFrame: 0.1)
+        bronzeAnimation = SKAction.animate(with: bronzeTextures, timePerFrame: 0.1)
+        goldenAnimation = SKAction.animate(with: goldenTextures, timePerFrame: 0.1)
     }
     
-    func instantiate() -> SKSpriteNode {
-        let coin = SKSpriteNode(imageNamed: "coin0")
-            .setCoinSettings()
-            .pixelate()
-        coin.userData = NSMutableDictionary(capacity: 1)
+    func instantiate(type: CoinType) -> SKSpriteNode {
+        let coin: SKSpriteNode!
+        
+        switch (type) {
+        case .dirt:
+            coin = SKSpriteNode(imageNamed: "dirt0")
+                .setCoinSettings()
+                .pixelate()
+            coin.name = "dirtcoin"
+            coin.run(SKAction.repeatForever(dirtAnimation))
+        case .bronze:
+            coin = SKSpriteNode(imageNamed: "bronze0")
+                .setCoinSettings()
+                .pixelate()
+            coin.name = "bronzecoin"
+            coin.run(SKAction.repeatForever(bronzeAnimation))
+        case .golden:
+            coin = SKSpriteNode(imageNamed: "golden0")
+                .setCoinSettings()
+                .pixelate()
+            coin.name = "goldencoin"
+            coin.run(SKAction.repeatForever(goldenAnimation))
+        }
+        
+        coin.userData = NSMutableDictionary(capacity: 2)
         coin.userData?.setValue(false, forKey: "isPickedUp")
-        coin.run(SKAction.repeatForever(animation))
         return coin
     }
     
     
 }
 
+enum CoinType {
+    case dirt
+    case bronze
+    case golden
+}
+
 extension SKSpriteNode {
     func setCoinSettings() -> SKSpriteNode {
-        name = "coin"
         size = CGSize(width: 60, height: 66)
         position = CGPoint(x: -2, y: 70)
         physicsBody = SKPhysicsBody(circleOfRadius: size.width/2)

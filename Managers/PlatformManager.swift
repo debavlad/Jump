@@ -40,10 +40,21 @@ class PlatformManager {
         }
         platform.name = "platform"
         
-        if hasItem(chance: 0.3) {
-            let coin = coins.instantiate()
+        if hasItem(chance: 0.2) {
+            let coin = coins.instantiate(type: CoinType.dirt)
             platform.addChild(coin)
+        } else {
+            if hasItem(chance: 0.2) {
+                let coin = coins.instantiate(type: CoinType.bronze)
+                platform.addChild(coin)
+            } else {
+                if hasItem(chance: 0.1) {
+                    let coin = coins.instantiate(type: CoinType.golden)
+                    platform.addChild(coin)
+                }
+            }
         }
+        
         
         // TO-DO: random platform distance
         let x = CGFloat.random(in: -width...width)
@@ -70,11 +81,6 @@ class PlatformManager {
                     .setStoneProperties()
                     .pixelate()
         }
-        
-//        if hasCoin(chance: 0.3) {
-//            let coin = coinManager.getCoin()
-//            platform.addChild(coin)
-//        }
         
         return platform
     }
