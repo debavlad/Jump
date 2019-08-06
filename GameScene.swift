@@ -21,6 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var manager: Manager!
     var sliderIsTriggered = false, gameIsPaused = false
     
+    
     override func didMove(to view: SKView) {
         setNodes()
         setPhysics()
@@ -30,200 +31,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager = Manager(startY: platform.position.y, frameMinY: -900)
         
         setCamera()
-    }
-    
-    func didBegin(_ contact: SKPhysicsContact) {
-        // If character touched a coin somehow
-        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-        if collision == Collisions.characterAndCoin {
-            let coin = contact.bodyA.node?.name == "coin" ? contact.bodyA.node : contact.bodyB.node
-            coin?.userData?.setValue(true, forKey: "wasTouched")
-        }
-        
-        // If character jumped on a platform
-        if character.physicsBody!.velocity.dy < 0 {
-            let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
-            
-            if collision == Collisions.characterAndWood {
-                let dust = getParticles(type: .dust, targetNode: nil)
-                platform.addChild(dust)
-                pushCharacter(power: 70)
-            } else if collision == Collisions.characterAndStone {
-                let dust = getParticles(type: .dust, targetNode: nil)
-                platform.addChild(dust)
-                pushCharacter(power: 80)
-            }
-            
-            // Picking up the coin
-            if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
-                if platform.children.count > 0 {
-                    guard let coin = platform.children.first(where: { (n) -> Bool in
-                        return n.name!.contains("coin")
-                    }) else { return }
-                    
-                    pickCoinUp(coin: coin, platform: platform)
-                }
-            }
-        }
-    }
-    
-    fileprivate func pickCoinUp(coin: SKNode, platform: SKNode) {
-        let wasTouched = coin.userData?.value(forKey: "wasTouched") as! Bool
-        
-        if wasTouched {
-            let particles: SKEmitterNode!
-            
-            if coin.name!.contains("dirt") {
-                particles = getParticles(type: .dirt, targetNode: platform)
-            } else if coin.name!.contains("bronze") {
-                particles = getParticles(type: .bronze, targetNode: platform)
-            } else {
-                particles = getParticles(type: .gold, targetNode: platform)
-            }
-            platform.addChild(particles)
-            
-            let label = getLabel(text: "+1")
-            platform.addChild(label)
-            label.run(moveUpAnimation)
-            
-            coin.removeFromParent()
-        }
-    }
-
-    override func update(_ currentTime: TimeInterval) {
-        // Setting camera and player positions
-        camera!.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)
-        movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
-        character.position.x = movement
-        
-        // Creating clouds and platforms
-        if manager.bgClouds.canCreate(playerY: character.position.y) {
-            let cloud = manager.bgClouds.instantiate()
-            worldNode.addChild(cloud)
-        }
-        
-        if manager.fgClouds.canCreate(playerY: character.position.y) {
-            let cloud = manager.fgClouds.instantiate()
-            worldNode.addChild(cloud)
-        }
-        
-        if manager.platforms.canCreate(playerY: character.position.y) {
-            let platform = manager.platforms.instantiate()
-            worldNode.addChild(platform)
-        }
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch = touches.first!
-        let node = atPoint(touch.location(in: self))
-        
-        switch node {
-        case slider:
-            sliderIsTriggered = true
-            sliderTouch = touch
-            slider.run(scaleUpAnimation)
-        case button:
-            sliderIsTriggered = false
-            if gameIsPaused {
-                setGameState(isPaused: false)
-            } else {
-                setGameState(isPaused: true)
-            }
-        default:
-            return
-        }
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if sliderIsTriggered {
-            if let st = sliderTouch {
-                let touchLocationX = st.location(in: self).x
-                let halfLine = line.size.width / 2
-                
-                if touchLocationX > -halfLine && touchLocationX < halfLine {
-                    slider.position.x = touchLocationX
-                    if character.position.x < slider.position.x {
-                        character.xScale = 2.5
-                    } else {
-                        character.xScale = -2.5
-                    }
-                }
-            }
-        }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let st = sliderTouch {
-            if touches.contains(st) {
-                sliderIsTriggered = false
-                slider.run(scaleDownAnimation)
-            }
-        }
-    }
-    
-    //
-    
-    func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
-        return start + percent * (end - start)
-    }
-    
-    fileprivate func setGameState(isPaused: Bool) {
-        if isPaused {
-            button.texture = playTexture
-            worldNode.isPaused = true
-            gameIsPaused = true
-            physicsWorld.speed = 0
-            line.isHidden = true
-            slider.isHidden = true
-            black.alpha = 0.3
-        } else {
-            button.texture = pauseTexture
-            worldNode.isPaused = false
-            gameIsPaused = false
-            physicsWorld.speed = 1
-            line.isHidden = false
-            slider.isHidden = false
-            black.alpha = 0
-        }
-    }
-    
-    fileprivate func getParticles(type: ParticlesType, targetNode: SKNode?) -> SKEmitterNode {
-        let particles: SKEmitterNode!
-        
-        switch (type) {
-        case .dust:
-            particles = SKEmitterNode(fileNamed: "DustParticles")
-        case .dirt:
-            particles = SKEmitterNode(fileNamed: "DirtParticles")!
-        case .bronze:
-            particles = SKEmitterNode(fileNamed: "BronzeParticles")!
-        case .gold:
-            particles = SKEmitterNode(fileNamed: "GoldenParticles")!
-        }
-        
-        particles.name = String()
-        if type != .dust {
-            particles.targetNode = targetNode
-            particles.position = CGPoint(x: 0, y: 70)
-        }
-        
-        return particles
-    }
-    
-    fileprivate func getLabel(text: String) -> SKLabelNode {
-        let label = SKLabelNode(text: text)
-        label.fontName = "DisposableDroidBB"
-        label.name = String()
-        label.fontColor = UIColor.gray
-        label.position = CGPoint(x: 70, y: 70)
-        label.fontSize = 64
-        return label
-    }
-    
-    fileprivate func pushCharacter(power: Int) {
-        character.run(jumpSideAnimation)
-        character.physicsBody?.velocity = CGVector()
-        character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: power))
     }
     
     fileprivate func setNodes() {
@@ -302,6 +109,201 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         platform.physicsBody?.contactTestBitMask = 0
     }
     
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        // If character touched a coin somehow
+        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+        if collision == Collisions.characterAndCoin {
+            let coin = contact.bodyA.node?.name == "coin" ? contact.bodyA.node : contact.bodyB.node
+            coin?.userData?.setValue(true, forKey: "wasTouched")
+        }
+        
+        // If character jumped on a platform
+        if character.physicsBody!.velocity.dy < 0 {
+            let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
+            
+            if collision == Collisions.characterAndWood {
+                let dust = getParticles(type: .dust, targetNode: nil)
+                platform.addChild(dust)
+                pushCharacter(power: 70)
+            } else if collision == Collisions.characterAndStone {
+                let dust = getParticles(type: .dust, targetNode: nil)
+                platform.addChild(dust)
+                pushCharacter(power: 80)
+            }
+            
+            // Picking up the coin
+            if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
+                if platform.children.count > 0 {
+                    guard let coin = platform.children.first(where: { (n) -> Bool in
+                        return n.name!.contains("coin")
+                    }) else { return }
+                    
+                    pickCoinUp(coin: coin, platform: platform)
+                }
+            }
+        }
+    }
+    
+    fileprivate func getParticles(type: ParticlesType, targetNode: SKNode?) -> SKEmitterNode {
+        let particles: SKEmitterNode!
+        
+        switch (type) {
+        case .dust:
+            particles = SKEmitterNode(fileNamed: "DustParticles")
+        case .dirt:
+            particles = SKEmitterNode(fileNamed: "DirtParticles")!
+        case .bronze:
+            particles = SKEmitterNode(fileNamed: "BronzeParticles")!
+        case .gold:
+            particles = SKEmitterNode(fileNamed: "GoldenParticles")!
+        }
+        
+        particles.name = String()
+        if type != .dust {
+            particles.targetNode = targetNode
+            particles.position = CGPoint(x: 0, y: 70)
+        }
+        
+        return particles
+    }
+    
+    fileprivate func pushCharacter(power: Int) {
+        character.run(jumpSideAnimation)
+        character.physicsBody?.velocity = CGVector()
+        character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: power))
+    }
+    
+    fileprivate func pickCoinUp(coin: SKNode, platform: SKNode) {
+        let wasTouched = coin.userData?.value(forKey: "wasTouched") as! Bool
+        
+        if wasTouched {
+            let particles: SKEmitterNode!
+            
+            if coin.name!.contains("dirt") {
+                particles = getParticles(type: .dirt, targetNode: platform)
+            } else if coin.name!.contains("bronze") {
+                particles = getParticles(type: .bronze, targetNode: platform)
+            } else {
+                particles = getParticles(type: .gold, targetNode: platform)
+            }
+            platform.addChild(particles)
+            
+            let label = getLabel(text: "+1")
+            platform.addChild(label)
+            label.run(moveUpAnimation)
+            
+            coin.removeFromParent()
+        }
+    }
+    
+    fileprivate func getLabel(text: String) -> SKLabelNode {
+        let label = SKLabelNode(text: text)
+        label.fontName = "DisposableDroidBB"
+        label.name = String()
+        label.fontColor = UIColor.gray
+        label.position = CGPoint(x: 70, y: 70)
+        label.fontSize = 64
+        return label
+    }
+    
+
+    override func update(_ currentTime: TimeInterval) {
+        // Setting camera and player positions
+        camera!.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)
+        movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
+        character.position.x = movement
+        
+        // Creating clouds and platforms
+        if manager.bgClouds.canCreate(playerY: character.position.y) {
+            let cloud = manager.bgClouds.instantiate()
+            worldNode.addChild(cloud)
+        }
+        
+        if manager.fgClouds.canCreate(playerY: character.position.y) {
+            let cloud = manager.fgClouds.instantiate()
+            worldNode.addChild(cloud)
+        }
+        
+        if manager.platforms.canCreate(playerY: character.position.y) {
+            let platform = manager.platforms.instantiate()
+            worldNode.addChild(platform)
+        }
+    }
+    
+    func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
+        return start + percent * (end - start)
+    }
+    
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch = touches.first!
+        let node = atPoint(touch.location(in: self))
+        
+        switch node {
+        case slider:
+            sliderIsTriggered = true
+            sliderTouch = touch
+            slider.run(scaleUpAnimation)
+        case button:
+            sliderIsTriggered = false
+            if gameIsPaused {
+                setGameState(isPaused: false)
+            } else {
+                setGameState(isPaused: true)
+            }
+        default:
+            return
+        }
+    }
+    
+    fileprivate func setGameState(isPaused: Bool) {
+        if isPaused {
+            button.texture = playTexture
+            worldNode.isPaused = true
+            gameIsPaused = true
+            physicsWorld.speed = 0
+            line.isHidden = true
+            slider.isHidden = true
+            black.alpha = 0.3
+        } else {
+            button.texture = pauseTexture
+            worldNode.isPaused = false
+            gameIsPaused = false
+            physicsWorld.speed = 1
+            line.isHidden = false
+            slider.isHidden = false
+            black.alpha = 0
+        }
+    }
+    
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if sliderIsTriggered {
+            if let st = sliderTouch {
+                let touchLocationX = st.location(in: self).x
+                let halfLine = line.size.width / 2
+                
+                if touchLocationX > -halfLine && touchLocationX < halfLine {
+                    slider.position.x = touchLocationX
+                    if character.position.x < slider.position.x {
+                        character.xScale = 2.5
+                    } else {
+                        character.xScale = -2.5
+                    }
+                }
+            }
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let st = sliderTouch {
+            if touches.contains(st) {
+                sliderIsTriggered = false
+                slider.run(scaleDownAnimation)
+            }
+        }
+    }
 }
 
 enum ParticlesType {
