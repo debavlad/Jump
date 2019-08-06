@@ -26,10 +26,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setNodes()
         setPhysics()
         setAnimations()
-        
-        // TO-DO: change hardcoded frameMinY value
-        manager = Manager(startY: platform.position.y, frameMinY: -900)
-        
+        manager = Manager(startY: platform.position.y, frameMinY: -frame.height)
         setCamera()
     }
     
@@ -44,9 +41,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         playTexture = SKTexture(imageNamed: "continue").pixelate()
         pauseTexture = SKTexture(imageNamed: "pause").pixelate()
         
-        
         slider.position.x = character.position.x
         movement = character.position.x
+        
+        black.isHidden = true
         
         worldNode = SKNode()
         character.move(toParent: worldNode)
@@ -87,7 +85,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // For label
         let moveUp = SKAction.move(to: CGPoint(x: 70, y: 140), duration: 0.5)
         let dissapear = SKAction.fadeAlpha(to: 0, duration: 0.5)
-        moveUpAnimation = SKAction.group([moveUp, dissapear])
+        let remove = SKAction.run { self.removeFromParent() }
+        moveUpAnimation = SKAction.group([moveUp, dissapear, remove])
     }
     
     fileprivate func setPhysics() {
@@ -124,11 +123,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             if collision == Collisions.characterAndWood {
                 let dust = getParticles(type: .dust, targetNode: nil)
-                platform.addChild(dust)
+                add(dust, to: platform)
                 pushCharacter(power: 70)
             } else if collision == Collisions.characterAndStone {
                 let dust = getParticles(type: .dust, targetNode: nil)
-                platform.addChild(dust)
+                add(dust, to: platform)
                 pushCharacter(power: 80)
             }
             
@@ -187,7 +186,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else {
                 particles = getParticles(type: .gold, targetNode: platform)
             }
-            platform.addChild(particles)
+            
+            add(particles, to: platform)
             
             let label = getLabel(text: "+1")
             platform.addChild(label)
@@ -195,6 +195,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             coin.removeFromParent()
         }
+    }
+    
+    fileprivate func add(_ emitter: SKEmitterNode, to parent: SKNode) {
+        let add = SKAction.run {
+            parent.addChild(emitter)
+        }
+        
+        let duration = emitter.particleLifetime
+        let wait = SKAction.wait(forDuration: TimeInterval(duration))
+        
+        // emitter is a child of platform, so when platform is removed, emitter too
+        let remove = SKAction.run {
+            if !self.gameIsPaused {
+                emitter.removeFromParent()
+            }
+        }
+        
+        let sequence = SKAction.sequence([add, wait, remove])
+        self.run(sequence)
     }
     
     fileprivate func getLabel(text: String) -> SKLabelNode {
@@ -218,16 +237,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if manager.bgClouds.canCreate(playerY: character.position.y) {
             let cloud = manager.bgClouds.instantiate()
             worldNode.addChild(cloud)
+            manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
         }
         
         if manager.fgClouds.canCreate(playerY: character.position.y) {
             let cloud = manager.fgClouds.instantiate()
             worldNode.addChild(cloud)
+            manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
         }
         
         if manager.platforms.canCreate(playerY: character.position.y) {
             let platform = manager.platforms.instantiate()
             worldNode.addChild(platform)
+            manager.platforms.remove(minY: cam.frame.minY - frame.height/1.95)
         }
     }
     
@@ -265,7 +287,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             physicsWorld.speed = 0
             line.isHidden = true
             slider.isHidden = true
-            black.alpha = 0.3
+            black.isHidden = false
         } else {
             button.texture = pauseTexture
             worldNode.isPaused = false
@@ -273,7 +295,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             physicsWorld.speed = 1
             line.isHidden = false
             slider.isHidden = false
-            black.alpha = 0
+            black.isHidden = true
         }
     }
     

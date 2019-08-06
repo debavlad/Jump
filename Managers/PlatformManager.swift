@@ -29,6 +29,15 @@ class PlatformManager {
         return lastY + distance < playerY + height
     }
     
+    func remove(minY: CGFloat) {
+        collection.forEach { (node) in
+            if node.position.y < minY {
+                node.removeFromParent()
+                collection.remove(node)
+            }
+        }
+    }
+    
     func instantiate() -> SKSpriteNode {
         let type = getRandomType()
         let platform = getPlatform(type: type)
