@@ -29,11 +29,13 @@ class CloudManager {
     
     func instantiate() -> SKSpriteNode {
         let cloud: SKSpriteNode!
-        // TO-DO: random clouds scales
+        
         if isBackground() {
-            cloud = getCloud(zPos: -5, scale: 12, alpha: 1)
+            let randomScale = CGFloat.random(in: 12...16)
+            cloud = getCloud(zPos: -5, scale: randomScale, alpha: 1)
         } else {
-            cloud = getCloud(zPos: 15, scale: 24, alpha: 0.5)
+            let randomScale = CGFloat.random(in: 22...28)
+            cloud = getCloud(zPos: 15, scale: randomScale, alpha: 0.5)
         }
         
         let x = CGFloat.random(in: -width...width)

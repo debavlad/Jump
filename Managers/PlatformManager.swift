@@ -30,33 +30,14 @@ class PlatformManager {
     }
     
     func instantiate() -> SKSpriteNode {
-        let platform: SKSpriteNode!
+        let type = getRandomType()
+        let platform = getPlatform(type: type)
         
-        let isWooden = Bool.random()
-        if isWooden {
-            platform = getPlatform(type: .wood)
-        } else {
-            platform = getPlatform(type: .stone)
-        }
-        platform.name = "platform"
-        
-        if hasItem(chance: 0.3) {
-            let coin = coins.instantiate(type: CoinType.dirt)
-            platform.addChild(coin)
-        } else {
-            if hasItem(chance: 0.2) {
-                let coin = coins.instantiate(type: CoinType.bronze)
-                platform.addChild(coin)
-            } else {
-                if hasItem(chance: 0.1) {
-                    let coin = coins.instantiate(type: CoinType.golden)
-                    platform.addChild(coin)
-                }
-            }
+        if hasItem(chance: 0.5) {
+            let item = getRandomItem()
+            platform.addChild(item)
         }
         
-        
-        // TO-DO: random platform distance
         let x = CGFloat.random(in: -width...width)
         let y = lastY + distance
         platform.position = CGPoint(x: x, y: y)
@@ -64,6 +45,30 @@ class PlatformManager {
         
         collection.insert(platform)
         return platform
+    }
+    
+    private func getRandomItem() -> SKSpriteNode {
+        let random = Int.random(in: 1...6)
+        
+        if random <= 3 {
+            let dirtCoin = coins.instantiate(type: .dirt)
+            return dirtCoin
+        } else if random >= 4 && random <= 5 {
+            let bronzeCoin = coins.instantiate(type: .bronze)
+            return bronzeCoin
+        } else {
+            let goldenCoin = coins.instantiate(type: .golden)
+            return goldenCoin
+        }
+    }
+    
+    private func getRandomType() -> PlatformType {
+        let isWooden = Bool.random()
+        if isWooden {
+            return PlatformType.wood
+        } else {
+            return PlatformType.stone
+        }
     }
     
     private func getPlatform(type: PlatformType) -> SKSpriteNode {
@@ -99,7 +104,7 @@ enum PlatformType {
 extension SKSpriteNode {
     func setPlatformSettings() -> SKSpriteNode {
         size = CGSize(width: 130, height: 50)
-        
+        name = "platform"
         physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 125, height: 1), center: CGPoint(x: 0, y: 20))
         physicsBody?.restitution = CGFloat(0.2)
         physicsBody?.friction = 0

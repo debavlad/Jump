@@ -10,7 +10,6 @@ import Foundation
 import SpriteKit
 
 class CoinManager {
-    var collection = Set<SKSpriteNode>()
     let dirtAnimation, bronzeAnimation, goldenAnimation: SKAction!
     
     init() {
@@ -52,12 +51,10 @@ class CoinManager {
             coin.run(SKAction.repeatForever(goldenAnimation))
         }
         
-        coin.userData = NSMutableDictionary(capacity: 2)
-        coin.userData?.setValue(false, forKey: "isPickedUp")
+        coin.userData = NSMutableDictionary(capacity: 1)
+        coin.userData?.setValue(false, forKey: "wasTouched")
         return coin
     }
-    
-    
 }
 
 enum CoinType {
