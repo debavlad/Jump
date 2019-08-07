@@ -66,7 +66,9 @@ enum CoinType {
 extension SKSpriteNode {
     func setCoinSettings() -> SKSpriteNode {
         size = CGSize(width: 60, height: 66)
-        position = CGPoint(x: -2, y: 70)
+        zPosition = 1
+        let x = CGFloat.random(in: -20...20)
+        position = CGPoint(x: x, y: 65)
         physicsBody = SKPhysicsBody(circleOfRadius: size.width/2)
         physicsBody?.affectedByGravity = false
         physicsBody?.categoryBitMask = Categories.coin

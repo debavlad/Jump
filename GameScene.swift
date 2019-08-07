@@ -166,7 +166,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         particles.name = String()
         if type != .dust {
             particles.targetNode = targetNode
-            particles.position = CGPoint(x: 0, y: 70)
         }
         
         return particles
@@ -192,6 +191,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 particles = getParticles(type: .gold, targetNode: platform)
             }
             
+            particles.position = coin.position
+            particles.zPosition = 3
+            particles.particleZPosition = 3
             add(particles, to: platform)
             
             let label = getLabel(text: "+1")

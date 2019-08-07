@@ -14,6 +14,7 @@ class PlatformManager {
 
     private let width, height: CGFloat
     private let coins: CoinManager!
+    private let meals: FoodManager!
     private var collection = Set<SKSpriteNode>()
     
     init(_ distance: CGFloat, _ lastY: CGFloat) {
@@ -23,6 +24,7 @@ class PlatformManager {
         width = UIScreen.main.bounds.width - 100
         height = UIScreen.main.bounds.height + 50
         coins = CoinManager()
+        meals = FoodManager()
     }
     
     func canCreate(playerY: CGFloat) -> Bool {
@@ -42,10 +44,18 @@ class PlatformManager {
         let type = getRandomType()
         let platform = getPlatform(type: type)
         
+        // coins
         if hasItem(chance: 0.5) {
-            let item = getRandomItem()
-            platform.addChild(item)
+            let coin = getRandomCoin()
+            platform.addChild(coin)
         }
+        
+        // meals
+        if hasItem(chance: 0.2) {
+            let meal = getRandomFood()
+            platform.addChild(meal!)
+        }
+        
         
         let x = CGFloat.random(in: -width...width)
         let y = lastY + distance
@@ -56,7 +66,7 @@ class PlatformManager {
         return platform
     }
     
-    private func getRandomItem() -> SKSpriteNode {
+    private func getRandomCoin() -> SKSpriteNode {
         let random = Int.random(in: 1...6)
         
         if random <= 3 {
@@ -68,6 +78,30 @@ class PlatformManager {
         } else {
             let goldenCoin = coins.instantiate(type: .golden)
             return goldenCoin
+        }
+    }
+    
+    private func getRandomFood() -> SKSpriteNode? {
+        let random = Int.random(in: 1...5)
+        
+        switch random {
+        case 1:
+            let bread = meals.instantiate(type: .bread)
+            return bread
+        case 2:
+            let cheese = meals.instantiate(type: .cheese)
+            return cheese
+        case 3:
+            let chicken = meals.instantiate(type: .chicken)
+            return chicken
+        case 4:
+            let egg = meals.instantiate(type: .egg)
+            return egg
+        case 5:
+            let meat = meals.instantiate(type: .meat)
+            return meat
+        default:
+            return nil
         }
     }
     
