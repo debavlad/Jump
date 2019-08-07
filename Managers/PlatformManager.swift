@@ -60,8 +60,8 @@ class PlatformManager {
         let random = Int.random(in: 1...6)
         
         if random <= 3 {
-            let dirtCoin = coins.instantiate(type: .dirt)
-            return dirtCoin
+            let woodenCoin = coins.instantiate(type: .wooden)
+            return woodenCoin
         } else if random >= 4 && random <= 5 {
             let bronzeCoin = coins.instantiate(type: .bronze)
             return bronzeCoin

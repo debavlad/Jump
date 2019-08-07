@@ -83,10 +83,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scaleDownAnimation = SKAction.scale(to: 1, duration: 0.1)
         
         // For label
-        let moveUp = SKAction.move(to: CGPoint(x: 70, y: 140), duration: 0.5)
-        let dissapear = SKAction.fadeAlpha(to: 0, duration: 0.5)
+        let moveUp = SKAction.move(to: CGPoint(x: 70, y: 140), duration: 1)
+        moveUp.timingMode = SKActionTimingMode.easeOut
+        let dissapear = SKAction.fadeAlpha(to: 0, duration: 1)
+        dissapear.timingMode = SKActionTimingMode.easeOut
         let remove = SKAction.run { self.removeFromParent() }
-        moveUpAnimation = SKAction.group([moveUp, dissapear, remove])
+        
+        let group = SKAction.group([moveUp, dissapear, remove])
+        group.timingMode = SKActionTimingMode.easeOut
+        moveUpAnimation = group
     }
     
     fileprivate func setPhysics() {
@@ -150,8 +155,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         switch (type) {
         case .dust:
             particles = SKEmitterNode(fileNamed: "DustParticles")
-        case .dirt:
-            particles = SKEmitterNode(fileNamed: "DirtParticles")!
+        case .wooden:
+            particles = SKEmitterNode(fileNamed: "WoodenParticles")!
         case .bronze:
             particles = SKEmitterNode(fileNamed: "BronzeParticles")!
         case .gold:
@@ -179,8 +184,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if wasTouched {
             let particles: SKEmitterNode!
             
-            if coin.name!.contains("dirt") {
-                particles = getParticles(type: .dirt, targetNode: platform)
+            if coin.name!.contains("wooden") {
+                particles = getParticles(type: .wooden, targetNode: platform)
             } else if coin.name!.contains("bronze") {
                 particles = getParticles(type: .bronze, targetNode: platform)
             } else {
@@ -220,7 +225,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let label = SKLabelNode(text: text)
         label.fontName = "DisposableDroidBB"
         label.name = String()
-        label.fontColor = UIColor.gray
+        label.fontColor = UIColor.white
+        label.blendMode = SKBlendMode.subtract
         label.position = CGPoint(x: 70, y: 70)
         label.fontSize = 64
         return label
@@ -310,8 +316,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     slider.position.x = touchLocationX
                     if character.position.x < slider.position.x {
                         character.xScale = 2.5
+                        character.childNode(withName: "hp-border")!.xScale = 0.4
                     } else {
                         character.xScale = -2.5
+                        character.childNode(withName: "hp-border")!.xScale = -0.4
                     }
                 }
             }
@@ -330,7 +338,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 enum ParticlesType {
     case dust
-    case dirt
+    case wooden
     case bronze
     case gold
 }

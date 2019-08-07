@@ -10,19 +10,19 @@ import Foundation
 import SpriteKit
 
 class CoinManager {
-    let dirtAnimation, bronzeAnimation, goldenAnimation: SKAction!
+    let woodenAnimation, bronzeAnimation, goldenAnimation: SKAction!
     
     init() {
-        var dirtTextures: [SKTexture] = []
+        var woodenTextures: [SKTexture] = []
         var goldenTextures: [SKTexture] = []
         var bronzeTextures: [SKTexture] = []
         
         for i in 0...7 {
-            dirtTextures.append(SKTexture(imageNamed: "dirt\(i)").pixelate())
+            woodenTextures.append(SKTexture(imageNamed: "wooden\(i)").pixelate())
             bronzeTextures.append(SKTexture(imageNamed: "bronze\(i)").pixelate())
             goldenTextures.append(SKTexture(imageNamed: "golden\(i)").pixelate())
         }
-        dirtAnimation = SKAction.animate(with: dirtTextures, timePerFrame: 0.1)
+        woodenAnimation = SKAction.animate(with: woodenTextures, timePerFrame: 0.1)
         bronzeAnimation = SKAction.animate(with: bronzeTextures, timePerFrame: 0.1)
         goldenAnimation = SKAction.animate(with: goldenTextures, timePerFrame: 0.1)
     }
@@ -31,12 +31,12 @@ class CoinManager {
         let coin: SKSpriteNode!
         
         switch (type) {
-        case .dirt:
-            coin = SKSpriteNode(imageNamed: "dirt0")
+        case .wooden:
+            coin = SKSpriteNode(imageNamed: "wooden0")
                 .setCoinSettings()
                 .pixelate()
-            coin.name = "dirtcoin"
-            coin.run(SKAction.repeatForever(dirtAnimation))
+            coin.name = "woodencoin"
+            coin.run(SKAction.repeatForever(woodenAnimation))
         case .bronze:
             coin = SKSpriteNode(imageNamed: "bronze0")
                 .setCoinSettings()
@@ -58,7 +58,7 @@ class CoinManager {
 }
 
 enum CoinType {
-    case dirt
+    case wooden
     case bronze
     case golden
 }
