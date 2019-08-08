@@ -12,8 +12,11 @@ import GameplayKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
     var cam: SKCameraNode!
     var worldNode: SKNode!
-    var sky, platform, character, line, slider, button, black: SKSpriteNode!
-    var jumpUpAnimation, jumpSideAnimation, scaleUpAnimation, scaleDownAnimation, moveUpAnimation: SKAction!
+    
+    var character: Character!
+    
+    var sky, platform, line, slider, button, black: SKSpriteNode!
+    var scaleUpAnimation, scaleDownAnimation, moveUpAnimation: SKAction!
     var pauseTexture, playTexture: SKTexture!
     var sliderTouch: UITouch!
     
@@ -23,6 +26,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func didMove(to view: SKView) {
+        character = Character(childNode(withName: "character")!)
+        
         setNodes()
         setPhysics()
         setAnimations()
@@ -33,7 +38,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     fileprivate func setNodes() {
         sky = childNode(withName: "sky")?.pixelate()
         platform = childNode(withName: "platform")?.pixelate()
-        character = childNode(withName: "character")?.pixelate()
         line = childNode(withName: "line")?.pixelate()
         slider = childNode(withName: "slider")?.pixelate()
         button = childNode(withName: "pause")?.pixelate()
@@ -41,13 +45,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         playTexture = SKTexture(imageNamed: "continue").pixelate()
         pauseTexture = SKTexture(imageNamed: "pause").pixelate()
         
-        slider.position.x = character.position.x
-        movement = character.position.x
+        slider.position.x = character.getX()
+        movement = character.getX()
         
         black.isHidden = true
         
         worldNode = SKNode()
-        character.move(toParent: worldNode)
+        character.set(parent: worldNode)
         addChild(worldNode)
     }
     
@@ -65,19 +69,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     fileprivate func setAnimations() {
-        // For character
-        var jumpUpTextures: [SKTexture] = []
-        for i in 0...5 {
-            jumpUpTextures.append(SKTexture(imageNamed: "fjump\(i)").pixelate())
-        }
-        jumpUpAnimation = SKAction.animate(with: jumpUpTextures, timePerFrame: 0.12)
-        
-        var jumpSideTextures: [SKTexture] = []
-        for i in 0...8 {
-            jumpSideTextures.append(SKTexture(imageNamed: "fjside\(i)").pixelate())
-        }
-        jumpSideAnimation = SKAction.animate(with: jumpSideTextures, timePerFrame: 0.11)
-        
         // For slider
         scaleUpAnimation = SKAction.scale(to: 1.3, duration: 0.1)
         scaleDownAnimation = SKAction.scale(to: 1, duration: 0.1)
@@ -98,52 +89,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0, dy: -21)
         
-        character.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
-        character.physicsBody?.usesPreciseCollisionDetection = true
-        character.physicsBody?.collisionBitMask = 0
-        character.physicsBody?.allowsRotation = false
-        character.physicsBody?.categoryBitMask = Categories.character
-        character.physicsBody?.contactTestBitMask = Categories.coin | Categories.woodenPlatform | Categories.stonePlatform
-        character.physicsBody?.friction = 0
-        character.physicsBody?.restitution = 0
-        character.physicsBody?.linearDamping = 0
-        character.physicsBody?.angularDamping = 0
-        
         platform.physicsBody?.categoryBitMask = Categories.woodenPlatform
         platform.physicsBody?.contactTestBitMask = 0
     }
     
-    
+
     func didBegin(_ contact: SKPhysicsContact) {
-        // If character touched a coin somehow
-        let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-        if collision == Collisions.characterAndCoin {
-            let coin = contact.bodyA.node?.name == "coin" ? contact.bodyA.node : contact.bodyB.node
-            coin?.userData?.setValue(true, forKey: "wasTouched")
-        }
-        
-        // If character jumped on a platform
-        if character.physicsBody!.velocity.dy < 0 {
-            let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
-            
-            if collision == Collisions.characterAndWood {
-                let dust = getParticles(type: .dust, targetNode: nil)
-                add(dust, to: platform)
-                pushCharacter(power: 70)
-            } else if collision == Collisions.characterAndStone {
-                let dust = getParticles(type: .dust, targetNode: nil)
-                add(dust, to: platform)
-                pushCharacter(power: 80)
+        if !character.isDead() {
+            // If character touched a coin somehow
+            let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+            if collision == Collisions.characterAndCoin {
+                let coin = contact.bodyA.node?.name == "coin" ? contact.bodyA.node : contact.bodyB.node
+                coin?.userData?.setValue(true, forKey: "wasTouched")
             }
             
-            // Picking up the coin
-            if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
-                if platform.children.count > 0 {
-                    guard let coin = platform.children.first(where: { (n) -> Bool in
-                        return n.name!.contains("coin")
-                    }) else { return }
-                    
-                    pickCoinUp(coin: coin, platform: platform)
+            // If character jumped on a platform
+            if character.isFallingDown() {
+                let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
+                
+                if collision == Collisions.characterAndWood {
+                    let dust = getParticles(type: .dust, targetNode: nil)
+                    add(dust, to: platform)
+                    character.decreaseHp(by: 2)
+                    character.push(power: 70)
+                } else if collision == Collisions.characterAndStone {
+                    let dust = getParticles(type: .dust, targetNode: nil)
+                    add(dust, to: platform)
+                    character.decreaseHp(by: 5)
+                    character.push(power: 80)
+                }
+                
+                // Picking up the coin
+                if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
+                    if platform.children.count > 0 {
+                        guard let coin = platform.children.first(where: { (n) -> Bool in
+                            return n.name!.contains("coin")
+                        }) else { return }
+                        
+                        pickCoinUp(coin: coin, platform: platform)
+                    }
                 }
             }
         }
@@ -169,12 +153,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         return particles
-    }
-    
-    fileprivate func pushCharacter(power: Int) {
-        character.run(jumpSideAnimation)
-        character.physicsBody?.velocity = CGVector()
-        character.physicsBody?.applyImpulse(CGVector(dx: 0, dy: power))
     }
     
     fileprivate func pickCoinUp(coin: SKNode, platform: SKNode) {
@@ -237,24 +215,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     override func update(_ currentTime: TimeInterval) {
         // Setting camera and player positions
-        camera!.position.y = lerp(start: (camera?.position.y)!, end: character.position.y, percent: 0.065)
-        movement = lerp(start: character.position.x, end: slider.position.x, percent: 0.2)
-        character.position.x = movement
+        camera!.position.y = lerp(start: (camera?.position.y)!, end: character.getY(), percent: 0.065)
+        movement = lerp(start: character.getX(), end: slider.position.x, percent: 0.2)
+        character.set(x: movement)
         
         // Creating clouds and platforms
-        if manager.bgClouds.canCreate(playerY: character.position.y) {
+        if manager.bgClouds.canCreate(playerY: character.getY()) {
             let cloud = manager.bgClouds.instantiate()
             worldNode.addChild(cloud)
             manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
         }
         
-        if manager.fgClouds.canCreate(playerY: character.position.y) {
+        if manager.fgClouds.canCreate(playerY: character.getY()) {
             let cloud = manager.fgClouds.instantiate()
             worldNode.addChild(cloud)
             manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
         }
         
-        if manager.platforms.canCreate(playerY: character.position.y) {
+        if manager.platforms.canCreate(playerY: character.getY()) {
             let platform = manager.platforms.instantiate()
             worldNode.addChild(platform)
             manager.platforms.remove(minY: cam.frame.minY - frame.height/1.95)
@@ -316,12 +294,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if touchLocationX > -halfLine && touchLocationX < halfLine {
                     slider.position.x = touchLocationX
-                    if character.position.x < slider.position.x {
-                        character.xScale = 2.5
-                        character.childNode(withName: "hp-border")!.xScale = 0.4
+                    if character.getX() < slider.position.x {
+                        character.turn(left: false)
                     } else {
-                        character.xScale = -2.5
-                        character.childNode(withName: "hp-border")!.xScale = -0.4
+                        character.turn(left: true)
                     }
                 }
             }
