@@ -10,69 +10,84 @@ import Foundation
 import SpriteKit
 
 class FoodManager {
-    func instantiate(type: FoodType) -> SKSpriteNode {
-        let food: SKSpriteNode!
+    var energies = [FoodType : Int]()
+    
+    init() {
+        energies[FoodType.meat] = 25
+        energies[FoodType.chicken] = 20
+        energies[FoodType.bread] = 15
+        energies[FoodType.cheese] = 10
+        energies[FoodType.egg] = 5
+    }
+    
+    func getRandom() -> SKSpriteNode {
+        let random = Int.random(in: 0..<energies.count)
+        let type = FoodType(rawValue: random)
+        let food = instantiate(type: type!)
         
-        switch (type) {
-        case .bread:
-            food = SKSpriteNode(imageNamed: "bread")
-                .setFoodSettings()
-                .pixelate()
-            food.name = "breadfood"
-        case .cheese:
-            food = SKSpriteNode(imageNamed: "cheese")
-                .setFoodSettings()
-                .pixelate()
-            food.name = "cheesefood"
-        case .chicken:
-            food = SKSpriteNode(imageNamed: "chicken")
-                .setFoodSettings()
-                .pixelate()
-            food.name = "chickenfood"
-        case .egg:
-            food = SKSpriteNode(imageNamed: "egg")
-                .setFoodSettings()
-                .pixelate()
-            food.name = "eggfood"
-        case .meat:
-            food = SKSpriteNode(imageNamed: "meat")
-                .setFoodSettings()
-                .pixelate()
-            food.name = "meatfood"
-        }
+        return food
+    }
+    
+    private func instantiate(type: FoodType) -> SKSpriteNode {
+        let name = type.description
+        let food = SKSpriteNode(imageNamed: name)
+            .setFoodSettings()
+            .setRandomness()
+            .pixelate()
+        food.name = name + "food"
+        food.userData = NSMutableDictionary(capacity: 2)
+        food.userData!.setValue(energies[type], forKey: "energy")
+        food.userData!.setValue(false, forKey: "wasTouched")
         
-        let isMirrored = Bool.random()
-        if isMirrored {
-            food.xScale = -6
-        }
-        
-        let isBehind = Bool.random()
-        if isBehind {
-            food.zPosition = -1
-        } else {
-            food.zPosition = 2
-        }
-        
-        food.userData = NSMutableDictionary(capacity: 1)
-        food.userData?.setValue(false, forKey: "wasTouched")
         return food
     }
 }
 
-enum FoodType {
+enum FoodType: Int, CustomStringConvertible {
     case chicken
     case cheese
     case meat
     case egg
     case bread
+    
+    var description: String {
+        switch self {
+        case .chicken:
+            return "chicken"
+        case .bread:
+            return "bread"
+        case .cheese:
+            return "cheese"
+        case .egg:
+            return "egg"
+        case .meat:
+            return "meat"
+        }
+    }
 }
 
 extension SKSpriteNode {
-    func setFoodSettings() -> SKSpriteNode {
-        setScale(6)
+    func setRandomness() -> SKSpriteNode {
         let x = CGFloat.random(in: -30...30)
         position = CGPoint(x: x, y: 70)
         
+        let isMirrored = Bool.random()
+        if isMirrored {
+            xScale = -6
+        }
+        
+        let isBehind = Bool.random()
+        if isBehind {
+            zPosition = -1
+        } else {
+            zPosition = 2
+        }
+        
+        return self
+    }
+    
+    func setFoodSettings() -> SKSpriteNode {
+        setScale(6)
         physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height/2))
         physicsBody?.affectedByGravity = true
         physicsBody?.categoryBitMask = Categories.food

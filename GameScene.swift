@@ -16,7 +16,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var character: Character!
     
     var sky, platform, line, slider, button, black: SKSpriteNode!
-    var scaleUpAnimation, scaleDownAnimation, moveUpAnimation: SKAction!
+    var scaleUp, scaleDown, moveUpFade: SKAction!
     var pauseTexture, playTexture: SKTexture!
     var sliderTouch: UITouch!
     
@@ -48,8 +48,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         slider.position.x = character.getX()
         movement = character.getX()
         
-        black.isHidden = true
-        
         worldNode = SKNode()
         character.set(parent: worldNode)
         addChild(worldNode)
@@ -70,19 +68,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     fileprivate func setAnimations() {
         // For slider
-        scaleUpAnimation = SKAction.scale(to: 1.3, duration: 0.1)
-        scaleDownAnimation = SKAction.scale(to: 1, duration: 0.1)
+        scaleUp = SKAction.scale(to: 1.3, duration: 0.1)
+        scaleDown = SKAction.scale(to: 1, duration: 0.1)
         
         // For label
         let moveUp = SKAction.move(to: CGPoint(x: 70, y: 140), duration: 1)
-        moveUp.timingMode = SKActionTimingMode.easeOut
-        let dissapear = SKAction.fadeAlpha(to: 0, duration: 1)
-        dissapear.timingMode = SKActionTimingMode.easeOut
+//        moveUp.timingMode = SKActionTimingMode.easeOut
+        let fade = SKAction.fadeAlpha(to: 0, duration: 1)
+//        fade.timingMode = SKActionTimingMode.easeOut
         let remove = SKAction.run { self.removeFromParent() }
         
-        let group = SKAction.group([moveUp, dissapear, remove])
-        group.timingMode = SKActionTimingMode.easeOut
-        moveUpAnimation = group
+        let group = SKAction.group([moveUp, fade, remove])
+//        group.timingMode = SKActionTimingMode.easeOut
+        moveUpFade = group
     }
     
     fileprivate func setPhysics() {
@@ -99,7 +97,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // If character touched a coin somehow
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if collision == Collisions.characterAndCoin {
-                print(contact.bodyA.node!, contact.bodyB.node!)
                 let coin = contact.bodyA.node!.name!.contains("coin") ? contact.bodyA.node! : contact.bodyB.node!
                 
                 coin.userData?.setValue(true, forKey: "wasTouched")
@@ -113,12 +110,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
                 
                 if collision == Collisions.characterAndWood {
-                    let dust = getParticles(type: .dust, targetNode: nil)
+                    let dust = getParticles(filename: "DustParticles", targetNode: nil)
                     add(dust, to: platform)
                     character.decreaseHp(by: 2)
                     character.push(power: 70)
                 } else if collision == Collisions.characterAndStone {
-                    let dust = getParticles(type: .dust, targetNode: nil)
+                    let dust = getParticles(filename: "DustParticles", targetNode: nil)
                     add(dust, to: platform)
                     character.decreaseHp(by: 5)
                     character.push(power: 80)
@@ -143,32 +140,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    fileprivate func getParticles(type: ParticlesType, targetNode: SKNode?) -> SKEmitterNode {
-        let particles: SKEmitterNode!
-        
-        switch (type) {
-        case .dust:
-            particles = SKEmitterNode(fileNamed: "DustParticles")
-        case .wooden:
-            particles = SKEmitterNode(fileNamed: "WoodenParticles")!
-        case .bronze:
-            particles = SKEmitterNode(fileNamed: "BronzeParticles")!
-        case .gold:
-            particles = SKEmitterNode(fileNamed: "GoldenParticles")!
-        case .bread:
-            particles = SKEmitterNode(fileNamed: "BreadParticles")!
-        case .cheese:
-            particles = SKEmitterNode(fileNamed: "CheeseParticles")!
-        case .chicken:
-            particles = SKEmitterNode(fileNamed: "ChickenParticles")!
-        case .egg:
-            particles = SKEmitterNode(fileNamed: "EggParticles")!
-        case .meat:
-            particles = SKEmitterNode(fileNamed: "MeatParticles")!
-        }
-        
+    fileprivate func getParticles(filename: String, targetNode: SKNode?) -> SKEmitterNode {
+        let particles = SKEmitterNode(fileNamed: filename)!
         particles.name = String()
-        if type != .dust {
+        if filename != "DustParticles" {
             particles.targetNode = targetNode
         }
         
@@ -179,57 +154,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let wasTouched = item.userData?.value(forKey: "wasTouched") as! Bool
         
         if wasTouched {
-            var particles = SKEmitterNode()
-            var label: SKLabelNode?
+            // food and coin suffixes are both 4 length
+            var name = item.name!.dropLast(4)
+            // getting particles file name
+            name = name.first!.uppercased() + name.dropFirst()
+            name += "Particles"
             
-            if item.name!.contains("coin") {
-                if item.name!.contains("wooden") {
-                    particles = getParticles(type: .wooden, targetNode: platform)
-                } else if item.name!.contains("bronze") {
-                    particles = getParticles(type: .bronze, targetNode: platform)
-                } else if item.name!.contains("golden") {
-                    particles = getParticles(type: .gold, targetNode: platform)
-                }
-                
-                label = getLabel(text: "+1")
-            } else {
-                if item.name!.contains("bread") {
-                    particles = getParticles(type: .bread, targetNode: platform)
-                    character.increaseHp(by: 15)
-                } else if item.name!.contains("egg") {
-                    particles = getParticles(type: .egg, targetNode: platform)
-                    character.increaseHp(by: 5)
-                } else if item.name!.contains("cheese") {
-                    particles = getParticles(type: .cheese, targetNode: platform)
-                    character.increaseHp(by: 10)
-                } else if item.name!.contains("meat") {
-                    particles = getParticles(type: .meat, targetNode: platform)
-                    character.increaseHp(by: 25)
-                } else {
-                    particles = getParticles(type: .chicken, targetNode: platform)
-                    character.increaseHp(by: 20)
-                }
-            }
-            
+            let particles = getParticles(filename: String(name), targetNode: platform)
             particles.position = item.position
             particles.zPosition = 3
             particles.particleZPosition = 3
             add(particles, to: platform)
             
-            if let l = label {
-                platform.addChild(l)
-                l.run(moveUpAnimation)
-            }
+//            if let l = label {
+//                platform.addChild(l)
+//                l.run(moveUpAnimation)
+//            }
             
             item.removeFromParent()
         }
     }
     
     fileprivate func add(_ emitter: SKEmitterNode, to parent: SKNode) {
-        let add = SKAction.run {
-            parent.addChild(emitter)
-        }
-        
+        let add = SKAction.run { parent.addChild(emitter) }
         let duration = emitter.particleLifetime
         let wait = SKAction.wait(forDuration: TimeInterval(duration))
         
@@ -249,7 +196,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         label.fontName = "DisposableDroidBB"
         label.name = String()
         label.fontColor = UIColor.white
-        label.blendMode = SKBlendMode.subtract
+//        label.blendMode = SKBlendMode.subtract
         label.position = CGPoint(x: 70, y: 70)
         label.fontSize = 64
         return label
@@ -291,68 +238,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch = touches.first!
         let node = atPoint(touch.location(in: self))
         
-        switch node {
-        case slider:
+        if node == slider {
             sliderIsTriggered = true
             sliderTouch = touch
-            slider.run(scaleUpAnimation)
-        case button:
+            slider.run(scaleUp)
+        } else if node == button {
             sliderIsTriggered = false
-            if gameIsPaused {
-                setGameState(isPaused: false)
-            } else {
-                setGameState(isPaused: true)
-            }
-        default:
-            return
+            gameIsPaused ? setGameState(isPaused: false) : setGameState(isPaused: true)
         }
     }
     
     fileprivate func setGameState(isPaused: Bool) {
         if isPaused {
             button.texture = playTexture
-            worldNode.isPaused = true
-            gameIsPaused = true
             physicsWorld.speed = 0
-            line.isHidden = true
-            slider.isHidden = true
-            black.isHidden = false
+            black.alpha = 0.3
         } else {
             button.texture = pauseTexture
-            worldNode.isPaused = false
-            gameIsPaused = false
             physicsWorld.speed = 1
-            line.isHidden = false
-            slider.isHidden = false
-            black.isHidden = true
+            black.alpha = 0
         }
+        worldNode.isPaused = !worldNode.isPaused
+        gameIsPaused = !gameIsPaused
+        line.isHidden = !line.isHidden
+        slider.isHidden = !slider.isHidden
     }
     
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if sliderIsTriggered {
-            if let st = sliderTouch {
-                let touchLocationX = st.location(in: self).x
-                let halfLine = line.size.width / 2
-                
-                if touchLocationX > -halfLine && touchLocationX < halfLine {
-                    slider.position.x = touchLocationX
-                    if character.getX() < slider.position.x {
-                        character.turn(left: false)
-                    } else {
-                        character.turn(left: true)
-                    }
+        if sliderIsTriggered, let st = sliderTouch {
+            let touchX = st.location(in: self).x
+            let halfLine = line.size.width / 2
+            
+            if touchX > -halfLine && touchX < halfLine {
+                slider.position.x = touchX
+                if character.getX() < slider.position.x {
+                    character.turn(left: false)
+                } else {
+                    character.turn(left: true)
                 }
             }
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let st = sliderTouch {
-            if touches.contains(st) {
-                sliderIsTriggered = false
-                slider.run(scaleDownAnimation)
-            }
+        if let st = sliderTouch, touches.contains(st) {
+            sliderIsTriggered = false
+            slider.run(scaleDown)
         }
     }
 }

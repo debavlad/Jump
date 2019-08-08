@@ -10,57 +10,62 @@ import Foundation
 import SpriteKit
 
 class CoinManager {
-    let woodenAnimation, bronzeAnimation, goldenAnimation: SKAction!
+    var animations = [String : SKAction]()
     
     init() {
-        var woodenTextures: [SKTexture] = []
-        var goldenTextures: [SKTexture] = []
-        var bronzeTextures: [SKTexture] = []
-        
+        var wooden = [SKTexture](), golden = [SKTexture](), bronze = [SKTexture]()
         for i in 0...7 {
-            woodenTextures.append(SKTexture(imageNamed: "wooden\(i)").pixelate())
-            bronzeTextures.append(SKTexture(imageNamed: "bronze\(i)").pixelate())
-            goldenTextures.append(SKTexture(imageNamed: "golden\(i)").pixelate())
+            wooden.append(SKTexture(imageNamed: "wooden\(i)").pixelate())
+            bronze.append(SKTexture(imageNamed: "bronze\(i)").pixelate())
+            golden.append(SKTexture(imageNamed: "golden\(i)").pixelate())
         }
-        woodenAnimation = SKAction.animate(with: woodenTextures, timePerFrame: 0.1)
-        bronzeAnimation = SKAction.animate(with: bronzeTextures, timePerFrame: 0.1)
-        goldenAnimation = SKAction.animate(with: goldenTextures, timePerFrame: 0.1)
+        animations["wooden"] = SKAction.animate(with: wooden, timePerFrame: 0.1)
+        animations["bronze"] = SKAction.animate(with: bronze, timePerFrame: 0.1)
+        animations["golden"] = SKAction.animate(with: golden, timePerFrame: 0.1)
     }
     
-    func instantiate(type: CoinType) -> SKSpriteNode {
-        let coin: SKSpriteNode!
+    func getRandom(wooden: Double, bronze: Double, golden: Double) -> SKSpriteNode {
+        let chances = [CoinType.wooden : wooden, CoinType.bronze : bronze, CoinType.golden : golden]
         
-        switch (type) {
-        case .wooden:
-            coin = SKSpriteNode(imageNamed: "wooden0")
-                .setCoinSettings()
-                .pixelate()
-            coin.name = "woodencoin"
-            coin.run(SKAction.repeatForever(woodenAnimation))
-        case .bronze:
-            coin = SKSpriteNode(imageNamed: "bronze0")
-                .setCoinSettings()
-                .pixelate()
-            coin.name = "bronzecoin"
-            coin.run(SKAction.repeatForever(bronzeAnimation))
-        case .golden:
-            coin = SKSpriteNode(imageNamed: "golden0")
-                .setCoinSettings()
-                .pixelate()
-            coin.name = "goldencoin"
-            coin.run(SKAction.repeatForever(goldenAnimation))
+        for c in chances {
+            let random = Double.random(in: 0...wooden + bronze + golden)
+            if random < c.value {
+                return instantiate(type: c.key)
+            }
         }
         
+        // if we didn't get anything in loop, return the worst
+        return instantiate(type: .wooden)
+    }
+    
+    private func instantiate(type: CoinType) -> SKSpriteNode {
+        let name = type.description
+        let coin = SKSpriteNode(imageNamed: name + "0")
+            .setCoinSettings()
+            .pixelate()
+        coin.name = name + "coin"
+        coin.run(SKAction.repeatForever(animations[name]!))
         coin.userData = NSMutableDictionary(capacity: 1)
         coin.userData?.setValue(false, forKey: "wasTouched")
         return coin
     }
 }
 
-enum CoinType {
+enum CoinType : CustomStringConvertible {
     case wooden
     case bronze
     case golden
+    
+    var description: String {
+        switch self {
+        case .wooden:
+            return "wooden"
+        case .bronze:
+            return "bronze"
+        case .golden:
+            return "golden"
+        }
+    }
 }
 
 extension SKSpriteNode {

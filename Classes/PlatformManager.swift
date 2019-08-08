@@ -46,16 +46,14 @@ class PlatformManager {
         
         // coins
         if hasItem(chance: 0.5) {
-            let coin = getRandomCoin()
+            let coin = coins.getRandom(wooden: 0.6, bronze: 0.2, golden: 0.1)
             platform.addChild(coin)
         }
-        
-        // meals
+        // food
         if hasItem(chance: 0.1) {
-            let meal = getRandomFood()
-            platform.addChild(meal!)
+            let food = meals.getRandom()
+            platform.addChild(food)
         }
-        
         
         let x = CGFloat.random(in: -width...width)
         let y = lastY + distance
@@ -66,52 +64,9 @@ class PlatformManager {
         return platform
     }
     
-    private func getRandomCoin() -> SKSpriteNode {
-        let random = Int.random(in: 1...6)
-        
-        if random <= 3 {
-            let woodenCoin = coins.instantiate(type: .wooden)
-            return woodenCoin
-        } else if random >= 4 && random <= 5 {
-            let bronzeCoin = coins.instantiate(type: .bronze)
-            return bronzeCoin
-        } else {
-            let goldenCoin = coins.instantiate(type: .golden)
-            return goldenCoin
-        }
-    }
-    
-    private func getRandomFood() -> SKSpriteNode? {
-        let random = Int.random(in: 1...5)
-        
-        switch random {
-        case 1:
-            let bread = meals.instantiate(type: .bread)
-            return bread
-        case 2:
-            let cheese = meals.instantiate(type: .cheese)
-            return cheese
-        case 3:
-            let chicken = meals.instantiate(type: .chicken)
-            return chicken
-        case 4:
-            let egg = meals.instantiate(type: .egg)
-            return egg
-        case 5:
-            let meat = meals.instantiate(type: .meat)
-            return meat
-        default:
-            return nil
-        }
-    }
-    
     private func getRandomType() -> PlatformType {
-        let isWooden = Bool.random()
-        if isWooden {
-            return PlatformType.wood
-        } else {
-            return PlatformType.stone
-        }
+        let random = Int.random(in: 0...1)
+        return PlatformType(rawValue: random)!
     }
     
     private func getPlatform(type: PlatformType) -> SKSpriteNode {
@@ -139,7 +94,7 @@ class PlatformManager {
     }
 }
 
-enum PlatformType {
+enum PlatformType: Int {
     case wood
     case stone
 }
