@@ -94,47 +94,47 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func didBegin(_ contact: SKPhysicsContact) {
         if !character.isDead {
-            // If character touched a coin somehow
+            // If character touched an item somehow
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if collision == Collisions.characterAndCoin {
-                let coin = contact.bodyA.node!.name!.contains("coin") ? contact.bodyA.node! : contact.bodyB.node!
-                
-                coin.userData?.setValue(true, forKey: "wasTouched")
+                if let coin = contact.bodyA.node!.name!.contains("coin") ? contact.bodyA.node : contact.bodyB.node {
+                    coin.userData?.setValue(true, forKey: "wasTouched")
+                }
             } else if collision == Collisions.characterAndFood {
-                let food = contact.bodyA.node!.name!.contains("food") ? contact.bodyA.node! : contact.bodyB.node!
-                food.userData?.setValue(true, forKey: "wasTouched")
+                if let food = contact.bodyA.node!.name!.contains("food") ? contact.bodyA.node : contact.bodyB.node {
+                    food.userData?.setValue(true, forKey: "wasTouched")
+                }
             }
             
-            // If character jumped on a platform
+            // If character is on the platform
             if character.isFallingDown() {
                 let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
                 
-                if collision == Collisions.characterAndWood {
-                    let dust = getParticles(filename: "DustParticles", targetNode: nil)
-                    add(dust, to: platform)
-                    character.decreaseHp(by: 2)
-                    character.push(power: 70)
-                } else if collision == Collisions.characterAndStone {
-                    let dust = getParticles(filename: "DustParticles", targetNode: nil)
-                    add(dust, to: platform)
-                    character.decreaseHp(by: 5)
-                    character.push(power: 80)
-                }
-                
-                // Picking up the coin
+                // 1. Pick items up and increase hp if needed
                 if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
+                    let dust = getParticles(filename: "DustParticles", targetNode: nil)
+                    add(emitter: dust, to: platform)
                     
                     if let coin = platform.children.first(where: { (n) -> Bool in
                         return n.name!.contains("coin")
-                    }) {
-                        pickItemUp(item: coin, platform: platform)
-                    }
+                    }) { pickItemUp(item: coin, isCoin: true, platform: platform) }
                     
                     if let food = platform.children.first(where: { (n) -> Bool in
                         return n.name!.contains("food")
                     }) {
-                        pickItemUp(item: food, platform: platform)
+                        let energy = food.userData?.value(forKey: "energy") as! Int
+                        character.increaseHp(by: energy)
+                        pickItemUp(item: food, isCoin: false, platform: platform)
                     }
+                }
+                
+                // 2. Decrease player's hp and push him up
+                if collision == Collisions.characterAndWood {
+                    character.decreaseHp(by: 2)
+                    character.push(power: 70)
+                } else if collision == Collisions.characterAndStone {
+                    character.decreaseHp(by: 5)
+                    character.push(power: 80)
                 }
             }
         }
@@ -150,7 +150,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return particles
     }
     
-    fileprivate func pickItemUp(item: SKNode, platform: SKNode) {
+    fileprivate func pickItemUp(item: SKNode, isCoin: Bool, platform: SKNode) {
         let wasTouched = item.userData?.value(forKey: "wasTouched") as! Bool
         
         if wasTouched {
@@ -164,18 +164,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             particles.position = item.position
             particles.zPosition = 3
             particles.particleZPosition = 3
-            add(particles, to: platform)
+            add(emitter: particles, to: platform)
             
-//            if let l = label {
-//                platform.addChild(l)
-//                l.run(moveUpAnimation)
-//            }
+            if isCoin {
+                let label = getLabel(text: "+1")
+                platform.addChild(label)
+                label.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
+                label.physicsBody?.applyAngularImpulse(0.001)
+            }
             
             item.removeFromParent()
         }
     }
     
-    fileprivate func add(_ emitter: SKEmitterNode, to parent: SKNode) {
+    fileprivate func add(emitter: SKEmitterNode, to parent: SKNode) {
         let add = SKAction.run { parent.addChild(emitter) }
         let duration = emitter.particleLifetime
         let wait = SKAction.wait(forDuration: TimeInterval(duration))
@@ -193,12 +195,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     fileprivate func getLabel(text: String) -> SKLabelNode {
         let label = SKLabelNode(text: text)
-        label.fontName = "DisposableDroidBB"
         label.name = String()
+        label.fontName = "DisposableDroidBB"
         label.fontColor = UIColor.white
-//        label.blendMode = SKBlendMode.subtract
-        label.position = CGPoint(x: 70, y: 70)
         label.fontSize = 64
+        label.position = CGPoint(x: 70, y: 70)
+        label.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20))
+        label.physicsBody?.collisionBitMask = 0
+        label.zPosition = 30
         return label
     }
     

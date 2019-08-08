@@ -69,7 +69,7 @@ enum FoodType: Int, CustomStringConvertible {
 extension SKSpriteNode {
     func setRandomness() -> SKSpriteNode {
         let x = CGFloat.random(in: -30...30)
-        position = CGPoint(x: x, y: 70)
+        position = CGPoint(x: x, y: 30)
         
         let isMirrored = Bool.random()
         if isMirrored {
@@ -88,13 +88,14 @@ extension SKSpriteNode {
     
     func setFoodSettings() -> SKSpriteNode {
         setScale(6)
-        physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height/2))
-        physicsBody?.affectedByGravity = true
+        physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
+        physicsBody?.affectedByGravity = false
         physicsBody?.categoryBitMask = Categories.food
         physicsBody?.contactTestBitMask = Categories.character
         physicsBody?.collisionBitMask = Categories.woodenPlatform | Categories.stonePlatform
         physicsBody?.friction = 0
         physicsBody?.restitution = 0
+        physicsBody?.isDynamic = false
         
         return self
     }
