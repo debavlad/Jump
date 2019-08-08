@@ -73,7 +73,7 @@ extension SKSpriteNode {
         let x = CGFloat.random(in: -30...30)
         position = CGPoint(x: x, y: 70)
         
-        physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width/2, height: size.height/2))
+        physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height/2))
         physicsBody?.affectedByGravity = true
         physicsBody?.categoryBitMask = Categories.food
         physicsBody?.contactTestBitMask = Categories.character

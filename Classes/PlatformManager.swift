@@ -51,7 +51,7 @@ class PlatformManager {
         }
         
         // meals
-        if hasItem(chance: 0.2) {
+        if hasItem(chance: 0.1) {
             let meal = getRandomFood()
             platform.addChild(meal!)
         }

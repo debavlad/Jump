@@ -95,12 +95,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
 
     func didBegin(_ contact: SKPhysicsContact) {
-        if !character.isDead() {
+        if !character.isDead {
             // If character touched a coin somehow
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if collision == Collisions.characterAndCoin {
+                print(contact.bodyA.node!, contact.bodyB.node!)
                 let coin = contact.bodyA.node!.name!.contains("coin") ? contact.bodyA.node! : contact.bodyB.node!
+                
                 coin.userData?.setValue(true, forKey: "wasTouched")
+            } else if collision == Collisions.characterAndFood {
+                let food = contact.bodyA.node!.name!.contains("food") ? contact.bodyA.node! : contact.bodyB.node!
+                food.userData?.setValue(true, forKey: "wasTouched")
             }
             
             // If character jumped on a platform
@@ -121,12 +126,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 // Picking up the coin
                 if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
-                    if platform.children.count > 0 {
-                        guard let coin = platform.children.first(where: { (n) -> Bool in
-                            return n.name!.contains("coin")
-                        }) else { return }
-                        
-                        pickCoinUp(coin: coin, platform: platform)
+                    
+                    if let coin = platform.children.first(where: { (n) -> Bool in
+                        return n.name!.contains("coin")
+                    }) {
+                        pickItemUp(item: coin, platform: platform)
+                    }
+                    
+                    if let food = platform.children.first(where: { (n) -> Bool in
+                        return n.name!.contains("food")
+                    }) {
+                        pickItemUp(item: food, platform: platform)
                     }
                 }
             }
@@ -145,6 +155,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             particles = SKEmitterNode(fileNamed: "BronzeParticles")!
         case .gold:
             particles = SKEmitterNode(fileNamed: "GoldenParticles")!
+        case .bread:
+            particles = SKEmitterNode(fileNamed: "BreadParticles")!
+        case .cheese:
+            particles = SKEmitterNode(fileNamed: "CheeseParticles")!
+        case .chicken:
+            particles = SKEmitterNode(fileNamed: "ChickenParticles")!
+        case .egg:
+            particles = SKEmitterNode(fileNamed: "EggParticles")!
+        case .meat:
+            particles = SKEmitterNode(fileNamed: "MeatParticles")!
         }
         
         particles.name = String()
@@ -155,30 +175,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return particles
     }
     
-    fileprivate func pickCoinUp(coin: SKNode, platform: SKNode) {
-        let wasTouched = coin.userData?.value(forKey: "wasTouched") as! Bool
+    fileprivate func pickItemUp(item: SKNode, platform: SKNode) {
+        let wasTouched = item.userData?.value(forKey: "wasTouched") as! Bool
         
         if wasTouched {
-            let particles: SKEmitterNode!
+            var particles = SKEmitterNode()
+            var label: SKLabelNode?
             
-            if coin.name!.contains("wooden") {
-                particles = getParticles(type: .wooden, targetNode: platform)
-            } else if coin.name!.contains("bronze") {
-                particles = getParticles(type: .bronze, targetNode: platform)
+            if item.name!.contains("coin") {
+                if item.name!.contains("wooden") {
+                    particles = getParticles(type: .wooden, targetNode: platform)
+                } else if item.name!.contains("bronze") {
+                    particles = getParticles(type: .bronze, targetNode: platform)
+                } else if item.name!.contains("golden") {
+                    particles = getParticles(type: .gold, targetNode: platform)
+                }
+                
+                label = getLabel(text: "+1")
             } else {
-                particles = getParticles(type: .gold, targetNode: platform)
+                if item.name!.contains("bread") {
+                    particles = getParticles(type: .bread, targetNode: platform)
+                    character.increaseHp(by: 15)
+                } else if item.name!.contains("egg") {
+                    particles = getParticles(type: .egg, targetNode: platform)
+                    character.increaseHp(by: 5)
+                } else if item.name!.contains("cheese") {
+                    particles = getParticles(type: .cheese, targetNode: platform)
+                    character.increaseHp(by: 10)
+                } else if item.name!.contains("meat") {
+                    particles = getParticles(type: .meat, targetNode: platform)
+                    character.increaseHp(by: 25)
+                } else {
+                    particles = getParticles(type: .chicken, targetNode: platform)
+                    character.increaseHp(by: 20)
+                }
             }
             
-            particles.position = coin.position
+            particles.position = item.position
             particles.zPosition = 3
             particles.particleZPosition = 3
             add(particles, to: platform)
             
-            let label = getLabel(text: "+1")
-            platform.addChild(label)
-            label.run(moveUpAnimation)
+            if let l = label {
+                platform.addChild(l)
+                l.run(moveUpAnimation)
+            }
             
-            coin.removeFromParent()
+            item.removeFromParent()
         }
     }
     
@@ -319,6 +362,12 @@ enum ParticlesType {
     case wooden
     case bronze
     case gold
+    
+    case bread
+    case meat
+    case egg
+    case chicken
+    case cheese
 }
 
 extension SKNode {

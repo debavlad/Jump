@@ -19,6 +19,8 @@ class Character {
     
     private var jumpAnimation, fadeOut: SKAction!
     
+    var isDead = false
+    
     
     init(_ node: SKNode) {
         self.node = node as? SKSpriteNode
@@ -56,10 +58,6 @@ class Character {
 //        character.physicsBody!.velocity.dy < 0
     }
     
-    func isDead() -> Bool {
-        return hp <= 0
-    }
-    
     func set(parent: SKNode) {
         node.move(toParent: parent)
     }
@@ -85,24 +83,30 @@ class Character {
     }
     
     private func set(hp: Int) {
-        if hp <= 0 {
-            // is dead
-            self.hp = 0
-            hpStripe.size.width = 0
-            node.zPosition = -1
-            hpBorder.run(fadeOut)
-        } else {
-            // is alive
-            if hp > 0 && hp <= 25 {
-                hpStripe.texture = red
-            } else if hp > 25 && hp <= 50 {
-                hpStripe.texture = yellow
-            } else if hp > 50 && hp <= 100 {
-                hpStripe.texture = green
+        if !isDead {
+            if hp <= 0 {
+                // is dead
+                self.hp = 0
+                hpStripe.size.width = 0
+                node.zPosition = -1
+                hpBorder.run(fadeOut)
+                isDead = true
+            } else if hp > 0 && hp <= 100 {
+                // is alive
+                if hp > 0 && hp <= 25 {
+                    hpStripe.texture = red
+                } else if hp > 25 && hp <= 50 {
+                    hpStripe.texture = yellow
+                } else if hp > 50 && hp <= 100 {
+                    hpStripe.texture = green
+                }
+                
+                self.hp = hp
+                hpStripe.size.width = maxStripeWidth / 100 * CGFloat(hp)
+            } else if hp > 100 {
+                self.hp = 100
+                hpStripe.size.width = maxStripeWidth
             }
-            
-            self.hp = hp
-            hpStripe.size.width = maxStripeWidth / 100 * CGFloat(hp)
         }
     }
     
