@@ -99,8 +99,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // If character touched a coin somehow
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if collision == Collisions.characterAndCoin {
-                let coin = contact.bodyA.node?.name == "coin" ? contact.bodyA.node : contact.bodyB.node
-                coin?.userData?.setValue(true, forKey: "wasTouched")
+                let coin = contact.bodyA.node!.name!.contains("coin") ? contact.bodyA.node! : contact.bodyB.node!
+                coin.userData?.setValue(true, forKey: "wasTouched")
             }
             
             // If character jumped on a platform
