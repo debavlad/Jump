@@ -170,7 +170,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let label = getLabel(text: "+1")
                 platform.addChild(label)
                 label.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
-                label.physicsBody?.applyAngularImpulse(0.001)
+                let imp = CGFloat.random(in: -0.0005...0.0005)
+                label.physicsBody?.applyAngularImpulse(imp)
             }
             
             item.removeFromParent()
