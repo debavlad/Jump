@@ -13,4 +13,6 @@ class Collisions {
     static let characterAndStone = Categories.character | Categories.stonePlatform
     static let characterAndCoin = Categories.character | Categories.coin
     static let characterAndFood = Categories.character | Categories.food
+    static let characterAndGround = Categories.character | Categories.ground
+    
 }

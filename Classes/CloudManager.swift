@@ -23,9 +23,21 @@ class CloudManager {
         height = UIScreen.main.bounds.height + 50
     }
     
-    func canCreate(playerY: CGFloat) -> Bool {
-        return lastY + distance < playerY + height
+    func canCreate(playerY: CGFloat, gameStarted: Bool) -> Bool {
+//        print ("\(lastY) + \(distance) < \(playerY) + \(height)")
+        if gameStarted {
+            return lastY + distance < playerY + height
+        } else {
+            return lastY + distance < height
+        }
     }
+    
+    // TO-DO: clouds movement
+//    func move() {
+//        for cloud in collection {
+//            cloud.position = CGPoint(x: cloud.position.x + 0.2, y: cloud.position.y)
+//        }
+//    }
     
     func remove(minY: CGFloat) {
         collection.forEach { (node) in

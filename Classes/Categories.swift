@@ -14,4 +14,5 @@ class Categories {
     static let stonePlatform: UInt32 = 0x1 << 3
     static let coin: UInt32 = 0x1 << 4
     static let food: UInt32 = 0x1 << 5
+    static let ground: UInt32 = 0x1 << 6
 }

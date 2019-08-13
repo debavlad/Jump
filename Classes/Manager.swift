@@ -10,12 +10,89 @@ import Foundation
 import SpriteKit
 
 class Manager {
+    let scene: SKScene!
     let platforms: PlatformManager!
     let bgClouds, fgClouds: CloudManager!
     
-    init(startY: CGFloat, frameMinY: CGFloat) {
-        platforms = PlatformManager(150, startY)
-        bgClouds = CloudManager(250, frameMinY)
-        fgClouds = CloudManager(1200, frameMinY)
+    var sky, house, ground, bench, line, slider, button, black: SKSpriteNode!
+    var pauseTexture, playTexture: SKTexture!
+    
+    init(scene: SKScene) {
+        self.scene = scene
+        platforms = PlatformManager(150, scene.frame.height/2)
+        bgClouds = CloudManager(250, -scene.frame.height)
+        fgClouds = CloudManager(1200, -scene.frame.height)
+        setNodes()
+    }
+    
+    func setNodes() {
+        sky = scene.childNode(withName: "sky")?.pixelate()
+        house = scene.childNode(withName: "house")?.pixelate()
+        ground = scene.childNode(withName: "ground")?.pixelate()
+        bench = scene.childNode(withName: "bench")?.pixelate()
+        line = scene.childNode(withName: "line")?.pixelate()
+        slider = scene.childNode(withName: "slider")?.pixelate()
+        button = scene.childNode(withName: "button")?.pixelate()
+        black = scene.childNode(withName: "black")?.pixelate()
+        
+        pauseTexture = SKTexture(imageNamed: "pause").pixelate()
+        playTexture = SKTexture(imageNamed: "continue").pixelate()
+        
+        ground.physicsBody?.categoryBitMask = Categories.ground
+        bench.physicsBody?.categoryBitMask = Categories.ground
+        
+        line.isHidden = true
+        slider.isHidden = true
+        button.isHidden = true
+    }
+    
+    func setCamera(_ camera: SKCameraNode) {
+        sky.move(toParent: camera)
+        slider.move(toParent: camera)
+        line.move(toParent: camera)
+        button.move(toParent: camera)
+        black.move(toParent: camera)
+    }
+    
+    func getParticles(filename: String, targetNode: SKNode?) -> SKEmitterNode {
+        let particles = SKEmitterNode(fileNamed: filename)!
+        particles.name = String()
+        if filename != "DustParticles" {
+            particles.targetNode = targetNode
+        }
+        
+        return particles
+    }
+    
+    func getLabel(text: String) -> SKLabelNode {
+        let label = SKLabelNode(text: text)
+        label.name = String()
+        label.fontName = "DisposableDroidBB"
+        label.fontColor = UIColor.white
+        label.fontSize = 64
+        label.position = CGPoint(x: 70, y: 70)
+        label.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20))
+        label.physicsBody?.collisionBitMask = 0
+        label.physicsBody?.categoryBitMask = 0
+        label.physicsBody?.contactTestBitMask = 0
+        label.zPosition = 18
+        return label
+    }
+    
+    // func showUI & hideUI
+}
+
+extension SKNode {
+    func pixelate() -> SKSpriteNode {
+        let node = self as! SKSpriteNode
+        node.texture?.filteringMode = .nearest
+        return node
+    }
+}
+
+extension SKTexture {
+    func pixelate() -> SKTexture {
+        self.filteringMode = .nearest
+        return self
     }
 }

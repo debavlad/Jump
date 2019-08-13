@@ -13,89 +13,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var cam: SKCameraNode!
     var worldNode: SKNode!
     
+    var manager: Manager!
     var character: Character!
     
-    var sky, platform, line, slider, button, black: SKSpriteNode!
-    var scaleUp, scaleDown, moveUpFade: SKAction!
-    var pauseTexture, playTexture: SKTexture!
-    var sliderTouch: UITouch!
-    
     var movement: CGFloat!
-    var manager: Manager!
-    var sliderIsTriggered = false, gameIsPaused = false
+    var sliderTouch: UITouch!
+    var sliderIsTriggered = false, gameIsPaused = false, gameStarted = false, gameEnded = false
     
     
     override func didMove(to view: SKView) {
+        // Physics
+        physicsWorld.contactDelegate = self
+        physicsWorld.gravity = CGVector(dx: 0, dy: -23)
+        
+        // Camera
+        cam = SKCameraNode()
+        camera = cam
+        addChild(cam)
+        
+        // Nodes
+        manager = Manager(scene: self)
+        manager.setCamera(cam)
         character = Character(childNode(withName: "character")!)
         
-        setNodes()
-        setPhysics()
-        setAnimations()
-        manager = Manager(startY: platform.position.y, frameMinY: -frame.height)
-        setCamera()
-    }
-    
-    fileprivate func setNodes() {
-        sky = childNode(withName: "sky")?.pixelate()
-        platform = childNode(withName: "platform")?.pixelate()
-        line = childNode(withName: "line")?.pixelate()
-        slider = childNode(withName: "slider")?.pixelate()
-        button = childNode(withName: "pause")?.pixelate()
-        black = childNode(withName: "black")?.pixelate()
-        playTexture = SKTexture(imageNamed: "continue").pixelate()
-        pauseTexture = SKTexture(imageNamed: "pause").pixelate()
-        
-        slider.position.x = character.getX()
+        manager.slider.position.x = character.getX()
         movement = character.getX()
         
         worldNode = SKNode()
-        character.set(parent: worldNode)
+        character.setParent(worldNode)
         addChild(worldNode)
     }
-    
-    fileprivate func setCamera() {
-        cam = SKCameraNode()
-        camera = cam
-        
-        sky.move(toParent: cam)
-        slider.move(toParent: cam)
-        line.move(toParent: cam)
-        button.move(toParent: cam)
-        black.move(toParent: cam)
-        
-        addChild(cam)
-    }
-    
-    fileprivate func setAnimations() {
-        // For slider
-        scaleUp = SKAction.scale(to: 1.3, duration: 0.1)
-        scaleDown = SKAction.scale(to: 1, duration: 0.1)
-        
-        // For label
-        let moveUp = SKAction.move(to: CGPoint(x: 70, y: 140), duration: 1)
-//        moveUp.timingMode = SKActionTimingMode.easeOut
-        let fade = SKAction.fadeAlpha(to: 0, duration: 1)
-//        fade.timingMode = SKActionTimingMode.easeOut
-        let remove = SKAction.run { self.removeFromParent() }
-        
-        let group = SKAction.group([moveUp, fade, remove])
-//        group.timingMode = SKActionTimingMode.easeOut
-        moveUpFade = group
-    }
-    
-    fileprivate func setPhysics() {
-        physicsWorld.contactDelegate = self
-        physicsWorld.gravity = CGVector(dx: 0, dy: -21)
-        
-        platform.physicsBody?.categoryBitMask = Categories.woodenPlatform
-        platform.physicsBody?.contactTestBitMask = 0
-    }
-    
 
+    
     func didBegin(_ contact: SKPhysicsContact) {
         if !character.isDead {
             // If character touched an item somehow
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+//            if collision == Collisions.characterAndGround {
+//                character.push(power: 30)
+//            }
+            
             if collision == Collisions.characterAndCoin {
                 if let coin = contact.bodyA.node!.name!.contains("coin") ? contact.bodyA.node : contact.bodyB.node {
                     coin.userData?.setValue(true, forKey: "wasTouched")
@@ -112,7 +69,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 // 1. Pick items up and increase hp if needed
                 if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
-                    let dust = getParticles(filename: "DustParticles", targetNode: nil)
+                    let dust = manager.getParticles(filename: "DustParticles", targetNode: nil)
                     add(emitter: dust, to: platform)
                     
                     if let coin = platform.children.first(where: { (n) -> Bool in
@@ -131,24 +88,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 // 2. Decrease player's hp and push him up
                 if collision == Collisions.characterAndWood {
                     character.decreaseHp(by: 2)
-                    character.push(power: 70)
+                    if character.getHp() > 0 {
+                        character.push(power: 75)
+                    } else {
+                        character.push(power: 10)
+                        gameEnded = true
+                    }
                 } else if collision == Collisions.characterAndStone {
                     character.decreaseHp(by: 5)
-                    character.push(power: 80)
+                    if character.getHp() > 0 {
+                        character.push(power: 85)
+                    } else {
+                        character.push(power: 10)
+                        gameEnded = true
+                    }
                 }
             }
         }
     }
     
-    fileprivate func getParticles(filename: String, targetNode: SKNode?) -> SKEmitterNode {
-        let particles = SKEmitterNode(fileNamed: filename)!
-        particles.name = String()
-        if filename != "DustParticles" {
-            particles.targetNode = targetNode
-        }
-        
-        return particles
-    }
     
     fileprivate func pickItemUp(item: SKNode, isCoin: Bool, platform: SKNode) {
         let wasTouched = item.userData?.value(forKey: "wasTouched") as! Bool
@@ -160,14 +118,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             name = name.first!.uppercased() + name.dropFirst()
             name += "Particles"
             
-            let particles = getParticles(filename: String(name), targetNode: platform)
+            let particles = manager.getParticles(filename: String(name), targetNode: platform)
             particles.position = item.position
             particles.zPosition = 3
             particles.particleZPosition = 3
             add(emitter: particles, to: platform)
             
             if isCoin {
-                let label = getLabel(text: "+1")
+                let label = manager.getLabel(text: "+1")
                 platform.addChild(label)
                 label.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
                 let imp = CGFloat.random(in: -0.0005...0.0005)
@@ -194,44 +152,69 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.run(sequence)
     }
     
-    fileprivate func getLabel(text: String) -> SKLabelNode {
-        let label = SKLabelNode(text: text)
-        label.name = String()
-        label.fontName = "DisposableDroidBB"
-        label.fontColor = UIColor.white
-        label.fontSize = 64
-        label.position = CGPoint(x: 70, y: 70)
-        label.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20))
-        label.physicsBody?.collisionBitMask = 0
-        label.zPosition = 30
-        return label
-    }
     
-
     override func update(_ currentTime: TimeInterval) {
         // Setting camera and player positions
-        camera!.position.y = lerp(start: (camera?.position.y)!, end: character.getY(), percent: 0.065)
-        movement = lerp(start: character.getX(), end: slider.position.x, percent: 0.2)
-        character.set(x: movement)
+        movement = lerp(start: character.getX(), end: manager.slider.position.x, percent: 0.2)
+        character.setX(movement)
+        
+        if gameStarted && !gameEnded {
+            camera!.position.y = lerp(start: (camera?.position.y)!, end: character.getY(), percent: 0.065)
+            
+            
+            if manager.platforms.canCreate(playerY: character.getY()) {
+                let platform = manager.platforms.instantiate()
+                worldNode.addChild(platform)
+                manager.platforms.remove(minY: cam.frame.minY - frame.height/1.95)
+            }
+            
+            
+        } else if !gameStarted && !gameEnded {
+            if character.getY() > 100 {
+//                setCamera()
+                gameStarted = true
+            }
+        }
+        
         
         // Creating clouds and platforms
-        if manager.bgClouds.canCreate(playerY: character.getY()) {
+        if manager.bgClouds.canCreate(playerY: character.getY(), gameStarted: gameStarted) {
             let cloud = manager.bgClouds.instantiate()
             worldNode.addChild(cloud)
-            manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
+            if gameStarted {
+                manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
+            }
         }
         
-        if manager.fgClouds.canCreate(playerY: character.getY()) {
+        if manager.fgClouds.canCreate(playerY: character.getY(), gameStarted: gameStarted) {
             let cloud = manager.fgClouds.instantiate()
             worldNode.addChild(cloud)
-            manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
+            if gameStarted {
+                manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
+            }
         }
         
-        if manager.platforms.canCreate(playerY: character.getY()) {
-            let platform = manager.platforms.instantiate()
-            worldNode.addChild(platform)
-            manager.platforms.remove(minY: cam.frame.minY - frame.height/1.95)
-        }
+//        manager.bgClouds.move()
+//        manager.fgClouds.move()
+        
+        // Creating clouds and platforms
+//        if manager.bgClouds.canCreate(playerY: character.getY()) {
+//            let cloud = manager.bgClouds.instantiate()
+//            worldNode.addChild(cloud)
+//            manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
+//        }
+//
+//        if manager.fgClouds.canCreate(playerY: character.getY()) {
+//            let cloud = manager.fgClouds.instantiate()
+//            worldNode.addChild(cloud)
+//            manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
+//        }
+//
+//        if manager.platforms.canCreate(playerY: character.getY()) {
+//            let platform = manager.platforms.instantiate()
+//            worldNode.addChild(platform)
+//            manager.platforms.remove(minY: cam.frame.minY - frame.height/1.95)
+//        }
     }
     
     func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
@@ -240,44 +223,64 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch = touches.first!
-        let node = atPoint(touch.location(in: self))
-        
-        if node == slider {
-            sliderIsTriggered = true
-            sliderTouch = touch
-            slider.run(scaleUp)
-        } else if node == button {
-            sliderIsTriggered = false
-            gameIsPaused ? setGameState(isPaused: false) : setGameState(isPaused: true)
+        if gameStarted {
+            let touch = touches.first!
+            let node = atPoint(touch.location(in: self))
+            
+            if node == manager.slider {
+                sliderIsTriggered = true
+                sliderTouch = touch
+                
+                let scaleUp = SKAction.scale(to: 1.3, duration: 0.1)
+                manager.slider.run(scaleUp)
+            } else if node == manager.button {
+                sliderIsTriggered = false
+                gameIsPaused ? setGameState(isPaused: false) : setGameState(isPaused: true)
+            }
+        } else {
+            // if game was not started yet
+            // sit anim, wait a lil bit and jump uppppp
+            let sit = SKAction.run {
+                self.character.setSitAnimation(index: 1)
+            }
+            let wait = SKAction.wait(forDuration: 0.09)
+            let push = SKAction.run {
+                self.character.push(power: 170)
+                self.manager.line.isHidden = false
+                self.manager.button.isHidden = false
+                self.manager.slider.isHidden = false
+            }
+            let group = SKAction.sequence([sit, wait, push])
+            run(group)
         }
     }
     
     fileprivate func setGameState(isPaused: Bool) {
         if isPaused {
-            button.texture = playTexture
+            manager.button.texture = manager.playTexture
             physicsWorld.speed = 0
-            black.alpha = 0.3
+            manager.black.alpha = 0.3
         } else {
-            button.texture = pauseTexture
+            manager.button.texture = manager.pauseTexture
             physicsWorld.speed = 1
-            black.alpha = 0
+            manager.black.alpha = 0
         }
-        worldNode.isPaused = !worldNode.isPaused
-        gameIsPaused = !gameIsPaused
-        line.isHidden = !line.isHidden
-        slider.isHidden = !slider.isHidden
+        
+        gameIsPaused = isPaused
+        worldNode.isPaused = isPaused
+        manager.line.isHidden = isPaused
+        manager.slider.isHidden = isPaused
     }
     
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if sliderIsTriggered, let st = sliderTouch {
             let touchX = st.location(in: self).x
-            let halfLine = line.size.width / 2
+            let halfLine = manager.line.size.width / 2
             
             if touchX > -halfLine && touchX < halfLine {
-                slider.position.x = touchX
-                if character.getX() < slider.position.x {
+                manager.slider.position.x = touchX
+                if character.getX() < manager.slider.position.x {
                     character.turn(left: false)
                 } else {
                     character.turn(left: true)
@@ -289,7 +292,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let st = sliderTouch, touches.contains(st) {
             sliderIsTriggered = false
-            slider.run(scaleDown)
+            
+            let scaleDown = SKAction.scale(to: 1, duration: 0.1)
+            manager.slider.run(scaleDown)
         }
     }
 }
@@ -305,19 +310,4 @@ enum ParticlesType {
     case egg
     case chicken
     case cheese
-}
-
-extension SKNode {
-    func pixelate() -> SKSpriteNode {
-        let node = self as! SKSpriteNode
-        node.texture?.filteringMode = .nearest
-        return node
-    }
-}
-
-extension SKTexture {
-    func pixelate() -> SKTexture {
-        self.filteringMode = .nearest
-        return self
-    }
 }

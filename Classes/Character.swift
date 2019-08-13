@@ -10,10 +10,9 @@ import Foundation
 import SpriteKit
 
 class Character {
-    private var node: SKSpriteNode!
     private var hp: Int
     
-    private var hpBorder, hpStripe: SKSpriteNode!
+    private var node, hpBorder, hpStripe: SKSpriteNode!
     private var green, yellow, red: SKTexture!
     private var maxStripeWidth: CGFloat
     
@@ -35,6 +34,10 @@ class Character {
         
         setPhysics()
         setAnimations()
+        setSitAnimation(index: 0)
+        
+        
+        hpBorder.isHidden = true
     }
     
     func push(power: Int) {
@@ -53,13 +56,9 @@ class Character {
         }
     }
     
-    func isFallingDown() -> Bool {
-        return node.physicsBody!.velocity.dy < 0
-//        character.physicsBody!.velocity.dy < 0
-    }
     
-    func set(parent: SKNode) {
-        node.move(toParent: parent)
+    func setX(_ x: CGFloat) {
+        node.position.x = x
     }
     
     func getX() -> CGFloat {
@@ -70,19 +69,20 @@ class Character {
         return node.position.y
     }
     
-    func set(x: CGFloat) {
-        node.position.x = x
+    func isFallingDown() -> Bool {
+        return node.physicsBody!.velocity.dy < 0
     }
     
+    
     func decreaseHp(by amount: Int) {
-        set(hp: hp - amount)
+        setHp(hp - amount)
     }
     
     func increaseHp(by amount: Int) {
-        set(hp: hp + amount)
+        setHp(hp + amount)
     }
     
-    private func set(hp: Int) {
+    private func setHp(_ hp: Int) {
         if !isDead {
             if hp <= 0 {
                 // is dead
@@ -110,10 +110,27 @@ class Character {
         }
     }
     
+    func getHp() -> Int {
+        return hp
+    }
+    
+    
+    func setParent(_ parent: SKNode) {
+        node.move(toParent: parent)
+    }
+    
+    func setSitAnimation(index: Int) {
+        let texture = SKTexture(imageNamed: "sit\(index)").pixelate()
+        node.texture = texture
+        node.xScale = -2.5
+    }
+    
+    
+    
     private func setPhysics() {
         node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
         node.physicsBody?.usesPreciseCollisionDetection = true
-        node.physicsBody?.collisionBitMask = 0
+        node.physicsBody?.collisionBitMask = Categories.ground
         node.physicsBody?.allowsRotation = false
         node.physicsBody?.categoryBitMask = Categories.character
         node.physicsBody?.contactTestBitMask = Categories.coin | Categories.woodenPlatform | Categories.stonePlatform
@@ -126,7 +143,7 @@ class Character {
     private func setAnimations() {
         var jumpTextures: [SKTexture] = []
         for i in 0...8 {
-            jumpTextures.append(SKTexture(imageNamed: "fjside\(i)").pixelate())
+            jumpTextures.append(SKTexture(imageNamed: "jump\(i)").pixelate())
         }
         jumpAnimation = SKAction.animate(with: jumpTextures, timePerFrame: 0.11)
         
