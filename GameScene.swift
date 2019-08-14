@@ -118,6 +118,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 label.physicsBody?.applyAngularImpulse(rotate)
             }
             
+            shakeCameraForItem(duration: 0.2)
             item.removeFromParent()
         }
     }
@@ -189,8 +190,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func shakeCamera(duration:Float) {
-        let amplitudeX:CGFloat = 1.25
-        let amplitudeY:CGFloat = 1.25
+        let amplitudeX:CGFloat = 1.5
+        let amplitudeY:CGFloat = 1.5
         let numberOfShakes = duration / 0.04
         var actionsArray:[SKAction] = []
         for _ in 1...Int(numberOfShakes) {
@@ -200,6 +201,62 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //            let moveX = CGFloat(arc4random_uniform(UInt32(amplitudeX))) - amplitudeX / 2
 //            let moveY = CGFloat(arc4random_uniform(UInt32(amplitudeY))) - amplitudeY / 2
             let shakeAction = SKAction.moveBy(x: moveX, y: moveY, duration: 2)
+            shakeAction.timingMode = SKActionTimingMode.easeOut;
+            actionsArray.append(shakeAction);
+            actionsArray.append(shakeAction.reversed());
+        }
+        
+        let actionSeq = SKAction.sequence(actionsArray);
+        cam.run(actionSeq)
+    }
+    
+    func shakeCameraForStart(duration:Float) {
+        var amplitudeX:CGFloat = 40
+        var amplitudeY:CGFloat = 40
+        let numberOfShakes = 6
+        var actionsArray:[SKAction] = []
+        for _ in 1...Int(numberOfShakes) {
+            // build a new random shake and add it to the list
+//            let moveX = CGFloat.random(in: -amplitudeX...amplitudeX)
+//            let moveY = CGFloat.random(in: -amplitudeY...amplitudeY)
+            
+            var rand = Bool.random()
+            let moveX = rand ? -amplitudeX : amplitudeX
+            rand = Bool.random()
+            let moveY = rand ? -amplitudeY : amplitudeY
+            
+            amplitudeX = amplitudeX - 6
+            amplitudeY = amplitudeY - 6
+            
+            let shakeAction = SKAction.moveBy(x: moveX, y: moveY, duration: 0.04)
+            shakeAction.timingMode = SKActionTimingMode.easeOut;
+            actionsArray.append(shakeAction);
+            actionsArray.append(shakeAction.reversed());
+        }
+        
+        let actionSeq = SKAction.sequence(actionsArray);
+        cam.run(actionSeq)
+    }
+    
+    func shakeCameraForItem(duration:Float) {
+        var amplitudeX:CGFloat = 10
+        var amplitudeY:CGFloat = 10
+        let numberOfShakes = 2
+        var actionsArray:[SKAction] = []
+        for _ in 1...Int(numberOfShakes) {
+            // build a new random shake and add it to the list
+            //            let moveX = CGFloat.random(in: -amplitudeX...amplitudeX)
+            //            let moveY = CGFloat.random(in: -amplitudeY...amplitudeY)
+            
+            var rand = Bool.random()
+            let moveX = rand ? -amplitudeX : amplitudeX
+            rand = Bool.random()
+            let moveY = rand ? -amplitudeY : amplitudeY
+            
+            amplitudeX = amplitudeX - 4
+            amplitudeY = amplitudeY - 4
+            
+            let shakeAction = SKAction.moveBy(x: moveX, y: moveY, duration: 0.08)
             shakeAction.timingMode = SKActionTimingMode.easeOut;
             actionsArray.append(shakeAction);
             actionsArray.append(shakeAction.reversed());
@@ -235,8 +292,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let sit = SKAction.run {
                 self.character.setSitAnimation(index: 1)
             }
-            let wait = SKAction.wait(forDuration: 0.08)
+            let wait = SKAction.wait(forDuration: 0.04)
             let push = SKAction.run {
+                self.shakeCameraForStart(duration: 0.2)
                 self.character.push(power: 170)
 //                self.manager.line.isHidden = false
 //                self.manager.button.isHidden = false
