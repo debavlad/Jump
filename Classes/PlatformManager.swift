@@ -119,7 +119,7 @@ extension SKSpriteNode {
     
     func setWoodenProperties() -> SKSpriteNode {
         self.userData?.setValue(75, forKey: "power")
-        self.userData?.setValue(2, forKey: "harm")
+        self.userData?.setValue(3, forKey: "harm")
         return self
     }
     

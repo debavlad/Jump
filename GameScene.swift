@@ -83,6 +83,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         character.push(power: power)
                     } else {
                         character.push(power: 65)
+                        manager.hideUI()
                         gameEnded = true
                     }
                 }
@@ -166,17 +167,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if manager.bgClouds.canCreate(playerY: character.getY(), gameStarted: gameStarted) {
             let cloud = manager.bgClouds.instantiate()
             worldNode.addChild(cloud)
-            if gameStarted {
-                manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
-            }
         }
         
         if manager.fgClouds.canCreate(playerY: character.getY(), gameStarted: gameStarted) {
             let cloud = manager.fgClouds.instantiate()
             worldNode.addChild(cloud)
-            if gameStarted {
-                manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
-            }
+        }
+        
+        if !gameIsPaused {
+            manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95, maxX: frame.width/2)
+            manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95, maxX: frame.width/2)
+            manager.bgClouds.move()
+            manager.fgClouds.move()
         }
     }
     
@@ -209,12 +211,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let wait = SKAction.wait(forDuration: 0.08)
             let push = SKAction.run {
                 self.character.push(power: 170)
-                self.manager.line.isHidden = false
-                self.manager.button.isHidden = false
-                self.manager.slider.isHidden = false
+//                self.manager.line.isHidden = false
+//                self.manager.button.isHidden = false
+//                self.manager.slider.isHidden = false
             }
             let group = SKAction.sequence([sit, wait, push])
             character.node.removeAllActions()
+            manager.showUI()
             run(group)
         }
     }

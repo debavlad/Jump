@@ -14,7 +14,7 @@ class Manager {
     let platforms: PlatformManager!
     let bgClouds, fgClouds: CloudManager!
     
-    var sky, house, ground, bench, line, slider, button, black: SKSpriteNode!
+    var sky, house, ground, bench, line, slider, button, black, hpBorder: SKSpriteNode!
     var pauseTexture, playTexture: SKTexture!
     
     init(scene: SKScene) {
@@ -31,24 +31,20 @@ class Manager {
         ground = scene.childNode(withName: "ground")?.pixelate()
         bench = scene.childNode(withName: "bench")?.pixelate()
         line = scene.childNode(withName: "line")?.pixelate()
-        slider = scene.childNode(withName: "slider")?.pixelate()
+        slider = line.childNode(withName: "slider")?.pixelate()
         button = scene.childNode(withName: "button")?.pixelate()
         black = scene.childNode(withName: "black")?.pixelate()
+        hpBorder = scene.childNode(withName: "character")?.childNode(withName: "hp-border")?.pixelate()
         
         pauseTexture = SKTexture(imageNamed: "pause").pixelate()
         playTexture = SKTexture(imageNamed: "continue").pixelate()
         
         ground.physicsBody?.categoryBitMask = Categories.ground
         bench.physicsBody?.categoryBitMask = Categories.ground
-        
-        line.isHidden = true
-        slider.isHidden = true
-        button.isHidden = true
     }
     
     func setCamera(_ camera: SKCameraNode) {
         sky.move(toParent: camera)
-        slider.move(toParent: camera)
         line.move(toParent: camera)
         button.move(toParent: camera)
         black.move(toParent: camera)
@@ -82,6 +78,25 @@ class Manager {
         return label
     }
     
+    func showUI() {
+        let fade = SKAction.fadeAlpha(to: 1.0, duration: 2)
+        fade.timingMode = SKActionTimingMode.easeOut
+        fade.speed = 4
+
+        line.run(fade)
+        hpBorder.run(fade)
+        button.run(fade)
+    }
+    
+    func hideUI() {
+        let fade = SKAction.fadeAlpha(to: 0, duration: 2)
+        fade.timingMode = SKActionTimingMode.easeOut
+        fade.speed = 4
+        
+        line.run(fade)
+        hpBorder.run(fade)
+        button.run(fade)
+    }
     // func showUI & hideUI
 }
 

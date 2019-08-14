@@ -15,9 +15,9 @@ class FoodManager {
     init() {
         energies[FoodType.meat] = 25
         energies[FoodType.chicken] = 20
+        energies[FoodType.cheese] = 20
         energies[FoodType.bread] = 15
-        energies[FoodType.cheese] = 10
-        energies[FoodType.egg] = 5
+        energies[FoodType.egg] = 15
     }
     
     func getRandom() -> SKSpriteNode {

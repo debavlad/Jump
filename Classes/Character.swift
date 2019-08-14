@@ -38,7 +38,7 @@ class Character {
 //        setSitAnimation(index: 0)
         node.run(SKAction.repeatForever(sitidleAnimation))
         
-        hpBorder.isHidden = true
+//        hpBorder.isHidden = true
     }
     
     func push(power: Int) {
