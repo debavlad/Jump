@@ -33,7 +33,7 @@ class CloudManager {
         }
     }
     
-    func remove(minY: CGFloat, maxX: CGFloat) {
+    func remove(minX: CGFloat, minY: CGFloat, maxX: CGFloat) {
         collection.forEach { (node) in
             if node.position.y < minY {
                 node.removeFromParent()
@@ -43,7 +43,7 @@ class CloudManager {
             if node.position.x + node.frame.width / 4 > 0 && collection.filter({ (n) -> Bool in
                 return n.position.y == node.position.y
             }).count <= 1 {
-                let position = CGPoint(x: -maxX, y: node.position.y)
+                let position = CGPoint(x: minX, y: node.position.y)
                 let new = instantiate(position: position)
                 node.parent?.addChild(new)
                 collection.insert(new)

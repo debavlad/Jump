@@ -36,6 +36,7 @@ class Character {
         setPhysics()
         setAnimations()
 //        setSitAnimation(index: 0)
+        turn(left: true)
         node.run(SKAction.repeatForever(sitidleAnimation))
         
 //        hpBorder.isHidden = true
@@ -90,7 +91,6 @@ class Character {
                 isAlive = false
                 node.zPosition = -1
                 hpStripe.size.width = 0
-                hpBorder.run(fadeOut)
             } else if value > 0 && value <= 100 {
                 if value > 0 && value <= 25 {
                     hpStripe.texture = red

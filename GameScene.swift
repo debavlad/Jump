@@ -144,6 +144,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         movement = lerp(start: character.getX(), end: manager.slider.position.x, percent: 0.2)
         character.setX(movement)
         
+        shakeCamera(duration: 0.2)
+        
         if gameStarted && !gameEnded {
             camera!.position.y = lerp(start: (camera?.position.y)!, end: character.getY(), percent: 0.065)
             
@@ -175,11 +177,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if !gameIsPaused {
-            manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95, maxX: frame.width/2)
-            manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95, maxX: frame.width/2)
+            let minX = -frame.width/2 + cam.position.x
+            let minY = cam.frame.minY - frame.height/1.95
+            let maxX = frame.width/2 + cam.position.x
+            manager.fgClouds.remove(minX: minX, minY: minY, maxX: maxX)
+            manager.bgClouds.remove(minX: minX, minY: minY, maxX: maxX)
+            
             manager.bgClouds.move()
             manager.fgClouds.move()
         }
+    }
+    
+    func shakeCamera(duration:Float) {
+        let amplitudeX:CGFloat = 1.25
+        let amplitudeY:CGFloat = 1.25
+        let numberOfShakes = duration / 0.04
+        var actionsArray:[SKAction] = []
+        for _ in 1...Int(numberOfShakes) {
+            // build a new random shake and add it to the list
+            let moveX = CGFloat.random(in: -amplitudeX...amplitudeX)
+            let moveY = CGFloat.random(in: -amplitudeY...amplitudeY)
+//            let moveX = CGFloat(arc4random_uniform(UInt32(amplitudeX))) - amplitudeX / 2
+//            let moveY = CGFloat(arc4random_uniform(UInt32(amplitudeY))) - amplitudeY / 2
+            let shakeAction = SKAction.moveBy(x: moveX, y: moveY, duration: 2)
+            shakeAction.timingMode = SKActionTimingMode.easeOut;
+            actionsArray.append(shakeAction);
+            actionsArray.append(shakeAction.reversed());
+        }
+        
+        let actionSeq = SKAction.sequence(actionsArray);
+        cam.run(actionSeq)
     }
     
     func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {

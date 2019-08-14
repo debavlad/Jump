@@ -12,6 +12,7 @@ import SpriteKit
 class PlatformManager {
     var distance, lastY: CGFloat
 
+    private var firstJump = true
     private let width, height: CGFloat
     private let coins: CoinManager!
     private let meals: FoodManager!
@@ -55,7 +56,15 @@ class PlatformManager {
             platform.addChild(food)
         }
         
-        let x = CGFloat.random(in: -width...width)
+        let x: CGFloat!
+        // если прыжок первый, то мы создаем платформу прямо над игроком
+        // платформа по счету шестая, учитывая силу толчка и дистанцию между платформами
+        if firstJump && collection.count == 5 {
+            x = -215
+            firstJump = false
+        } else {
+            x = CGFloat.random(in: -width...width)
+        }
         let y = lastY + distance
         platform.position = CGPoint(x: x, y: y)
         lastY = y
