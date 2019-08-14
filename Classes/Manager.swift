@@ -57,6 +57,9 @@ class Manager {
     func getParticles(filename: String, targetNode: SKNode?) -> SKEmitterNode {
         let particles = SKEmitterNode(fileNamed: filename)!
         particles.name = String()
+        particles.zPosition = 3
+        particles.particleZPosition = 3
+        
         if filename != "DustParticles" {
             particles.targetNode = targetNode
         }

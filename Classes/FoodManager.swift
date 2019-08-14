@@ -34,7 +34,7 @@ class FoodManager {
             .setFoodSettings()
             .setRandomness()
             .pixelate()
-        food.name = name + "food"
+        food.name = name + "item"
         food.userData = NSMutableDictionary(capacity: 2)
         food.userData!.setValue(energies[type], forKey: "energy")
         food.userData!.setValue(false, forKey: "wasTouched")
@@ -92,7 +92,7 @@ extension SKSpriteNode {
         physicsBody?.affectedByGravity = false
         physicsBody?.categoryBitMask = Categories.food
         physicsBody?.contactTestBitMask = Categories.character
-        physicsBody?.collisionBitMask = Categories.woodenPlatform | Categories.stonePlatform
+        physicsBody?.collisionBitMask = Categories.platform
         physicsBody?.friction = 0
         physicsBody?.restitution = 0
         physicsBody?.isDynamic = false

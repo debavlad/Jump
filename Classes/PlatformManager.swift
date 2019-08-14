@@ -78,6 +78,7 @@ class PlatformManager {
                     .setPlatformSettings()
                     .setWoodenProperties()
                     .pixelate()
+            
             case .stone:
                 platform = SKSpriteNode(imageNamed: "stone-platform")
                     .setPlatformSettings()
@@ -109,18 +110,22 @@ extension SKSpriteNode {
         physicsBody?.linearDamping = 0
         physicsBody?.angularDamping = 0
         physicsBody?.contactTestBitMask = 0
+        physicsBody?.categoryBitMask = Categories.platform
         physicsBody?.isDynamic = false
+        userData = NSMutableDictionary(capacity: 2)
         
         return self
     }
     
     func setWoodenProperties() -> SKSpriteNode {
-        physicsBody?.categoryBitMask = Categories.woodenPlatform
+        self.userData?.setValue(75, forKey: "power")
+        self.userData?.setValue(2, forKey: "harm")
         return self
     }
     
     func setStoneProperties() -> SKSpriteNode {
-        physicsBody?.categoryBitMask = Categories.stonePlatform
+        self.userData?.setValue(85, forKey: "power")
+        self.userData?.setValue(5, forKey: "harm")
         return self
     }
 }

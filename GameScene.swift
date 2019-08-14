@@ -46,20 +46,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     
     func didBegin(_ contact: SKPhysicsContact) {
-        if !character.isDead {
-            // If character touched an item somehow
+        if character.isAlive {
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-//            if collision == Collisions.characterAndGround {
-//                character.push(power: 30)
-//            }
             
-            if collision == Collisions.characterAndCoin {
-                if let coin = contact.bodyA.node!.name!.contains("coin") ? contact.bodyA.node : contact.bodyB.node {
-                    coin.userData?.setValue(true, forKey: "wasTouched")
-                }
-            } else if collision == Collisions.characterAndFood {
-                if let food = contact.bodyA.node!.name!.contains("food") ? contact.bodyA.node : contact.bodyB.node {
-                    food.userData?.setValue(true, forKey: "wasTouched")
+            // If character touched an item somehow
+            if collision == Collision.withFood || collision == Collision.withCoin {
+                if let item = contact.bodyA.node!.name!.contains("item") ? contact.bodyA.node : contact.bodyB.node {
+                    item.userData?.setValue(true, forKey: "wasTouched")
                 }
             }
             
@@ -68,38 +61,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
                 
                 // 1. Pick items up and increase hp if needed
-                if collision == Collisions.characterAndWood || collision == Collisions.characterAndStone {
+                if collision == Collision.withPlatform {
                     let dust = manager.getParticles(filename: "DustParticles", targetNode: nil)
                     add(emitter: dust, to: platform)
                     
-                    if let coin = platform.children.first(where: { (n) -> Bool in
-                        return n.name!.contains("coin")
-                    }) { pickItemUp(item: coin, isCoin: true, platform: platform) }
-                    
-                    if let food = platform.children.first(where: { (n) -> Bool in
-                        return n.name!.contains("food")
-                    }) {
+                    if let food = platform.getFoodNode() {
                         let energy = food.userData?.value(forKey: "energy") as! Int
-                        character.increaseHp(by: energy)
-                        pickItemUp(item: food, isCoin: false, platform: platform)
+                        character.heal(by: energy)
+                        pick(item: food, platform: platform)
                     }
-                }
-                
-                // 2. Decrease player's hp and push him up
-                if collision == Collisions.characterAndWood {
-                    character.decreaseHp(by: 2)
-                    if character.getHp() > 0 {
-                        character.push(power: 75)
-                    } else {
-                        character.push(power: 10)
-                        gameEnded = true
+                    
+                    if let coin = platform.getCoinNode() {
+                        pick(item: coin, platform: platform)
                     }
-                } else if collision == Collisions.characterAndStone {
-                    character.decreaseHp(by: 5)
-                    if character.getHp() > 0 {
-                        character.push(power: 85)
+                    
+                    let power = platform.userData?.value(forKey: "power") as! Int
+                    let harm = platform.userData?.value(forKey: "harm") as! Int
+                    
+                    character.harm(by: harm)
+                    if character.isAlive {
+                        character.push(power: power)
                     } else {
-                        character.push(power: 10)
+                        character.push(power: 65)
                         gameEnded = true
                     }
                 }
@@ -108,28 +91,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    fileprivate func pickItemUp(item: SKNode, isCoin: Bool, platform: SKNode) {
+    fileprivate func pick(item: SKNode, platform: SKNode) {
         let wasTouched = item.userData?.value(forKey: "wasTouched") as! Bool
         
         if wasTouched {
-            // food and coin suffixes are both 4 length
+            // breadfood; goldencoin
             var name = item.name!.dropLast(4)
-            // getting particles file name
+            // bread; golden
             name = name.first!.uppercased() + name.dropFirst()
+            // Bread; Golden
             name += "Particles"
+            // BreadParticles; GoldenParticles
             
             let particles = manager.getParticles(filename: String(name), targetNode: platform)
             particles.position = item.position
-            particles.zPosition = 3
-            particles.particleZPosition = 3
             add(emitter: particles, to: platform)
             
+            let isCoin = item.userData?.value(forKey: "energy") == nil
             if isCoin {
                 let label = manager.getLabel(text: "+1")
                 platform.addChild(label)
+                
                 label.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
-                let imp = CGFloat.random(in: -0.0005...0.0005)
-                label.physicsBody?.applyAngularImpulse(imp)
+                let rotate = CGFloat.random(in: -0.0005...0.0005)
+                label.physicsBody?.applyAngularImpulse(rotate)
             }
             
             item.removeFromParent()
@@ -193,28 +178,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
             }
         }
-        
-//        manager.bgClouds.move()
-//        manager.fgClouds.move()
-        
-        // Creating clouds and platforms
-//        if manager.bgClouds.canCreate(playerY: character.getY()) {
-//            let cloud = manager.bgClouds.instantiate()
-//            worldNode.addChild(cloud)
-//            manager.bgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
-//        }
-//
-//        if manager.fgClouds.canCreate(playerY: character.getY()) {
-//            let cloud = manager.fgClouds.instantiate()
-//            worldNode.addChild(cloud)
-//            manager.fgClouds.remove(minY: cam.frame.minY - frame.height/1.95)
-//        }
-//
-//        if manager.platforms.canCreate(playerY: character.getY()) {
-//            let platform = manager.platforms.instantiate()
-//            worldNode.addChild(platform)
-//            manager.platforms.remove(minY: cam.frame.minY - frame.height/1.95)
-//        }
     }
     
     func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
@@ -243,7 +206,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let sit = SKAction.run {
                 self.character.setSitAnimation(index: 1)
             }
-            let wait = SKAction.wait(forDuration: 0.09)
+            let wait = SKAction.wait(forDuration: 0.08)
             let push = SKAction.run {
                 self.character.push(power: 170)
                 self.manager.line.isHidden = false
@@ -251,6 +214,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.manager.slider.isHidden = false
             }
             let group = SKAction.sequence([sit, wait, push])
+            character.node.removeAllActions()
             run(group)
         }
     }
@@ -296,6 +260,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let scaleDown = SKAction.scale(to: 1, duration: 0.1)
             manager.slider.run(scaleDown)
         }
+    }
+}
+
+extension SKNode {
+    func getCoinNode() -> SKNode? {
+        return self.children.first { (n) -> Bool in
+            return n.name!.contains("item") && n.userData?.value(forKey: "energy") == nil
+        }
+    }
+    
+    func getFoodNode() -> SKNode? {
+        return self.children.first(where: { (n) -> Bool in
+            return n.name!.contains("item") && n.userData?.value(forKey: "energy") != nil
+        })
     }
 }
 

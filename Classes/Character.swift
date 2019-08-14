@@ -12,13 +12,14 @@ import SpriteKit
 class Character {
     private var hp: Int
     
-    private var node, hpBorder, hpStripe: SKSpriteNode!
+    var node: SKSpriteNode!
+    private var hpBorder, hpStripe: SKSpriteNode!
     private var green, yellow, red: SKTexture!
     private var maxStripeWidth: CGFloat
     
-    private var jumpAnimation, fadeOut: SKAction!
+    private var jumpAnimation, sitidleAnimation, fadeOut: SKAction!
     
-    var isDead = false
+    var isAlive = true
     
     
     init(_ node: SKNode) {
@@ -34,8 +35,8 @@ class Character {
         
         setPhysics()
         setAnimations()
-        setSitAnimation(index: 0)
-        
+//        setSitAnimation(index: 0)
+        node.run(SKAction.repeatForever(sitidleAnimation))
         
         hpBorder.isHidden = true
     }
@@ -74,36 +75,34 @@ class Character {
     }
     
     
-    func decreaseHp(by amount: Int) {
+    func harm(by amount: Int) {
         setHp(hp - amount)
     }
     
-    func increaseHp(by amount: Int) {
+    func heal(by amount: Int) {
         setHp(hp + amount)
     }
     
-    private func setHp(_ hp: Int) {
-        if !isDead {
-            if hp <= 0 {
-                // is dead
+    private func setHp(_ value: Int) {
+        if isAlive {
+            if value <= 0 {
                 self.hp = 0
-                hpStripe.size.width = 0
+                isAlive = false
                 node.zPosition = -1
+                hpStripe.size.width = 0
                 hpBorder.run(fadeOut)
-                isDead = true
-            } else if hp > 0 && hp <= 100 {
-                // is alive
-                if hp > 0 && hp <= 25 {
+            } else if value > 0 && value <= 100 {
+                if value > 0 && value <= 25 {
                     hpStripe.texture = red
-                } else if hp > 25 && hp <= 50 {
+                } else if value > 25 && value <= 50 {
                     hpStripe.texture = yellow
-                } else if hp > 50 && hp <= 100 {
+                } else if value > 50 && value <= 100 {
                     hpStripe.texture = green
                 }
                 
-                self.hp = hp
-                hpStripe.size.width = maxStripeWidth / 100 * CGFloat(hp)
-            } else if hp > 100 {
+                self.hp = value
+                hpStripe.size.width = maxStripeWidth / 100 * CGFloat(value)
+            } else if value > 100 {
                 self.hp = 100
                 hpStripe.size.width = maxStripeWidth
             }
@@ -133,7 +132,7 @@ class Character {
         node.physicsBody?.collisionBitMask = Categories.ground
         node.physicsBody?.allowsRotation = false
         node.physicsBody?.categoryBitMask = Categories.character
-        node.physicsBody?.contactTestBitMask = Categories.coin | Categories.woodenPlatform | Categories.stonePlatform
+        node.physicsBody?.contactTestBitMask = Categories.coin | Categories.platform
         node.physicsBody?.friction = 0
         node.physicsBody?.restitution = 0
         node.physicsBody?.linearDamping = 0
@@ -148,5 +147,11 @@ class Character {
         jumpAnimation = SKAction.animate(with: jumpTextures, timePerFrame: 0.11)
         
         fadeOut = SKAction.fadeAlpha(to: 0, duration: 0.7)
+        
+        var sitTextures: [SKTexture] = []
+        for i in 1...8 {
+            sitTextures.append(SKTexture(imageNamed: "sit-idle\(i)").pixelate())
+        }
+        sitidleAnimation = SKAction.animate(with: sitTextures, timePerFrame: 0.15)
     }
 }

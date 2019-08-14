@@ -43,7 +43,7 @@ class CoinManager {
         let coin = SKSpriteNode(imageNamed: name + "0")
             .setCoinSettings()
             .pixelate()
-        coin.name = name + "coin"
+        coin.name = name + "item"
         coin.run(SKAction.repeatForever(animations[name]!))
         coin.userData = NSMutableDictionary(capacity: 1)
         coin.userData?.setValue(false, forKey: "wasTouched")
