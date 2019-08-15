@@ -14,7 +14,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var worldNode: SKNode!
     
     var manager: Manager!
-    var character: Character!
+    var player: Player!
     var offset: CGFloat!
     
     var coinsAmount: SKLabelNode!
@@ -39,20 +39,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Nodes
         manager = Manager(scene: self)
-        character = Character(childNode(withName: "character")!)
+        player = Player(childNode(withName: "character")!)
         manager.setCamera(cam)
         
-        manager.slider.position.x = character.getX()
-        movement = character.getX()
+        manager.slider.position.x = player.x
+        movement = player.x
         
         worldNode = SKNode()
-        character.setParent(worldNode)
+        player.setParent(worldNode)
         addChild(worldNode)
     }
 
     
     func didBegin(_ contact: SKPhysicsContact) {
-        if character.isAlive {
+        if player.alive {
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             
             // If character touched an item somehow
@@ -63,7 +63,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             // If character is on the platform
-            if character.isFallingDown() {
+            if player.fallingDown() {
                 let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
                 
                 // 1. Pick items up and increase hp if needed
@@ -73,7 +73,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if let food = platform.getFoodNode() {
                         let energy = food.userData?.value(forKey: "energy") as! Int
-                        character.heal(by: energy)
+                        player.heal(by: energy)
                         pick(item: food, platform: platform)
                     }
                     
@@ -86,11 +86,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     let power = platform.userData?.value(forKey: "power") as! Int
                     let harm = platform.userData?.value(forKey: "harm") as! Int
                     
-                    character.harm(by: harm)
-                    if character.isAlive {
-                        character.push(power: power)
+                    player.harm(by: harm)
+                    if player.alive {
+                        player.push(power: power)
                     } else {
-                        character.push(power: 65)
+                        player.push(power: 65)
                         manager.hideUI()
                         gameEnded = true
                     }
@@ -150,16 +150,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Setting camera and player positions
-        movement = lerp(start: character.getX(), end: manager.slider.position.x, percent: 0.2)
-        character.setX(movement)
+        movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.2)
+        player.x = movement
         
         shakeCamera(duration: 0.2)
         
         if gameStarted && !gameEnded {
-            camera!.position.y = lerp(start: (camera?.position.y)!, end: character.getY(), percent: 0.065)
+            camera!.position.y = lerp(start: (camera?.position.y)!, end: player.y, percent: 0.065)
             
-            
-            if manager.platforms.canCreate(playerY: character.getY()) {
+            if manager.platforms.canCreate(playerY: player.y) {
                 let platform = manager.platforms.instantiate()
                 worldNode.addChild(platform)
                 manager.platforms.remove(minY: cam.frame.minY - frame.height/1.95)
@@ -167,20 +166,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             
         } else if !gameStarted && !gameEnded {
-            if character.getY() > 100 {
-//                setCamera()
+            if player.y > 100 {
                 gameStarted = true
             }
         }
         
         
         // Creating clouds and platforms
-        if manager.bgClouds.canCreate(playerY: character.getY(), gameStarted: gameStarted) {
+        if manager.bgClouds.canCreate(playerY: player.y, gameStarted: gameStarted) {
             let cloud = manager.bgClouds.instantiate()
             worldNode.addChild(cloud)
         }
         
-        if manager.fgClouds.canCreate(playerY: character.getY(), gameStarted: gameStarted) {
+        if manager.fgClouds.canCreate(playerY: player.y, gameStarted: gameStarted) {
             let cloud = manager.fgClouds.instantiate()
             worldNode.addChild(cloud)
         }
@@ -288,7 +286,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 sliderIsTriggered = true
                 sliderTouch = touch
                 offset = manager.slider.position.x - sliderTouch.location(in: self).x
-//                print(offset!)
                 
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelate()
             } else if node == manager.button {
@@ -299,18 +296,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // if game was not started yet
             // sit anim, wait a lil bit and jump uppppp
             let sit = SKAction.run {
-                self.character.setSitAnimation(index: 1)
+                self.player.node.texture = SKTexture(imageNamed: "prepare0").pixelate()
             }
             let wait = SKAction.wait(forDuration: 0.04)
             let push = SKAction.run {
                 self.shakeCameraForStart(duration: 0.2)
-                self.character.push(power: 170)
-//                self.manager.line.isHidden = false
-//                self.manager.button.isHidden = false
-//                self.manager.slider.isHidden = false
+                self.player.push(power: 170)
             }
             let group = SKAction.sequence([sit, wait, push])
-            character.node.removeAllActions()
+            player.node.removeAllActions()
             manager.showUI()
             run(group)
         }
@@ -343,10 +337,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             if touchX > -halfLine && touchX < halfLine {
                 manager.slider.position.x = touchX + offset
-                if character.getX() < manager.slider.position.x {
-                    character.turn(left: false)
+                if player.x < manager.slider.position.x {
+                    player.turn(left: false)
                 } else {
-                    character.turn(left: true)
+                    player.turn(left: true)
                 }
             }
         }
@@ -357,8 +351,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sliderIsTriggered = false
 
             manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelate()
-//            let scaleDown = SKAction.scale(to: 1, duration: 0.1)
-//            manager.slider.run(scaleDown)
         }
     }
 }
