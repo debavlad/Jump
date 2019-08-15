@@ -14,7 +14,8 @@ class Manager {
     let platforms: PlatformManager!
     let bgClouds, fgClouds: CloudManager!
     
-    var sky, house, ground, bench, line, slider, button, black, hpBorder: SKSpriteNode!
+    var coinsLabel: SKLabelNode!
+    var sky, house, ground, bench, line, slider, button, coinstat, black, hpBorder: SKSpriteNode!
     var pauseTexture, playTexture: SKTexture!
     
     init(scene: SKScene) {
@@ -33,6 +34,7 @@ class Manager {
         line = scene.childNode(withName: "line")?.pixelate()
         slider = line.childNode(withName: "slider")?.pixelate()
         button = scene.childNode(withName: "button")?.pixelate()
+        coinstat = scene.childNode(withName: "CoinIcon")?.pixelate()
         black = scene.childNode(withName: "black")?.pixelate()
         hpBorder = scene.childNode(withName: "character")?.childNode(withName: "hp-border")?.pixelate()
         
@@ -48,6 +50,7 @@ class Manager {
         line.move(toParent: camera)
         button.move(toParent: camera)
         black.move(toParent: camera)
+        coinstat.move(toParent: camera)
     }
     
     func getParticles(filename: String, targetNode: SKNode?) -> SKEmitterNode {
@@ -86,6 +89,7 @@ class Manager {
         line.run(fade)
         hpBorder.run(fade)
         button.run(fade)
+        coinstat.run(fade)
     }
     
     func hideUI() {
@@ -96,6 +100,7 @@ class Manager {
         line.run(fade)
         hpBorder.run(fade)
         button.run(fade)
+        coinstat.run(fade)
     }
     // func showUI & hideUI
 }

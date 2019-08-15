@@ -17,6 +17,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var character: Character!
     var offset: CGFloat!
     
+    var coinsAmount: SKLabelNode!
+    var score = 0
+    
     var movement: CGFloat!
     var sliderTouch: UITouch!
     var sliderIsTriggered = false, gameIsPaused = false, gameStarted = false, gameEnded = false
@@ -32,10 +35,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         camera = cam
         addChild(cam)
         
+        coinsAmount = childNode(withName: "CoinIcon")!.childNode(withName: "CoinsLabel") as? SKLabelNode
+        
         // Nodes
         manager = Manager(scene: self)
-        manager.setCamera(cam)
         character = Character(childNode(withName: "character")!)
+        manager.setCamera(cam)
         
         manager.slider.position.x = character.getX()
         movement = character.getX()
@@ -74,6 +79,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if let coin = platform.getCoinNode() {
                         pick(item: coin, platform: platform)
+                        score += 1
+                        coinsAmount.text = String(score)
                     }
                     
                     let power = platform.userData?.value(forKey: "power") as! Int
@@ -281,6 +288,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 sliderIsTriggered = true
                 sliderTouch = touch
                 offset = manager.slider.position.x - sliderTouch.location(in: self).x
+//                print(offset!)
                 
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelate()
             } else if node == manager.button {
@@ -313,10 +321,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             manager.button.texture = manager.playTexture
             physicsWorld.speed = 0
             manager.black.alpha = 0.3
+            manager.coinstat.alpha = 0
         } else {
             manager.button.texture = manager.pauseTexture
             physicsWorld.speed = 1
             manager.black.alpha = 0
+            manager.coinstat.alpha = 1
         }
         
         gameIsPaused = isPaused

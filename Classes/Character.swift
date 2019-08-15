@@ -17,6 +17,7 @@ class Character {
     private var green, yellow, red: SKTexture!
     private var maxStripeWidth: CGFloat
     
+    
     private var jumpAnimation, sitidleAnimation, deathAnimation, fadeOut: SKAction!
     
     var isAlive = true
@@ -38,6 +39,8 @@ class Character {
 //        setSitAnimation(index: 0)
         turn(left: true)
         node.run(SKAction.repeatForever(sitidleAnimation))
+        
+        
         
 //        hpBorder.isHidden = true
     }
