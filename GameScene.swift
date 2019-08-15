@@ -15,6 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var manager: Manager!
     var character: Character!
+    var offset: CGFloat!
     
     var movement: CGFloat!
     var sliderTouch: UITouch!
@@ -279,9 +280,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if node == manager.slider {
                 sliderIsTriggered = true
                 sliderTouch = touch
+                offset = manager.slider.position.x - sliderTouch.location(in: self).x
                 
-                let scaleUp = SKAction.scale(to: 1.3, duration: 0.1)
-                manager.slider.run(scaleUp)
+                manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelate()
             } else if node == manager.button {
                 sliderIsTriggered = false
                 gameIsPaused ? setGameState(isPaused: false) : setGameState(isPaused: true)
@@ -331,7 +332,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let halfLine = manager.line.size.width / 2
             
             if touchX > -halfLine && touchX < halfLine {
-                manager.slider.position.x = touchX
+                manager.slider.position.x = touchX + offset
                 if character.getX() < manager.slider.position.x {
                     character.turn(left: false)
                 } else {
@@ -344,9 +345,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let st = sliderTouch, touches.contains(st) {
             sliderIsTriggered = false
-            
-            let scaleDown = SKAction.scale(to: 1, duration: 0.1)
-            manager.slider.run(scaleDown)
+
+            manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelate()
+//            let scaleDown = SKAction.scale(to: 1, duration: 0.1)
+//            manager.slider.run(scaleDown)
         }
     }
 }

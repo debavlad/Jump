@@ -17,7 +17,7 @@ class Character {
     private var green, yellow, red: SKTexture!
     private var maxStripeWidth: CGFloat
     
-    private var jumpAnimation, sitidleAnimation, fadeOut: SKAction!
+    private var jumpAnimation, sitidleAnimation, deathAnimation, fadeOut: SKAction!
     
     var isAlive = true
     
@@ -113,6 +113,9 @@ class Character {
         return hp
     }
     
+    func die() {
+        node.run(deathAnimation)
+    }
     
     func setParent(_ parent: SKNode) {
         node.move(toParent: parent)
@@ -153,5 +156,11 @@ class Character {
             sitTextures.append(SKTexture(imageNamed: "sit-idle\(i)").pixelate())
         }
         sitidleAnimation = SKAction.animate(with: sitTextures, timePerFrame: 0.15)
+        
+        var deathTextures: [SKTexture] = []
+        for i in 0...5 {
+            deathTextures.append(SKTexture(imageNamed: "death\(i)").pixelate())
+        }
+        deathAnimation = SKAction.animate(with: deathTextures, timePerFrame: 0.11)
     }
 }
