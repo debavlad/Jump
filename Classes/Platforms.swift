@@ -1,5 +1,5 @@
 //
-//  PlatformManager.swift
+//  Platforms.swift
 //  Jump
 //
 //  Created by Vladislav Deba on 7/30/19.
@@ -9,13 +9,13 @@
 import Foundation
 import SpriteKit
 
-class PlatformManager {
+class Platforms {
     var distance, lastY: CGFloat
 
     private var firstJump = true
     private let width, height: CGFloat
-    private let coins: CoinManager!
-    private let meals: FoodManager!
+    private let coins: Coins!
+    private let food: Food!
     private var collection = Set<SKSpriteNode>()
     
     init(_ distance: CGFloat, _ lastY: CGFloat) {
@@ -24,8 +24,8 @@ class PlatformManager {
         
         width = UIScreen.main.bounds.width - 100
         height = UIScreen.main.bounds.height + 50
-        coins = CoinManager()
-        meals = FoodManager()
+        coins = Coins()
+        food = Food()
     }
     
     func canCreate(playerY: CGFloat) -> Bool {
@@ -34,7 +34,14 @@ class PlatformManager {
     
     func remove(minY: CGFloat) {
         collection.forEach { (node) in
-            if node.position.y < minY {
+            var top = node.frame.maxY
+            if let item = node.children.first(where: { (child) -> Bool in
+                return child.name!.contains("item")
+            }) {
+                top += item.frame.maxY - 30
+            }
+            
+            if top < minY {
                 node.removeFromParent()
                 collection.remove(node)
             }
@@ -45,26 +52,16 @@ class PlatformManager {
         let type = getRandomType()
         let platform = getPlatform(type: type)
         
-        // coins
         if hasItem(chance: 0.5) {
             let coin = coins.getRandom(wooden: 0.6, bronze: 0.2, golden: 0.1)
             platform.addChild(coin)
         }
-        // food
         if hasItem(chance: 0.1) {
-            let food = meals.getRandom()
-            platform.addChild(food)
+            let meal = food.getRandom()
+            platform.addChild(meal)
         }
         
-        let x: CGFloat!
-        // если прыжок первый, то мы создаем платформу прямо над игроком
-        // платформа по счету шестая, учитывая силу толчка и дистанцию между платформами
-        if firstJump && collection.count == 5 {
-            x = -215
-            firstJump = false
-        } else {
-            x = CGFloat.random(in: -width...width)
-        }
+        let x = collection.count == 5 ? -215 : CGFloat.random(in: -width...width)
         let y = lastY + distance
         platform.position = CGPoint(x: x, y: y)
         lastY = y

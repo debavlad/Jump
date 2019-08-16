@@ -11,19 +11,20 @@ import SpriteKit
 
 class Manager {
     let scene: SKScene!
-    let platforms: PlatformManager!
-    let bgClouds, fgClouds: CloudManager!
+    let platforms: Platforms!
+    let bgClouds, fgClouds: Clouds!
     
-    var coinsLabel: SKLabelNode!
-    var sky, house, ground, bench, line, slider, button, coinstat, black, hpBorder: SKSpriteNode!
+    var sky, house, ground, bench, line, slider, button, black, hpBorder: SKSpriteNode!
     var pauseTexture, playTexture: SKTexture!
     
     init(scene: SKScene) {
         self.scene = scene
-        platforms = PlatformManager(150, scene.frame.height/2)
-        bgClouds = CloudManager(250, -scene.frame.height)
-        fgClouds = CloudManager(1200, -scene.frame.height)
+        platforms = Platforms(150, scene.frame.height/2)
+        bgClouds = Clouds(250, -scene.frame.height)
+        fgClouds = Clouds(1200, -scene.frame.height)
+        
         setNodes()
+        setCam()
     }
     
     func setNodes() {
@@ -34,7 +35,6 @@ class Manager {
         line = scene.childNode(withName: "line")?.pixelate()
         slider = line.childNode(withName: "slider")?.pixelate()
         button = scene.childNode(withName: "button")?.pixelate()
-        coinstat = scene.childNode(withName: "CoinIcon")?.pixelate()
         black = scene.childNode(withName: "black")?.pixelate()
         hpBorder = scene.childNode(withName: "character")?.childNode(withName: "hp-border")?.pixelate()
         
@@ -45,12 +45,12 @@ class Manager {
         bench.physicsBody?.categoryBitMask = Categories.ground
     }
     
-    func setCamera(_ camera: SKCameraNode) {
-        sky.move(toParent: camera)
-        line.move(toParent: camera)
-        button.move(toParent: camera)
-        black.move(toParent: camera)
-        coinstat.move(toParent: camera)
+    func setCam() {
+        let cam = scene.childNode(withName: "Cam") as! SKCameraNode
+        sky.move(toParent: cam)
+        line.move(toParent: cam)
+        button.move(toParent: cam)
+        black.move(toParent: cam)
     }
     
     func getParticles(filename: String, targetNode: SKNode?) -> SKEmitterNode {
@@ -89,7 +89,6 @@ class Manager {
         line.run(fade)
         hpBorder.run(fade)
         button.run(fade)
-        coinstat.run(fade)
     }
     
     func hideUI() {
@@ -100,9 +99,7 @@ class Manager {
         line.run(fade)
         hpBorder.run(fade)
         button.run(fade)
-        coinstat.run(fade)
     }
-    // func showUI & hideUI
 }
 
 extension SKNode {

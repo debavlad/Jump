@@ -1,5 +1,5 @@
 //
-//  FoodManager.swift
+//  Food.swift
 //  Jump
 //
 //  Created by Vladislav Deba on 8/7/19.
@@ -9,7 +9,7 @@
 import Foundation
 import SpriteKit
 
-class FoodManager {
+class Food {
     var energies = [FoodType : Int]()
     
     init() {
@@ -34,7 +34,7 @@ class FoodManager {
             .setFoodSettings()
             .setRandomness()
             .pixelate()
-        food.name = name + "item"
+        food.name = name + "fooditem"
         food.userData = NSMutableDictionary(capacity: 2)
         food.userData!.setValue(energies[type], forKey: "energy")
         food.userData!.setValue(false, forKey: "wasTouched")

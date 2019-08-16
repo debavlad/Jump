@@ -10,17 +10,13 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    var cam: SKCameraNode!
-    var worldNode: SKNode!
+    var world: SKNode!
     
+    var cam: Camera!
     var manager: Manager!
     var player: Player!
-    var offset: CGFloat!
     
-    var coinsAmount: SKLabelNode!
-    var score = 0
-    
-    var movement: CGFloat!
+    var movement, offset: CGFloat!
     var sliderTouch: UITouch!
     var sliderIsTriggered = false, gameIsPaused = false, gameStarted = false, gameEnded = false
     
@@ -31,26 +27,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.gravity = CGVector(dx: 0, dy: -23)
         
         // Camera
-        cam = SKCameraNode()
-        camera = cam
-        addChild(cam)
-        
-        coinsAmount = childNode(withName: "CoinIcon")!.childNode(withName: "CoinsLabel") as? SKLabelNode
+        cam = Camera(scene: self)
         
         // Nodes
-        manager = Manager(scene: self)
         player = Player(childNode(withName: "character")!)
-        manager.setCamera(cam)
+        manager = Manager(scene: self)
         
         manager.slider.position.x = player.x
         movement = player.x
         
-        worldNode = SKNode()
-        player.setParent(worldNode)
-        addChild(worldNode)
+        world = SKNode()
+        player.setParent(world)
+        addChild(world)
     }
 
-    
     func didBegin(_ contact: SKPhysicsContact) {
         if player.alive {
             let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
@@ -79,8 +69,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if let coin = platform.getCoinNode() {
                         pick(item: coin, platform: platform)
-                        score += 1
-                        coinsAmount.text = String(score)
                     }
                     
                     let power = platform.userData?.value(forKey: "power") as! Int
@@ -99,13 +87,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    
     fileprivate func pick(item: SKNode, platform: SKNode) {
         let wasTouched = item.userData?.value(forKey: "wasTouched") as! Bool
         
         if wasTouched {
-            // breadfood; goldencoin
-            var name = item.name!.dropLast(4)
+            // breadfooditem; goldencoinitem
+            var name = item.name!.dropLast(8)
             // bread; golden
             name = name.first!.uppercased() + name.dropFirst()
             // Bread; Golden
@@ -126,7 +113,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 label.physicsBody?.applyAngularImpulse(rotate)
             }
             
-            shakeCameraForItem(duration: 0.2)
+            cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)
             item.removeFromParent()
         }
     }
@@ -147,22 +134,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.run(sequence)
     }
     
-    
     override func update(_ currentTime: TimeInterval) {
         // Setting camera and player positions
-        movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.2)
+        movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.225)
         player.x = movement
         
-        shakeCamera(duration: 0.2)
+        cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 1.5)
         
         if gameStarted && !gameEnded {
-            camera!.position.y = lerp(start: (camera?.position.y)!, end: player.y, percent: 0.065)
+            cam.y = lerp(start: cam.y, end: player.y, percent: 0.065)
             
             if manager.platforms.canCreate(playerY: player.y) {
                 let platform = manager.platforms.instantiate()
-                worldNode.addChild(platform)
-                manager.platforms.remove(minY: cam.frame.minY - frame.height/1.95)
+                world.addChild(platform)
+//                manager.platforms.remove(minY: cam.minY - frame.height/1.95)
             }
+            manager.platforms.remove(minY: cam.minY - frame.height/2)
             
             
         } else if !gameStarted && !gameEnded {
@@ -174,19 +161,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Creating clouds and platforms
         if manager.bgClouds.canCreate(playerY: player.y, gameStarted: gameStarted) {
-            let cloud = manager.bgClouds.instantiate()
-            worldNode.addChild(cloud)
+            let cloud = manager.bgClouds.generate()
+            world.addChild(cloud)
         }
         
         if manager.fgClouds.canCreate(playerY: player.y, gameStarted: gameStarted) {
-            let cloud = manager.fgClouds.instantiate()
-            worldNode.addChild(cloud)
+            let cloud = manager.fgClouds.generate()
+            world.addChild(cloud)
         }
         
         if !gameIsPaused {
-            let minX = -frame.width/2 + cam.position.x
-            let minY = cam.frame.minY - frame.height/1.95
-            let maxX = frame.width/2 + cam.position.x
+            let minX = -frame.width/2 + cam.x
+            let minY = cam.minY - frame.height/1.95
+            let maxX = frame.width/2 + cam.x
             manager.fgClouds.remove(minX: minX, minY: minY, maxX: maxX)
             manager.bgClouds.remove(minX: minX, minY: minY, maxX: maxX)
             
@@ -195,87 +182,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func shakeCamera(duration:Float) {
-        let amplitudeX:CGFloat = 1.5
-        let amplitudeY:CGFloat = 1.5
-        let numberOfShakes = duration / 0.04
-        var actionsArray:[SKAction] = []
-        for _ in 1...Int(numberOfShakes) {
-            // build a new random shake and add it to the list
-            let moveX = CGFloat.random(in: -amplitudeX...amplitudeX)
-            let moveY = CGFloat.random(in: -amplitudeY...amplitudeY)
-//            let moveX = CGFloat(arc4random_uniform(UInt32(amplitudeX))) - amplitudeX / 2
-//            let moveY = CGFloat(arc4random_uniform(UInt32(amplitudeY))) - amplitudeY / 2
-            let shakeAction = SKAction.moveBy(x: moveX, y: moveY, duration: 2)
-            shakeAction.timingMode = SKActionTimingMode.easeOut;
-            actionsArray.append(shakeAction);
-            actionsArray.append(shakeAction.reversed());
-        }
-        
-        let actionSeq = SKAction.sequence(actionsArray);
-        cam.run(actionSeq)
-    }
-    
-    func shakeCameraForStart(duration:Float) {
-        var amplitudeX:CGFloat = 40
-        var amplitudeY:CGFloat = 40
-        let numberOfShakes = 6
-        var actionsArray:[SKAction] = []
-        for _ in 1...Int(numberOfShakes) {
-            // build a new random shake and add it to the list
-//            let moveX = CGFloat.random(in: -amplitudeX...amplitudeX)
-//            let moveY = CGFloat.random(in: -amplitudeY...amplitudeY)
-            
-            var rand = Bool.random()
-            let moveX = rand ? -amplitudeX : amplitudeX
-            rand = Bool.random()
-            let moveY = rand ? -amplitudeY : amplitudeY
-            
-            amplitudeX = amplitudeX - 6
-            amplitudeY = amplitudeY - 6
-            
-            let shakeAction = SKAction.moveBy(x: moveX, y: moveY, duration: 0.04)
-            shakeAction.timingMode = SKActionTimingMode.easeOut;
-            actionsArray.append(shakeAction);
-            actionsArray.append(shakeAction.reversed());
-        }
-        
-        let actionSeq = SKAction.sequence(actionsArray);
-        cam.run(actionSeq)
-    }
-    
-    func shakeCameraForItem(duration:Float) {
-        var amplitudeX:CGFloat = 10
-        var amplitudeY:CGFloat = 10
-        let numberOfShakes = 2
-        var actionsArray:[SKAction] = []
-        for _ in 1...Int(numberOfShakes) {
-            // build a new random shake and add it to the list
-            //            let moveX = CGFloat.random(in: -amplitudeX...amplitudeX)
-            //            let moveY = CGFloat.random(in: -amplitudeY...amplitudeY)
-            
-            var rand = Bool.random()
-            let moveX = rand ? -amplitudeX : amplitudeX
-            rand = Bool.random()
-            let moveY = rand ? -amplitudeY : amplitudeY
-            
-            amplitudeX = amplitudeX - 4
-            amplitudeY = amplitudeY - 4
-            
-            let shakeAction = SKAction.moveBy(x: moveX, y: moveY, duration: 0.08)
-            shakeAction.timingMode = SKActionTimingMode.easeOut;
-            actionsArray.append(shakeAction);
-            actionsArray.append(shakeAction.reversed());
-        }
-        
-        let actionSeq = SKAction.sequence(actionsArray);
-        cam.run(actionSeq)
-    }
-    
     func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
         return start + percent * (end - start)
     }
-    
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if gameStarted {
@@ -300,7 +209,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             let wait = SKAction.wait(forDuration: 0.04)
             let push = SKAction.run {
-                self.shakeCameraForStart(duration: 0.2)
+                self.cam.shake(amplitude: 50, amount: 5, step: 10, duration: 0.04)
                 self.player.push(power: 170)
             }
             let group = SKAction.sequence([sit, wait, push])
@@ -315,20 +224,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             manager.button.texture = manager.playTexture
             physicsWorld.speed = 0
             manager.black.alpha = 0.3
-            manager.coinstat.alpha = 0
         } else {
             manager.button.texture = manager.pauseTexture
             physicsWorld.speed = 1
             manager.black.alpha = 0
-            manager.coinstat.alpha = 1
         }
         
         gameIsPaused = isPaused
-        worldNode.isPaused = isPaused
+        world.isPaused = isPaused
         manager.line.isHidden = isPaused
         manager.slider.isHidden = isPaused
     }
-    
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if sliderIsTriggered, let st = sliderTouch {

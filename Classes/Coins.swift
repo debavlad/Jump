@@ -1,5 +1,5 @@
 //
-//  CoinManager.swift
+//  Coins.swift
 //  Jump
 //
 //  Created by Vladislav Deba on 8/4/19.
@@ -9,7 +9,7 @@
 import Foundation
 import SpriteKit
 
-class CoinManager {
+class Coins {
     var animations = [String : SKAction]()
     
     init() {
@@ -34,7 +34,7 @@ class CoinManager {
             }
         }
         
-        // if we didn't get anything in loop, return the worst
+        // return the worst platform if we didn't get anything in loop somehow
         return instantiate(type: .wooden)
     }
     
@@ -43,7 +43,7 @@ class CoinManager {
         let coin = SKSpriteNode(imageNamed: name + "0")
             .setCoinSettings()
             .pixelate()
-        coin.name = name + "item"
+        coin.name = name + "coinitem"
         coin.run(SKAction.repeatForever(animations[name]!))
         coin.userData = NSMutableDictionary(capacity: 1)
         coin.userData?.setValue(false, forKey: "wasTouched")
