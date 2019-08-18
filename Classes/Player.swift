@@ -114,7 +114,7 @@ class Player {
         node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
 //        node.physicsBody?.usesPreciseCollisionDetection = true
         node.physicsBody?.collisionBitMask = Categories.ground
-        node.physicsBody?.categoryBitMask = Categories.character
+        node.physicsBody?.categoryBitMask = Categories.player
         node.physicsBody?.contactTestBitMask = Categories.coin | Categories.platform
         node.physicsBody?.allowsRotation = false
         node.physicsBody?.friction = 0

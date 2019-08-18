@@ -18,7 +18,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var movement, offset: CGFloat!
     var sliderTouch: UITouch!
-    var sliderIsTriggered = false, gameIsPaused = false, gameStarted = false, gameEnded = false
+    var sliderTriggered = false, gameStarted = false, gamePaused = false, gameEnded = false
     
     
     override func didMove(to view: SKView) {
@@ -39,98 +39,116 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         world = SKNode()
         player.setParent(world)
         addChild(world)
+        
+        cam.node.setScale(0.85)
     }
-
+    
+    func extract(node: String, from contact: SKPhysicsContact) -> SKNode? {
+        return contact.bodyA.node!.name!.contains(node) ? contact.bodyA.node : contact.bodyB.node
+    }
+    
     func didBegin(_ contact: SKPhysicsContact) {
         if player.alive {
-            let collision: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+            let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             
-            // If character touched an item somehow
-            if collision == Collision.withFood || collision == Collision.withCoin {
-                if let item = contact.bodyA.node!.name!.contains("item") ? contact.bodyA.node : contact.bodyB.node {
+            if col == Collision.playerFood || col == Collision.playerCoin {
+                if let item = extract(node: "item", from: contact) {
                     item.userData?.setValue(true, forKey: "wasTouched")
                 }
             }
             
-            // If character is on the platform
-            if player.fallingDown() {
-                let platform = (contact.bodyA.node?.name == "platform" ? contact.bodyA.node : contact.bodyB.node)!
+            if player.fallingDown() && col == Collision.playerPlatform {
+                let platform = extract(node: "platform", from: contact)!
+                let dust = manager.getParticles(filename: "DustParticles")
+                add(emitter: dust, pos: contact.contactPoint)
                 
-                // 1. Pick items up and increase hp if needed
-                if collision == Collision.withPlatform {
-                    let dust = manager.getParticles(filename: "DustParticles", targetNode: nil)
-                    add(emitter: dust, to: platform)
-                    
-                    if let food = platform.getFoodNode() {
-                        let energy = food.userData?.value(forKey: "energy") as! Int
-                        player.heal(by: energy)
-                        pick(item: food, platform: platform)
-                    }
-                    
-                    if let coin = platform.getCoinNode() {
-                        pick(item: coin, platform: platform)
-                    }
-                    
-                    let power = platform.userData?.value(forKey: "power") as! Int
-                    let harm = platform.userData?.value(forKey: "harm") as! Int
-                    
-                    player.harm(by: harm)
-                    if player.alive {
-                        player.push(power: power)
-                    } else {
-                        player.push(power: 65)
-                        manager.hideUI()
-                        gameEnded = true
-                    }
+                if let food = platform.getFoodNode(), food.wasTouched()! {
+                    let energy = food.userData?.value(forKey: "energy") as! Int
+                    player.heal(by: energy)
+                    pick(item: food, platform: platform)
                 }
+                if let coin = platform.getCoinNode(), coin.wasTouched()! {
+                    pick(item: coin, platform: platform)
+                }
+                
+                let harm = platform.userData?.value(forKey: "harm") as! Int
+                player.harm(by: harm)
+                if player.alive {
+                    let power = platform.userData?.value(forKey: "power") as! Int
+                    player.push(power: power)
+                } else {
+                    player.push(power: 70)
+                    manager.hideUI()
+                    gameEnded = true
+                }
+                
+//                if platform.has(name: "sand") {
+//                    let right = contact.contactPoint.x > platform.position.x ? true : false
+//                    platform.physicsBody?.allowsRotation = true
+//                    platform.physicsBody?.isDynamic = true
+//                    platform.physicsBody?.collisionBitMask = 0
+//                    platform.physicsBody?.categoryBitMask = 0
+//                    platform.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+//                    platform.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -20))
+//                    platform.physicsBody?.applyAngularImpulse(right ? -1 : 1)
+//
+//                    for child in platform.children {
+//                        child.move(toParent: world)
+//                        child.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 20))
+//                        child.physicsBody?.collisionBitMask = 0
+//                        child.physicsBody?.categoryBitMask = 0
+//                    }
+//                }
             }
         }
     }
     
     fileprivate func pick(item: SKNode, platform: SKNode) {
-        let wasTouched = item.userData?.value(forKey: "wasTouched") as! Bool
+        // breadfooditem; goldencoinitem
+        var name = item.name!.dropLast(8)
+        // bread; golden
+        name = name.first!.uppercased() + name.dropFirst()
+        // Bread; Golden
+        name += "Particles"
+        // BreadParticles; GoldenParticles
         
-        if wasTouched {
-            // breadfooditem; goldencoinitem
-            var name = item.name!.dropLast(8)
-            // bread; golden
-            name = name.first!.uppercased() + name.dropFirst()
-            // Bread; Golden
-            name += "Particles"
-            // BreadParticles; GoldenParticles
-            
-            let particles = manager.getParticles(filename: String(name), targetNode: platform)
-            particles.position = item.position
-            add(emitter: particles, to: platform)
-            
-            let isCoin = item.userData?.value(forKey: "energy") == nil
-            if isCoin {
-                let label = manager.getLabel(text: "+1")
-                platform.addChild(label)
-                
-                label.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
-                let rotate = CGFloat.random(in: -0.0005...0.0005)
-                label.physicsBody?.applyAngularImpulse(rotate)
-            }
-            
-            cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)
-            item.removeFromParent()
+        let particles = manager.getParticles(filename: String(name))
+        //            print(item.position)
+        add(emitter: particles, pos: CGPoint(x: platform.position.x + item.position.x, y: platform.position.y + item.position.y))
+        
+        let isCoin = item.userData?.value(forKey: "energy") == nil
+        if isCoin {
+            let label = manager.getLabel(text: "+1")
+            add(label: label, platform: platform)
         }
+        
+        //            cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)
+        item.removeFromParent()
     }
     
-    fileprivate func add(emitter: SKEmitterNode, to parent: SKNode) {
-        let add = SKAction.run { parent.addChild(emitter) }
+    fileprivate func add(label: SKLabelNode, platform: SKNode) {
+        label.position.x += platform.position.x
+        label.position.y += platform.position.y
+        world.addChild(label)
+        label.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
+        let rotate = CGFloat.random(in: -0.0005...0.0005)
+        label.physicsBody?.applyAngularImpulse(rotate)
+    }
+    
+    fileprivate func add(emitter: SKEmitterNode, pos: CGPoint) {
+        emitter.position = pos
+        let add = SKAction.run { self.world.addChild(emitter) }
         let duration = emitter.particleLifetime
         let wait = SKAction.wait(forDuration: TimeInterval(duration))
         
         // emitter is a child of platform, so when platform is removed, emitter too
         let remove = SKAction.run {
-            if !self.gameIsPaused {
+            if !self.gamePaused {
                 emitter.removeFromParent()
             }
         }
         
-        let sequence = SKAction.sequence([add, wait, remove])
+        let sequence = SKAction.sequence([add, wait])
         self.run(sequence)
     }
     
@@ -143,21 +161,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if gameStarted && !gameEnded {
             cam.y = lerp(start: cam.y, end: player.y, percent: 0.065)
-            
             if manager.platforms.canCreate(playerY: player.y) {
                 let platform = manager.platforms.instantiate()
-                world.addChild(platform)
-//                manager.platforms.remove(minY: cam.minY - frame.height/1.95)
+                world.addChild(platform.node)
             }
             manager.platforms.remove(minY: cam.minY - frame.height/2)
-            
-            
         } else if !gameStarted && !gameEnded {
             if player.y > 100 {
                 gameStarted = true
             }
         }
-        
         
         // Creating clouds and platforms
         if manager.bgClouds.canCreate(playerY: player.y, gameStarted: gameStarted) {
@@ -170,15 +183,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             world.addChild(cloud)
         }
         
-        if !gameIsPaused {
-            let minX = -frame.width/2 + cam.x
+        if !gamePaused {
+            let minX = frame.minX + cam.x
             let minY = cam.minY - frame.height/1.95
-            let maxX = frame.width/2 + cam.x
-            manager.fgClouds.remove(minX: minX, minY: minY, maxX: maxX)
-            manager.bgClouds.remove(minX: minX, minY: minY, maxX: maxX)
+            let maxX = frame.maxX + cam.x
             
-            manager.bgClouds.move()
+            manager.fgClouds.remove(minX: minX, minY: minY, maxX: maxX)
             manager.fgClouds.move()
+            
+            manager.bgClouds.remove(minX: minX, minY: minY, maxX: maxX)
+            manager.bgClouds.move()
+            
         }
     }
     
@@ -192,14 +207,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let node = atPoint(touch.location(in: self))
             
             if node == manager.slider {
-                sliderIsTriggered = true
+                sliderTriggered = true
                 sliderTouch = touch
                 offset = manager.slider.position.x - sliderTouch.location(in: self).x
                 
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelate()
             } else if node == manager.button {
-                sliderIsTriggered = false
-                gameIsPaused ? setGameState(isPaused: false) : setGameState(isPaused: true)
+                sliderTriggered = false
+                gamePaused ? setGameState(isPaused: false) : setGameState(isPaused: true)
             }
         } else {
             // if game was not started yet
@@ -211,6 +226,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let push = SKAction.run {
                 self.cam.shake(amplitude: 50, amount: 5, step: 10, duration: 0.04)
                 self.player.push(power: 170)
+                let scale = SKAction.scale(to: 1.0, duration: 0.8)
+                scale.timingMode = SKActionTimingMode.easeOut
+                self.cam.node.run(scale)
             }
             let group = SKAction.sequence([sit, wait, push])
             player.node.removeAllActions()
@@ -230,14 +248,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             manager.black.alpha = 0
         }
         
-        gameIsPaused = isPaused
+        gamePaused = isPaused
         world.isPaused = isPaused
         manager.line.isHidden = isPaused
         manager.slider.isHidden = isPaused
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if sliderIsTriggered, let st = sliderTouch {
+        if sliderTriggered, let st = sliderTouch {
             let touchX = st.location(in: self).x
             let halfLine = manager.line.size.width / 2
             
@@ -254,8 +272,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let st = sliderTouch, touches.contains(st) {
-            sliderIsTriggered = false
-
+            sliderTriggered = false
+            
             manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelate()
         }
     }
@@ -266,6 +284,14 @@ extension SKNode {
         return self.children.first { (n) -> Bool in
             return n.name!.contains("item") && n.userData?.value(forKey: "energy") == nil
         }
+    }
+    
+    func has(name: String) -> Bool {
+        return self.name!.contains(name)
+    }
+    
+    func wasTouched() -> Bool? {
+        return (self.userData?.value(forKey: "wasTouched") as! Bool)
     }
     
     func getFoodNode() -> SKNode? {

@@ -16,7 +16,7 @@ class Platforms {
     private let width, height: CGFloat
     private let coins: Coins!
     private let food: Food!
-    private var collection = Set<SKSpriteNode>()
+    private var collection = Set<Platform>()
     
     init(_ distance: CGFloat, _ lastY: CGFloat) {
         self.distance = distance
@@ -33,37 +33,37 @@ class Platforms {
     }
     
     func remove(minY: CGFloat) {
-        collection.forEach { (node) in
-            var top = node.frame.maxY
-            if let item = node.children.first(where: { (child) -> Bool in
+        collection.forEach { (p) in
+            var top = p.node.frame.maxY
+            if let item = p.node.children.first(where: { (child) -> Bool in
                 return child.name!.contains("item")
             }) {
                 top += item.frame.maxY - 30
             }
             
             if top < minY {
-                node.removeFromParent()
-                collection.remove(node)
+                p.node.removeFromParent()
+                collection.remove(p)
             }
         }
     }
     
-    func instantiate() -> SKSpriteNode {
+    func instantiate() -> Platform {
         let type = getRandomType()
         let platform = getPlatform(type: type)
         
         if hasItem(chance: 0.5) {
             let coin = coins.getRandom(wooden: 0.6, bronze: 0.2, golden: 0.1)
-            platform.addChild(coin)
+            platform.node.addChild(coin)
         }
         if hasItem(chance: 0.1) {
             let meal = food.getRandom()
-            platform.addChild(meal)
+            platform.node.addChild(meal)
         }
         
         let x = collection.count == 5 ? -215 : CGFloat.random(in: -width...width)
         let y = lastY + distance
-        platform.position = CGPoint(x: x, y: y)
+        platform.node.position = CGPoint(x: x, y: y)
         lastY = y
         
         collection.insert(platform)
@@ -71,30 +71,27 @@ class Platforms {
     }
     
     private func getRandomType() -> PlatformType {
-        let random = Int.random(in: 0...1)
+        let random = Int.random(in: 0...3)
         return PlatformType(rawValue: random)!
     }
     
-    private func getPlatform(type: PlatformType) -> SKSpriteNode {
-        var platform: SKSpriteNode!
+    private func getPlatform(type: PlatformType) -> Platform {
+        var platform: Platform!
         
         switch type {
-            case .wood:
-                platform = SKSpriteNode(imageNamed: "wooden-platform")
-                    .setPlatformSettings()
-                    .setWoodenProperties()
-                    .pixelate()
-            
-            case .stone:
-                platform = SKSpriteNode(imageNamed: "stone-platform")
-                    .setPlatformSettings()
-                    .setStoneProperties()
-                    .pixelate()
+        case .dirt:
+            platform = Platform(textureName: "dirt-platform", power: 75, harm: 3)
+        case .sand:
+            platform = Platform(textureName: "sand-platform", power: 80, harm: 3)
+        case .wood:
+            platform = Platform(textureName: "wooden-platform", power: 80, harm: 4)
+        case .stone:
+            platform = Platform(textureName: "stone-platform", power: 85, harm: 4)
         }
         
         return platform
     }
-    
+
     private func hasItem(chance: Double) -> Bool {
         let random = Double.random(in: 0...1)
         return random <= chance
@@ -102,36 +99,8 @@ class Platforms {
 }
 
 enum PlatformType: Int {
+    case dirt
+    case sand
     case wood
     case stone
-}
-
-extension SKSpriteNode {
-    func setPlatformSettings() -> SKSpriteNode {
-        size = CGSize(width: 130, height: 50)
-        name = "platform"
-        physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 125, height: 1), center: CGPoint(x: 0, y: 20))
-        physicsBody?.restitution = CGFloat(0.2)
-        physicsBody?.friction = 0
-        physicsBody?.linearDamping = 0
-        physicsBody?.angularDamping = 0
-        physicsBody?.contactTestBitMask = 0
-        physicsBody?.categoryBitMask = Categories.platform
-        physicsBody?.isDynamic = false
-        userData = NSMutableDictionary(capacity: 2)
-        
-        return self
-    }
-    
-    func setWoodenProperties() -> SKSpriteNode {
-        self.userData?.setValue(75, forKey: "power")
-        self.userData?.setValue(3, forKey: "harm")
-        return self
-    }
-    
-    func setStoneProperties() -> SKSpriteNode {
-        self.userData?.setValue(85, forKey: "power")
-        self.userData?.setValue(5, forKey: "harm")
-        return self
-    }
 }

@@ -74,11 +74,12 @@ extension SKSpriteNode {
         zPosition = 1
         let x = CGFloat.random(in: -20...20)
         position = CGPoint(x: x, y: 65)
-        physicsBody = SKPhysicsBody(circleOfRadius: size.width/2)
-        physicsBody?.affectedByGravity = false
+        physicsBody = SKPhysicsBody(circleOfRadius: 35)
+        physicsBody?.affectedByGravity = true
+        physicsBody?.isDynamic = true
         physicsBody?.categoryBitMask = Categories.coin
-        physicsBody?.contactTestBitMask = Categories.character
-        physicsBody?.collisionBitMask = 0
+        physicsBody?.contactTestBitMask = Categories.player
+        physicsBody?.collisionBitMask = Categories.platform
         physicsBody?.friction = 0
         physicsBody?.restitution = 0
         

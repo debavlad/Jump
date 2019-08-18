@@ -9,7 +9,7 @@
 import Foundation
 
 class Categories {
-    static let character: UInt32 = 0x1 << 1
+    static let player: UInt32 = 0x1 << 1
     static let coin: UInt32 = 0x1 << 2
     static let food: UInt32 = 0x1 << 3
     static let ground: UInt32 = 0x1 << 4

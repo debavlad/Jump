@@ -89,13 +89,13 @@ extension SKSpriteNode {
     func setFoodSettings() -> SKSpriteNode {
         setScale(6)
         physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
-        physicsBody?.affectedByGravity = false
+        physicsBody?.affectedByGravity = true
         physicsBody?.categoryBitMask = Categories.food
-        physicsBody?.contactTestBitMask = Categories.character
+        physicsBody?.contactTestBitMask = Categories.player
         physicsBody?.collisionBitMask = Categories.platform
         physicsBody?.friction = 0
         physicsBody?.restitution = 0
-        physicsBody?.isDynamic = false
+        physicsBody?.isDynamic = true
         
         return self
     }

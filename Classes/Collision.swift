@@ -9,8 +9,8 @@
 import Foundation
 
 class Collision {
-    static let withPlatform = Categories.character | Categories.platform
-    static let withGround = Categories.character | Categories.ground
-    static let withCoin = Categories.character | Categories.coin
-    static let withFood = Categories.character | Categories.food
+    static let playerPlatform = Categories.player | Categories.platform
+    static let playerGround = Categories.player | Categories.ground
+    static let playerCoin = Categories.player | Categories.coin
+    static let playerFood = Categories.player | Categories.food
 }
