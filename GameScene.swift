@@ -122,7 +122,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             add(label: label, platform: platform)
         }
         
-        //            cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)
+        cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)
         item.removeFromParent()
     }
     
@@ -256,7 +256,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if sliderTriggered, let st = sliderTouch {
-            let touchX = st.location(in: self).x
+            let touchX = st.location(in: cam.node).x
             let halfLine = manager.line.size.width / 2
             
             if touchX > -halfLine && touchX < halfLine {
