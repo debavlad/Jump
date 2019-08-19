@@ -80,13 +80,13 @@ class Platforms {
         
         switch type {
         case .dirt:
-            platform = Platform(textureName: "dirt-platform", power: 75, harm: 3)
+            platform = Platform(textureName: "dirt-platform", power: 100, harm: 3)
         case .sand:
-            platform = Platform(textureName: "sand-platform", power: 80, harm: 3)
+            platform = Platform(textureName: "sand-platform", power: 100, harm: 3)
         case .wood:
-            platform = Platform(textureName: "wooden-platform", power: 80, harm: 4)
+            platform = Platform(textureName: "wooden-platform", power: 100, harm: 4)
         case .stone:
-            platform = Platform(textureName: "stone-platform", power: 85, harm: 4)
+            platform = Platform(textureName: "stone-platform", power: 100, harm: 4)
         }
         
         return platform

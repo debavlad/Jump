@@ -30,6 +30,14 @@ class Player {
     }
     var alive = true
     
+    var velocity: CGVector {
+        get {
+            return node.physicsBody!.velocity
+        }
+        set {
+            node.physicsBody?.velocity = newValue
+        }
+    }
     var x: CGFloat {
         set {
             node.position.x = newValue

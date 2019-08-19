@@ -157,6 +157,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.225)
         player.x = movement
         
+        if player.velocity.dy < -3000 {
+            player.velocity.dy = -3000
+        }
+        
         cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 1.5)
         
         if gameStarted && !gameEnded {
