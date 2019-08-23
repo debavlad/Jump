@@ -15,9 +15,9 @@ class Coins {
     init() {
         var wooden = [SKTexture](), golden = [SKTexture](), bronze = [SKTexture]()
         for i in 0...7 {
-            wooden.append(SKTexture(imageNamed: "wooden\(i)").pixelate())
-            bronze.append(SKTexture(imageNamed: "bronze\(i)").pixelate())
-            golden.append(SKTexture(imageNamed: "golden\(i)").pixelate())
+            wooden.append(SKTexture(imageNamed: "wooden\(i)").pixelated())
+            bronze.append(SKTexture(imageNamed: "bronze\(i)").pixelated())
+            golden.append(SKTexture(imageNamed: "golden\(i)").pixelated())
         }
         animations["wooden"] = SKAction.animate(with: wooden, timePerFrame: 0.1)
         animations["bronze"] = SKAction.animate(with: bronze, timePerFrame: 0.1)
@@ -42,7 +42,7 @@ class Coins {
         let name = type.description
         let coin = SKSpriteNode(imageNamed: name + "0")
             .setCoinSettings()
-            .pixelate()
+            .pixelated()
         coin.name = name + "coinitem"
         coin.run(SKAction.repeatForever(animations[name]!))
         coin.userData = NSMutableDictionary(capacity: 1)

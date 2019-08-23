@@ -11,35 +11,35 @@ import SpriteKit
 
 class Manager {
     let scene: SKScene!
-    let platforms: Platforms!
-//    let bgclouds, fgclouds: Clouds!
-    let clouds: CloudsManager!
+    
+    var labels: Set<SKLabelNode>!
+    var particles: Set<SKEmitterNode>!
     
     var sky, house, ground, bench, line, slider, button, darken, hpBorder: SKSpriteNode!
     var pauseTexture, playTexture: SKTexture!
     
     init(scene: SKScene, world: SKNode) {
         self.scene = scene
-        platforms = Platforms(world: world, 150, scene.frame.height/2)
-        clouds = CloudsManager(frame: scene.frame, world: world)
+        labels = Set<SKLabelNode>()
+        particles = Set<SKEmitterNode>()
         
         setNodes()
         setCam()
     }
     
     func setNodes() {
-        sky = scene.childNode(withName: "Sky")?.pixelate()
-        house = scene.childNode(withName: "House")?.pixelate()
-        line = scene.childNode(withName: "Line")?.pixelate()
-        slider = line.childNode(withName: "Slider")?.pixelate()
-        button = scene.childNode(withName: "Button")?.pixelate()
-        darken = scene.childNode(withName: "Darken")?.pixelate()
-        hpBorder = scene.childNode(withName: "Character")?.childNode(withName: "HpBorder")?.pixelate()
-        ground = scene.childNode(withName: "Ground")?.pixelate()
-        bench = scene.childNode(withName: "Bench")?.pixelate()
+        sky = scene.childNode(withName: "Sky")?.pixelated()
+        house = scene.childNode(withName: "House")?.pixelated()
+        line = scene.childNode(withName: "Line")?.pixelated()
+        slider = line.childNode(withName: "Slider")?.pixelated()
+        button = scene.childNode(withName: "Button")?.pixelated()
+        darken = scene.childNode(withName: "Darken")?.pixelated()
+        hpBorder = scene.childNode(withName: "Character")?.childNode(withName: "HpBorder")?.pixelated()
+        ground = scene.childNode(withName: "Ground")?.pixelated()
+        bench = scene.childNode(withName: "Bench")?.pixelated()
         
-        pauseTexture = SKTexture(imageNamed: "pause").pixelate()
-        playTexture = SKTexture(imageNamed: "continue").pixelate()
+        pauseTexture = SKTexture(imageNamed: "pause").pixelated()
+        playTexture = SKTexture(imageNamed: "continue").pixelated()
         
         ground.physicsBody?.categoryBitMask = Categories.ground
         bench.physicsBody?.categoryBitMask = Categories.ground
@@ -53,28 +53,73 @@ class Manager {
         darken.move(toParent: cam)
     }
     
-    func getParticles(filename: String) -> SKEmitterNode {
-        let particles = SKEmitterNode(fileNamed: filename)!
-        particles.name = String()
-        particles.zPosition = 3
-        particles.particleZPosition = 3
+    
+    func addParticles(to parent: SKNode, filename: String, pos: CGPoint) {
+        let emitter = SKEmitterNode(fileNamed: filename)!
+        emitter.name = String()
+        emitter.position = pos
+        emitter.zPosition = 3
+        emitter.particleZPosition = 3
         
-        return particles
+        let add = SKAction.run {
+            parent.addChild(emitter)
+        }
+        let duration = emitter.particleLifetime
+        let wait = SKAction.wait(forDuration: TimeInterval(duration))
+        let remove = SKAction.run {
+            if !parent.isPaused {
+                emitter.removeFromParent()
+                self.particles.remove(emitter)
+            }
+        }
+        
+        let seq = SKAction.sequence([add, wait, remove])
+        scene.run(seq)
+        particles.insert(emitter)
     }
     
-    func getLabel(text: String) -> SKLabelNode {
-        let label = SKLabelNode(text: text)
-        label.name = String()
-        label.fontName = "DisposableDroidBB"
-        label.fontColor = UIColor.white
-        label.fontSize = 64
-        label.position = CGPoint(x: 70, y: 70)
-        label.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20))
-        label.physicsBody?.collisionBitMask = 0
-        label.physicsBody?.categoryBitMask = 0
-        label.physicsBody?.contactTestBitMask = 0
-        label.zPosition = 18
-        return label
+    func removeParticles(minY: CGFloat) {
+        if particles.count > 1 {
+            particles.filter({ (node) -> Bool in
+                return node.frame.maxY < minY
+            }).forEach { (emitter) in
+                particles.remove(emitter)
+                emitter.removeFromParent()
+            }
+        }
+    }
+    
+    func addLabel(to parent: SKNode, pos: CGPoint) {
+        let lbl = SKLabelNode(text: "+1")
+        lbl.name = String()
+        lbl.fontName = "DisposableDroidBB"
+        lbl.fontColor = UIColor.white
+        lbl.fontSize = 64
+        lbl.position = CGPoint(x: pos.x + 70, y: pos.y + 70)
+        lbl.zPosition = 18
+        
+        lbl.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20))
+        lbl.physicsBody?.collisionBitMask = 0
+        lbl.physicsBody?.categoryBitMask = 0
+        lbl.physicsBody?.contactTestBitMask = 0
+        
+        parent.addChild(lbl)
+        lbl.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
+        let rotate = CGFloat.random(in: -0.0005...0.0005)
+        lbl.physicsBody?.applyAngularImpulse(rotate)
+        
+        labels.insert(lbl)
+    }
+    
+    func removeLabels(minY: CGFloat) {
+        if labels.count > 0 {
+            labels.filter({ (node) -> Bool in
+                return node.frame.maxY < minY
+            }).forEach { (label) in
+                labels.remove(label)
+                label.removeFromParent()
+            }
+        }
     }
     
     func showUI() {
@@ -103,7 +148,7 @@ struct Bounds {
 }
 
 extension SKNode {
-    func pixelate() -> SKSpriteNode {
+    func pixelated() -> SKSpriteNode {
         let node = self as! SKSpriteNode
         node.texture?.filteringMode = .nearest
         return node
@@ -111,7 +156,7 @@ extension SKNode {
 }
 
 extension SKTexture {
-    func pixelate() -> SKTexture {
+    func pixelated() -> SKTexture {
         self.filteringMode = .nearest
         return self
     }

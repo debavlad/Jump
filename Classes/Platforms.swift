@@ -31,10 +31,6 @@ class Platforms {
         self.world = world
     }
     
-    private func can(playerY: CGFloat) -> Bool {
-        return lastY + distance < playerY + height
-    }
-    
     func remove(minY: CGFloat) {
         collection.forEach { (p) in
             var top = p.node.frame.maxY
@@ -73,6 +69,10 @@ class Platforms {
             world.addChild(platform.node)
             collection.insert(platform)
         }
+    }
+    
+    private func can(playerY: CGFloat) -> Bool {
+        return lastY + distance < playerY + height
     }
     
     private func getRandomType() -> PlatformType {

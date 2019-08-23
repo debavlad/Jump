@@ -63,7 +63,7 @@ private class Clouds {
         self.set = Set<SKSpriteNode>()
     }
     
-    func can(playerY: CGFloat, started: Bool) -> Bool {
+    fileprivate func can(playerY: CGFloat, started: Bool) -> Bool {
         if started {
             return highestY + distance < playerY + height
         } else {
@@ -132,7 +132,7 @@ private class Clouds {
     private func getCloud(z: CGFloat, scale: CGFloat, alpha: CGFloat) -> SKSpriteNode {
         let i = Int.random(in: 0...3)
         let imgName = "cloud-\(i)"
-        let cloud = SKSpriteNode(imageNamed: imgName).pixelate()
+        let cloud = SKSpriteNode(imageNamed: imgName).pixelated()
         
         cloud.zPosition = z
         cloud.setScale(scale)

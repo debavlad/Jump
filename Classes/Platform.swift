@@ -13,10 +13,10 @@ class Platform: Hashable {
     var node: SKSpriteNode!
     
     init(textureName: String, power: Int, harm: Int) {
-        node = SKSpriteNode(imageNamed: textureName).pixelate()
+        node = SKSpriteNode(imageNamed: textureName).pixelated()
         node.size = CGSize(width: 130, height: 50)
         node.name = textureName
-        node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 125, height: 1), center: CGPoint(x: 0, y: 20))
+        node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 85, height: 1), center: CGPoint(x: 0, y: 20))
         node.physicsBody?.restitution = CGFloat(0.2)
         node.physicsBody?.friction = 0
         node.physicsBody?.mass = 10

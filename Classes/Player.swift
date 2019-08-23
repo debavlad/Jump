@@ -56,7 +56,8 @@ class Player {
     private let hpBorder, hpStripe: SKSpriteNode!
     private let maxStripeWidth: CGFloat
     
-    private var jumpAnim, sitAnim: SKAction!
+    var jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
+    var currentAnim: SKAction!
     
     init(_ node: SKNode) {
         self.node = node as? SKSpriteNode
@@ -75,6 +76,10 @@ class Player {
         node.run(SKAction.repeatForever(sitAnim))
     }
     
+    func animate(_ anim: SKAction) {
+        node.run(anim)
+        currentAnim = anim
+    }
     
     func fallingDown() -> Bool {
         return node.physicsBody!.velocity.dy < 0
@@ -133,15 +138,26 @@ class Player {
     
     private func setAnimations() {
         var jump: [SKTexture] = []
-        for i in 0...8 {
-            jump.append(SKTexture(imageNamed: "jump\(i)").pixelate())
+        for i in 0...3 {
+            jump.append(SKTexture(imageNamed: "jump\(i)").pixelated())
         }
-        jumpAnim = SKAction.animate(with: jump, timePerFrame: 0.11
-        )
+        jumpAnim = SKAction.animate(with: jump, timePerFrame: 0.125)
+        
+        var fall: [SKTexture] = []
+        for i in 4...5 {
+            fall.append(SKTexture(imageNamed: "jump\(i)").pixelated())
+        }
+        fallAnim = SKAction.animate(with: fall, timePerFrame: 0.125)
+        
+        var land: [SKTexture] = []
+        for i in 6...8 {
+            land.append(SKTexture(imageNamed: "jump\(i)").pixelated())
+        }
+        landAnim = SKAction.animate(with: land, timePerFrame: 0.06)
         
         var sit: [SKTexture] = []
         for i in 0...7 {
-            sit.append(SKTexture(imageNamed: "sit\(i)").pixelate())
+            sit.append(SKTexture(imageNamed: "sit\(i)").pixelated())
         }
         sitAnim = SKAction.animate(with: sit, timePerFrame: 0.15)
     }

@@ -33,7 +33,7 @@ class Food {
         let food = SKSpriteNode(imageNamed: name)
             .setFoodSettings()
             .setRandomness()
-            .pixelate()
+            .pixelated()
         food.name = name + "fooditem"
         food.userData = NSMutableDictionary(capacity: 2)
         food.userData!.setValue(energies[type], forKey: "energy")
