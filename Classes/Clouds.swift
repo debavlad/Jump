@@ -9,96 +9,127 @@
 import Foundation
 import SpriteKit
 
-class Clouds {
-    var distance, lastY: CGFloat
+
+class CloudsManager {
+    private var bg, fg: Clouds!
+    private let parent: SKNode!
     
-    private var speed: CGFloat
-    private let width, height: CGFloat
-    private var collection = Set<SKSpriteNode>()
+    init(frame: CGRect, world: SKNode) {
+        bg = Clouds(250, -frame.height)
+        fg = Clouds(1200, -frame.height)
+        self.parent = world
+    }
     
-    init(_ distance: CGFloat, _ lastY: CGFloat) {
-        self.distance = distance
-        self.lastY = lastY
+    func create(playerY: CGFloat, started: Bool) {
+        if bg.can(playerY: playerY, started: started) {
+            let cloud = bg.create()
+            parent.addChild(cloud)
+        }
         
-        width = UIScreen.main.bounds.width + 0
-        height = UIScreen.main.bounds.height + 50
-        speed = 0
+        if fg.can(playerY: playerY, started: started) {
+            let cloud = fg.create()
+            parent.addChild(cloud)
+        }
     }
     
-    func canCreate(playerY: CGFloat, gameStarted: Bool) -> Bool {
-        if gameStarted {
-            return lastY + distance < playerY + height
+    func move() {
+        bg.move()
+        fg.move()
+    }
+    
+    func remove(bounds: Bounds) {
+        bg.remove(bounds: bounds)
+        fg.remove(bounds: bounds)
+    }
+}
+
+private class Clouds {
+    private var distance, highestY, speed: CGFloat
+    private let width, height: CGFloat
+    private var set: Set<SKSpriteNode>!
+    private var background: Bool {
+        get {
+            return distance <= 500
+        }
+    }
+    
+    init(_ distance: CGFloat, _ highestY: CGFloat) {
+        self.distance = distance
+        self.highestY = highestY
+        self.speed = 0
+        
+        self.width = UIScreen.main.bounds.width
+        self.height = UIScreen.main.bounds.height + 50
+        self.set = Set<SKSpriteNode>()
+    }
+    
+    func can(playerY: CGFloat, started: Bool) -> Bool {
+        if started {
+            return highestY + distance < playerY + height
         } else {
-            return lastY + distance < height
+            return highestY + distance < height
         }
     }
     
-    func remove(minX: CGFloat, minY: CGFloat, maxX: CGFloat) {
-        collection.forEach { (node) in
-            // remove if cloud is too low
-            if node.position.y + node.frame.height/2 < minY {
-                node.removeFromParent()
-                collection.remove(node)
+    func move() {
+        for cloud in set {
+            cloud.position.x += speed
+        }
+    }
+    
+    func remove(bounds: Bounds) {
+        set.forEach { (cloud) in
+            if cloud.frame.maxY < bounds.minY {
+                cloud.removeFromParent()
+                set.remove(cloud)
             }
             
-            // create new if cloud is at right part of the frame
-            if node.position.x > 0 && collection.filter({ (n) -> Bool in
-                return n.position.y == node.position.y
+            if cloud.position.x > 0 && set.filter({ (n) -> Bool in
+                return n.position.y == cloud.position.y
             }).count <= 1 {
-                let pos = CGPoint(x: minX, y: node.position.y)
-                let new = generate(position: pos)
+                let pos = CGPoint(x: bounds.minX, y: cloud.position.y)
+                let new = create(position: pos)
                 new.position.x -= new.frame.width/2
-                node.parent?.addChild(new)
-                collection.insert(new)
+                cloud.parent?.addChild(new)
+                set.insert(new)
             }
             
-            // remove if cloud is too right
-            if node.position.x - node.frame.width/2 > maxX {
-                node.removeFromParent()
-                collection.remove(node)
+            if cloud.frame.minX > bounds.maxX {
+                cloud.removeFromParent()
+                set.remove(cloud)
             }
         }
     }
     
-    func generate(position: CGPoint? = nil) -> SKSpriteNode {
+    func create(position: CGPoint? = nil) -> SKSpriteNode {
         let cloud: SKSpriteNode!
         
-        if background() {
-            let randomScale = CGFloat.random(in: 12...16)
-            cloud = getCloud(z: -5, scale: randomScale, alpha: 1)
+        if background {
+            let scale = CGFloat.random(in: 12...16)
+            cloud = getCloud(z: -5, scale: scale, alpha: 1)
             speed = 0.5
         } else {
-            let randomScale = CGFloat.random(in: 22...28)
-            cloud = getCloud(z: 15, scale: randomScale, alpha: 0.5)
+            let scale = CGFloat.random(in: 22...28)
+            cloud = getCloud(z: 15, scale: scale, alpha: 0.5)
             speed = 0.25
         }
         
         if let pos = position {
             cloud.position = pos
-            let rand = CGFloat.random(in: -200...0)
-            cloud.position.x -= cloud.frame.width/2 + rand
+            let offset = CGFloat.random(in: -200...0)
+            cloud.position.x -= cloud.frame.width/2 + offset
         } else {
             let x = CGFloat.random(in: -width...width)
-            let y = lastY + distance
+            let y = highestY + distance
+            highestY = y
             cloud.position = CGPoint(x: x, y: y)
-            lastY = y
         }
         
-        collection.insert(cloud)
+        set.insert(cloud)
         return cloud
     }
     
-    func move() {
-        for cloud in collection {
-            cloud.position.x = cloud.position.x + speed
-        }
-    }
-    
-    private func background() -> Bool {
-        return distance <= 500
-    }
-    
-    private func getCloud(z: CGFloat, scale: CGFloat, alpha: CGFloat ) -> SKSpriteNode {
+    private func getCloud(z: CGFloat, scale: CGFloat, alpha: CGFloat) -> SKSpriteNode {
         let i = Int.random(in: 0...3)
         let imgName = "cloud-\(i)"
         let cloud = SKSpriteNode(imageNamed: imgName).pixelate()

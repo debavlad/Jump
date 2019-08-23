@@ -17,8 +17,9 @@ class Platforms {
     private let coins: Coins!
     private let food: Food!
     private var collection = Set<Platform>()
+    private let world: SKNode!
     
-    init(_ distance: CGFloat, _ lastY: CGFloat) {
+    init(world: SKNode, _ distance: CGFloat, _ lastY: CGFloat) {
         self.distance = distance
         self.lastY = lastY
         
@@ -26,9 +27,11 @@ class Platforms {
         height = UIScreen.main.bounds.height + 50
         coins = Coins()
         food = Food()
+        
+        self.world = world
     }
     
-    func canCreate(playerY: CGFloat) -> Bool {
+    private func can(playerY: CGFloat) -> Bool {
         return lastY + distance < playerY + height
     }
     
@@ -48,26 +51,28 @@ class Platforms {
         }
     }
     
-    func instantiate() -> Platform {
-        let type = getRandomType()
-        let platform = getPlatform(type: type)
-        
-        if hasItem(chance: 0.5) {
-            let coin = coins.getRandom(wooden: 0.6, bronze: 0.2, golden: 0.1)
-            platform.node.addChild(coin)
+    func create(playerY: CGFloat) {
+        if can(playerY: playerY) {
+            let type = getRandomType()
+            let platform = getPlatform(type: type)
+            
+            if hasItem(chance: 0.5) {
+                let coin = coins.getRandom(wooden: 0.6, bronze: 0.2, golden: 0.1)
+                platform.node.addChild(coin)
+            }
+            if hasItem(chance: 0.1) {
+                let meal = food.getRandom()
+                platform.node.addChild(meal)
+            }
+            
+            let x = collection.count == 5 ? -215 : CGFloat.random(in: -width...width)
+            let y = lastY + distance
+            platform.node.position = CGPoint(x: x, y: y)
+            lastY = y
+            
+            world.addChild(platform.node)
+            collection.insert(platform)
         }
-        if hasItem(chance: 0.1) {
-            let meal = food.getRandom()
-            platform.node.addChild(meal)
-        }
-        
-        let x = collection.count == 5 ? -215 : CGFloat.random(in: -width...width)
-        let y = lastY + distance
-        platform.node.position = CGPoint(x: x, y: y)
-        lastY = y
-        
-        collection.insert(platform)
-        return platform
     }
     
     private func getRandomType() -> PlatformType {

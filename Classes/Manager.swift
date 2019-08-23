@@ -12,31 +12,31 @@ import SpriteKit
 class Manager {
     let scene: SKScene!
     let platforms: Platforms!
-    let bgClouds, fgClouds: Clouds!
+//    let bgclouds, fgclouds: Clouds!
+    let clouds: CloudsManager!
     
-    var sky, house, ground, bench, line, slider, button, black, hpBorder: SKSpriteNode!
+    var sky, house, ground, bench, line, slider, button, darken, hpBorder: SKSpriteNode!
     var pauseTexture, playTexture: SKTexture!
     
-    init(scene: SKScene) {
+    init(scene: SKScene, world: SKNode) {
         self.scene = scene
-        platforms = Platforms(150, scene.frame.height/2)
-        bgClouds = Clouds(250, -scene.frame.height)
-        fgClouds = Clouds(1200, -scene.frame.height)
+        platforms = Platforms(world: world, 150, scene.frame.height/2)
+        clouds = CloudsManager(frame: scene.frame, world: world)
         
         setNodes()
         setCam()
     }
     
     func setNodes() {
-        sky = scene.childNode(withName: "sky")?.pixelate()
-        house = scene.childNode(withName: "house")?.pixelate()
-        ground = scene.childNode(withName: "ground")?.pixelate()
-        bench = scene.childNode(withName: "bench")?.pixelate()
-        line = scene.childNode(withName: "line")?.pixelate()
-        slider = line.childNode(withName: "slider")?.pixelate()
-        button = scene.childNode(withName: "button")?.pixelate()
-        black = scene.childNode(withName: "black")?.pixelate()
-        hpBorder = scene.childNode(withName: "character")?.childNode(withName: "hp-border")?.pixelate()
+        sky = scene.childNode(withName: "Sky")?.pixelate()
+        house = scene.childNode(withName: "House")?.pixelate()
+        line = scene.childNode(withName: "Line")?.pixelate()
+        slider = line.childNode(withName: "Slider")?.pixelate()
+        button = scene.childNode(withName: "Button")?.pixelate()
+        darken = scene.childNode(withName: "Darken")?.pixelate()
+        hpBorder = scene.childNode(withName: "Character")?.childNode(withName: "HpBorder")?.pixelate()
+        ground = scene.childNode(withName: "Ground")?.pixelate()
+        bench = scene.childNode(withName: "Bench")?.pixelate()
         
         pauseTexture = SKTexture(imageNamed: "pause").pixelate()
         playTexture = SKTexture(imageNamed: "continue").pixelate()
@@ -50,7 +50,7 @@ class Manager {
         sky.move(toParent: cam)
         line.move(toParent: cam)
         button.move(toParent: cam)
-        black.move(toParent: cam)
+        darken.move(toParent: cam)
     }
     
     func getParticles(filename: String) -> SKEmitterNode {
@@ -96,6 +96,10 @@ class Manager {
         hpBorder.run(fade)
         button.run(fade)
     }
+}
+
+struct Bounds {
+    var minY, minX, maxY, maxX: CGFloat!
 }
 
 extension SKNode {

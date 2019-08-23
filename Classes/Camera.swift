@@ -12,11 +12,6 @@ import SpriteKit
 class Camera {
     var node: SKCameraNode!
     
-    var minY: CGFloat {
-        get {
-            return node.frame.minY
-        }
-    }
     var x: CGFloat {
         get {
             return node.position.x
@@ -30,12 +25,24 @@ class Camera {
             return node.position.y
         }
     }
+    var minY: CGFloat {
+        get {
+            return node.frame.minY
+        }
+    }
+    var maxY: CGFloat {
+        get {
+            return node.frame.maxY
+        }
+    }
+    var easing: CGFloat!
     
     init(scene: SKScene) {
         node = SKCameraNode()
         node.name = "Cam"
         scene.camera = node
         scene.addChild(node)
+        easing = 0.065
     }
     
     // def (1.5, 5, 0, 2)   
