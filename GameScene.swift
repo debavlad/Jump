@@ -101,6 +101,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func endGame() {
 //        cam.shake(amplitude: 60, amount: 5, step: 0, duration: 0.06)
+        sliderTriggered = false
         manager.gameOver()
         let scale = SKAction.scale(to: 0.4, duration: 1)
         let angle = SKAction.rotate(toAngle: -0.4, duration: 1)
