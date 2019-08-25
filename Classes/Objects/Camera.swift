@@ -13,6 +13,9 @@ class Camera {
     let node: SKCameraNode!
     
     var x: CGFloat {
+        set {
+            node.position.x = newValue
+        }
         get {
             return node.position.x
         }

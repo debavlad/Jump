@@ -11,13 +11,12 @@ import SpriteKit
 
 class Player {
     let node: SKSpriteNode!
-    private var hp: Int = 100 {
+    private var hp: Int = 10 {
         willSet {
             if newValue <= 0 {
                 self.hp = 0
                 alive = false
                 hpStripe.size.width = 0
-                node.zPosition = -1
             } else if newValue > 100 {
                 self.hp = 100
                 hpStripe.size.width = maxStripeWidth

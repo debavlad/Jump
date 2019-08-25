@@ -82,8 +82,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     player.push(power: platform.power)
                 } else {
                     player.push(power: 70)
-                    manager.hideUI()
-                    ended = true
+                    endGame()
                 }
                 
 //                if platform.get().has(name: "sand") {
@@ -100,8 +99,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    private func endGame() {
+//        cam.shake(amplitude: 60, amount: 5, step: 0, duration: 0.06)
+        manager.gameOver()
+        let scale = SKAction.scale(to: 0.4, duration: 1)
+        let angle = SKAction.rotate(toAngle: -0.4, duration: 1)
+        let group = SKAction.group([scale, angle])
+        group.timingMode = SKActionTimingMode.easeIn
+        group.speed = 2
+        let stop = SKAction.run {
+            self.physicsWorld.speed = 0
+            self.world.isPaused = true
+        }
+        cam.node.run(SKAction.sequence([group, stop]))
+        
+//        manager.hideUI()
+        ended = true
+    }
+    
     override func update(_ currentTime: TimeInterval) {
-        //        cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 1.5)
+        cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 1.5)
         if !stopped {
             movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.225)
             player.x = movement
@@ -118,6 +135,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if started {
             cam.y = lerp(start: cam.y, end: player.y, percent: cam.easing)
+        }
+        
+        if ended {
+            cam.x = lerp(start: cam.x, end: player.x, percent: cam.easing/4)
         }
         
         if !started && !ended {

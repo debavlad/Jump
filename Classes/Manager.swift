@@ -17,6 +17,7 @@ class Manager {
     
     private(set) var sky, house, ground, bench, line, slider, button, darken, red, hpBorder: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
+    private var gameover: SKLabelNode!
     
     init(scene: SKScene, world: SKNode) {
         self.scene = scene
@@ -38,6 +39,7 @@ class Manager {
         hpBorder = scene.childNode(withName: "Character")?.childNode(withName: "HpBorder")?.pixelated()
         ground = scene.childNode(withName: "Ground")?.pixelated()
         bench = scene.childNode(withName: "Bench")?.pixelated()
+        gameover = scene.childNode(withName: "GameOver") as? SKLabelNode
         
         pauseTexture = SKTexture(imageNamed: "pause").pixelated()
         playTexture = SKTexture(imageNamed: "continue").pixelated()
@@ -53,11 +55,23 @@ class Manager {
         button.move(toParent: cam)
         darken.move(toParent: cam)
         red.move(toParent: cam)
+        gameover.move(toParent: cam)
     }
     
-    func death() {
-        darken.alpha = 0.3
-        red.alpha = 0.2
+    func gameOver() {
+        hideUI()
+        
+        fade(node: gameover, to: 1.0, duration: 2)
+        fade(node: darken, to: 0.5, duration: 1)
+        fade(node: red, to: 0.3, duration: 0.6)
+    }
+    
+    func fade(node: SKNode, to value: CGFloat, duration: TimeInterval) {
+        let fade = SKAction.fadeAlpha(to: value, duration: duration)
+        fade.timingMode = SKActionTimingMode.easeOut
+        fade.speed = 4
+        
+        node.run(fade)
     }
     
     func addParticles(to parent: SKNode, filename: String, pos: CGPoint) {
