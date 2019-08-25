@@ -12,8 +12,7 @@ import SpriteKit
 class Platform: Hashable {
     private(set) var node: SKSpriteNode!
     private(set) var items: Set<Item>!
-    private(set) var power: Int
-    private(set) var harm: Int
+    private(set) var power, harm: Int
     var pos: CGPoint {
         get {
             return node.position
@@ -23,7 +22,7 @@ class Platform: Hashable {
     init(textureName: String, _ data: (pos: CGPoint, power: Int, harm: Int)) {
         node = SKSpriteNode(imageNamed: textureName).pixelated()
         node.size = CGSize(width: 130, height: 50)
-        node.name = textureName
+        node.name = String(textureName.dropLast())
         node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 85, height: 1), center: CGPoint(x: 0, y: 20))
         node.physicsBody?.restitution = CGFloat(0.2)
         node.physicsBody?.friction = 0
@@ -66,7 +65,6 @@ class Platform: Hashable {
     func hasItems() -> Bool {
         return items != nil && items.count > 0
     }
-    
     
     static func == (lhs: Platform, rhs: Platform) -> Bool {
         return lhs.node.hashValue == rhs.node.hashValue

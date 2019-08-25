@@ -15,7 +15,7 @@ class PlatformFactory {
     private let width, height: CGFloat
     private let coinFactory: CoinFactory!
     private let foodFactory: FoodFactory!
-    private var collection: Set<Platform>!
+    private(set) var collection: Set<Platform>!
     private let world: SKNode!
     
     init(world: SKNode, _ distance: CGFloat, _ lastY: CGFloat) {
@@ -47,6 +47,11 @@ class PlatformFactory {
         }
     }
     
+    func remove(platform: Platform) {
+        collection.remove(platform)
+        platform.node.removeFromParent()
+    }
+    
     func create(playerY: CGFloat) {
         if can(playerY: playerY) {
             let type = getRandomType()
@@ -59,7 +64,7 @@ class PlatformFactory {
                 platform.add(item: c)
             }
             
-            let food = hasItem(chance: 0.1) ? foodFactory.random() : nil
+            let food = hasItem(chance: 0.2) ? foodFactory.random() : nil
             if let f = food {
                 platform.add(item: f)
             }
@@ -81,13 +86,13 @@ class PlatformFactory {
     private func construct(type: PlatformType, pos: CGPoint) -> Platform {
         switch type {
         case .dirt:
-            return Platform(textureName: "dirt-platform", (pos, 75, 3))
+            return Platform(textureName: "dirt-platform0", (pos, 75, 3))
         case .sand:
-            return Platform(textureName: "sand-platform", (pos, 80, 3))
+            return Platform(textureName: "sand-platform0", (pos, 80, 3))
         case .wood:
-            return Platform(textureName: "wooden-platform", (pos, 85, 4))
+            return Platform(textureName: "wooden-platform0", (pos, 85, 4))
         case .stone:
-            return Platform(textureName: "stone-platform", (pos, 90, 4))
+            return Platform(textureName: "stone-platform0", (pos, 90, 4))
         }
     }
     
