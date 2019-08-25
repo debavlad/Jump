@@ -28,7 +28,7 @@ class Player {
             }
         }
     }
-    var alive = true
+    private(set) var alive = true
     
     var velocity: CGVector {
         get {
@@ -38,6 +38,7 @@ class Player {
             node.physicsBody?.velocity = newValue
         }
     }
+    var maxY: CGFloat
     var x: CGFloat {
         set {
             node.position.x = newValue
@@ -56,12 +57,13 @@ class Player {
     private let hpBorder, hpStripe: SKSpriteNode!
     private let maxStripeWidth: CGFloat
     
-    var jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
+    private(set) var jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
     var currentAnim: SKAction!
     
     init(_ node: SKNode) {
         self.node = node as? SKSpriteNode
         
+        maxY = node.position.y
         green = SKTexture(imageNamed: "hp-green")
         yellow = SKTexture(imageNamed: "hp-yellow")
         red = SKTexture(imageNamed: "hp-red")

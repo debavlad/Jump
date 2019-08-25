@@ -9,8 +9,8 @@
 import Foundation
 import SpriteKit
 
-class Food {
-    var energies = [FoodType : Int]()
+class FoodFactory {
+    private var energies = [FoodType : Int]()
     
     init() {
         energies[FoodType.meat] = 25
@@ -20,7 +20,7 @@ class Food {
         energies[FoodType.egg] = 15
     }
     
-    func getRandom() -> SKSpriteNode {
+    func random() -> Food {
         let random = Int.random(in: 0..<energies.count)
         let type = FoodType(rawValue: random)
         let food = instantiate(type: type!)
@@ -28,18 +28,14 @@ class Food {
         return food
     }
     
-    private func instantiate(type: FoodType) -> SKSpriteNode {
-        let name = type.description
-        let food = SKSpriteNode(imageNamed: name)
+    private func instantiate(type: FoodType) -> Food {
+        let node = SKSpriteNode(imageNamed: type.description)
             .setFoodSettings()
-            .setRandomness()
+            .randomize()
             .pixelated()
-        food.name = name + "fooditem"
-        food.userData = NSMutableDictionary(capacity: 2)
-        food.userData!.setValue(energies[type], forKey: "energy")
-        food.userData!.setValue(false, forKey: "wasTouched")
+        node.name = type.description + "item"
         
-        return food
+        return Food(node: node, energy: energies[type]!)
     }
 }
 
@@ -67,7 +63,7 @@ enum FoodType: Int, CustomStringConvertible {
 }
 
 extension SKSpriteNode {
-    func setRandomness() -> SKSpriteNode {
+    func randomize() -> SKSpriteNode {
         let x = CGFloat.random(in: -30...30)
         position = CGPoint(x: x, y: 30)
         

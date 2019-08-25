@@ -10,7 +10,7 @@ import Foundation
 import SpriteKit
 
 
-class CloudsManager {
+class CloudFactory {
     private var bg, fg: Clouds!
     private let parent: SKNode!
     
@@ -106,11 +106,11 @@ private class Clouds {
         
         if background {
             let scale = CGFloat.random(in: 12...16)
-            cloud = getCloud(z: -5, scale: scale, alpha: 1)
+            cloud = construct(z: -5, scale: scale, alpha: 1)
             speed = 0.5
         } else {
             let scale = CGFloat.random(in: 22...28)
-            cloud = getCloud(z: 15, scale: scale, alpha: 0.5)
+            cloud = construct(z: 15, scale: scale, alpha: 0.5)
             speed = 0.25
         }
         
@@ -129,7 +129,7 @@ private class Clouds {
         return cloud
     }
     
-    private func getCloud(z: CGFloat, scale: CGFloat, alpha: CGFloat) -> SKSpriteNode {
+    private func construct(z: CGFloat, scale: CGFloat, alpha: CGFloat) -> SKSpriteNode {
         let i = Int.random(in: 0...3)
         let imgName = "cloud-\(i)"
         let cloud = SKSpriteNode(imageNamed: imgName).pixelated()

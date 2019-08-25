@@ -10,9 +10,17 @@ import Foundation
 import SpriteKit
 
 class Platform: Hashable {
-    var node: SKSpriteNode!
+    private(set) var node: SKSpriteNode!
+    private(set) var items: Set<Item>!
+    private(set) var power: Int
+    private(set) var harm: Int
+    var pos: CGPoint {
+        get {
+            return node.position
+        }
+    }
     
-    init(textureName: String, power: Int, harm: Int) {
+    init(textureName: String, _ data: (pos: CGPoint, power: Int, harm: Int)) {
         node = SKSpriteNode(imageNamed: textureName).pixelated()
         node.size = CGSize(width: 130, height: 50)
         node.name = textureName
@@ -25,11 +33,40 @@ class Platform: Hashable {
         node.physicsBody?.contactTestBitMask = 0
         node.physicsBody?.categoryBitMask = Categories.platform
         node.physicsBody?.isDynamic = false
+        node.position = data.pos
         
-        node.userData = NSMutableDictionary(capacity: 2)
-        node.userData?.setValue(power, forKey: "power")
-        node.userData?.setValue(harm, forKey: "harm")
+        self.power = data.power
+        self.harm = data.harm
     }
+    
+    
+    func add(item: Item) {
+        if items == nil {
+            items = Set<Item>()
+        }
+        
+        items.insert(item)
+        node.addChild(item.node)
+    }
+    
+    func remove(item: Item) {
+        items.remove(item)
+        item.node.removeFromParent()
+    }
+    
+    func findItem(type: String) -> Item? {
+        if items != nil {
+            return items.first(where: { (item) -> Bool in
+                item.type == type
+            })
+        }
+        return nil
+    }
+    
+    func hasItems() -> Bool {
+        return items != nil && items.count > 0
+    }
+    
     
     static func == (lhs: Platform, rhs: Platform) -> Bool {
         return lhs.node.hashValue == rhs.node.hashValue

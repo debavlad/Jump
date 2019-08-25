@@ -10,30 +10,31 @@ import Foundation
 import SpriteKit
 
 class Manager {
-    let scene: SKScene!
+    private let scene: SKScene!
     
     var labels: Set<SKLabelNode>!
     var particles: Set<SKEmitterNode>!
     
-    var sky, house, ground, bench, line, slider, button, darken, hpBorder: SKSpriteNode!
-    var pauseTexture, playTexture: SKTexture!
+    private(set) var sky, house, ground, bench, line, slider, button, darken, red, hpBorder: SKSpriteNode!
+    private(set) var pauseTexture, playTexture: SKTexture!
     
     init(scene: SKScene, world: SKNode) {
         self.scene = scene
         labels = Set<SKLabelNode>()
         particles = Set<SKEmitterNode>()
-        
         setNodes()
         setCam()
     }
     
-    func setNodes() {
+    
+    fileprivate func setNodes() {
         sky = scene.childNode(withName: "Sky")?.pixelated()
         house = scene.childNode(withName: "House")?.pixelated()
         line = scene.childNode(withName: "Line")?.pixelated()
         slider = line.childNode(withName: "Slider")?.pixelated()
         button = scene.childNode(withName: "Button")?.pixelated()
         darken = scene.childNode(withName: "Darken")?.pixelated()
+        red = scene.childNode(withName: "Red")?.pixelated()
         hpBorder = scene.childNode(withName: "Character")?.childNode(withName: "HpBorder")?.pixelated()
         ground = scene.childNode(withName: "Ground")?.pixelated()
         bench = scene.childNode(withName: "Bench")?.pixelated()
@@ -45,14 +46,19 @@ class Manager {
         bench.physicsBody?.categoryBitMask = Categories.ground
     }
     
-    func setCam() {
+    fileprivate func setCam() {
         let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         sky.move(toParent: cam)
         line.move(toParent: cam)
         button.move(toParent: cam)
         darken.move(toParent: cam)
+        red.move(toParent: cam)
     }
     
+    func death() {
+        darken.alpha = 0.3
+        red.alpha = 0.2
+    }
     
     func addParticles(to parent: SKNode, filename: String, pos: CGPoint) {
         let emitter = SKEmitterNode(fileNamed: filename)!

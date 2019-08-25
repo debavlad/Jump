@@ -10,19 +10,19 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    var world: SKNode!
+    private var world: SKNode!
     
-    var cam: Camera!
-    var manager: Manager!
-    var player: Player!
+    private var cam: Camera!
+    private var manager: Manager!
+    private var player: Player!
     
-    var platforms: Platforms!
-    var clouds: CloudsManager!
+    private var platformFactory: PlatformFactory!
+    private var cloudFactory: CloudFactory!
     
-    var movement, offset: CGFloat!
-    var sliderTouch: UITouch!
-    var sliderTriggered = false, started = false, stopped = false, ended = false
-    var bounds: Bounds!
+    private var movement, offset: CGFloat!
+    private var sliderTouch: UITouch!
+    private var sliderTriggered = false, started = false, stopped = false, ended = false
+    private var bounds: Bounds!
     
     
     override func didMove(to view: SKView) {
@@ -40,11 +40,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.setParent(world)
         addChild(world)
         
-        platforms = Platforms(world: world, 150, frame.height/2)
-        clouds = CloudsManager(frame: frame, world: world)
+        platformFactory = PlatformFactory(world: world, 150, frame.height/2)
+        cloudFactory = CloudFactory(frame: frame, world: world)
         
-//        labels = Set<SKLabelNode>()
-//        particles = Set<SKEmitterNode>()
         bounds = Bounds()
         
         manager.slider.position.x = player.x
@@ -57,47 +55,47 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             
             if col == Collision.playerFood || col == Collision.playerCoin {
-                if let item = extract(node: "item", from: contact) {
-                    item.userData?.setValue(true, forKey: "wasTouched")
-                }
+                let pos = extract(node: "item", from: contact)!.position
+                let item = platformFactory.findItem(pos: pos)!
+                item.wasTouched = true
             }
             
             if player.fallingDown() && col == Collision.playerPlatform {
                 player.animate(player.landAnim)
                 
-                let platform = extract(node: "platform", from: contact)!
+                let node = extract(node: "platform", from: contact)!
+                let platform = platformFactory.find(pos: node.position)
+                
                 manager.addParticles(to: world, filename: "DustParticles", pos: contact.contactPoint)
                 
-                if let food = platform.foodNode(), food.wasTouched()! {
-                    let energy = food.userData?.value(forKey: "energy") as! Int
-                    player.heal(by: energy)
-                    pick(item: food, platform: platform)
-                }
-                if let coin = platform.coinNode(), coin.wasTouched()! {
-                    pick(item: coin, platform: platform)
+                if let item = platform.findItem(type: "food"), item.wasTouched {
+                    player.heal(by: (item as! Food).energy)
+                    pick(item: item, platform: platform)
                 }
                 
-                let harm = platform.userData?.value(forKey: "harm") as! Int
-                player.harm(by: harm)
+                if let item = platform.findItem(type: "coin"), item.wasTouched {
+                    pick(item: item, platform: platform)
+                }
+                
+                player.harm(by: platform.harm)
                 if player.alive {
-                    let power = platform.userData?.value(forKey: "power") as! Int
-                    player.push(power: power)
+                    player.push(power: platform.power)
                 } else {
                     player.push(power: 70)
                     manager.hideUI()
                     ended = true
                 }
                 
-                if platform.has(name: "sand") {
-                    let wait = SKAction.wait(forDuration: 0.12)
-                    let fall = SKAction.run {
-                        platform.physicsBody?.isDynamic = true
-                        platform.physicsBody?.collisionBitMask = 0
-                        platform.physicsBody?.categoryBitMask = 0
-                        platform.physicsBody?.contactTestBitMask = 0
-                    }
-                    run(SKAction.sequence([wait, fall]))
-                }
+//                if platform.get().has(name: "sand") {
+//                    let wait = SKAction.wait(forDuration: 0.12)
+//                    let fall = SKAction.run {
+//                        platform.get().physicsBody?.isDynamic = true
+//                        platform.get().physicsBody?.collisionBitMask = 0
+//                        platform.get().physicsBody?.categoryBitMask = 0
+//                        platform.get().physicsBody?.contactTestBitMask = 0
+//                    }
+//                    run(SKAction.sequence([wait, fall]))
+//                }
             }
         }
     }
@@ -125,14 +123,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if !started && !ended {
             started = player.y > 0
         } else if started && !ended {
-            platforms.create(playerY: player.y)
-            platforms.remove(minY: bounds.minY)
+            platformFactory.create(playerY: player.y)
+            platformFactory.remove(minY: bounds.minY)
         }
         
         if !world.isPaused {
-            clouds.create(playerY: player.y, started: started)
-            clouds.remove(bounds: bounds)
-            clouds.move()
+            cloudFactory.create(playerY: player.y, started: started)
+            cloudFactory.remove(bounds: bounds)
+            cloudFactory.move()
         }
         
         manager.removeLabels(minY: cam.minY - frame.height/2)
@@ -199,35 +197,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    fileprivate func pick(item: SKNode, platform: SKNode) {
-        // breadfooditem; goldencoinitem
-        var name = item.name!.dropLast(8)
+    private func pick(item: Item, platform: Platform) {
+        // breaditem; goldenitem
+        var name = item.node.name!.dropLast(4)
         // bread; golden
         name = name.first!.uppercased() + name.dropFirst()
         // Bread; Golden
         name += "Particles"
         // BreadParticles; GoldenParticles
         
-        manager.addParticles(to: world, filename: String(name), pos: CGPoint(x: platform.position.x + item.position.x, y: platform.position.y + item.position.y))
+//        let parentPos = item.node.parent!.position
+        let itemPos = CGPoint(x: platform.pos.x + item.node.position.x, y: platform.pos.y + item.node.position.y)
+        manager.addParticles(to: world, filename: String(name), pos: itemPos)
         
-        let isCoin = item.userData?.value(forKey: "energy") == nil
-        if isCoin {
-            manager.addLabel(to: world, pos: platform.position)
+        if item is Coin {
+            manager.addLabel(to: world, pos: platform.pos)
         }
-        
-        //        cam.shake(amplitude: 20, amount: 3, step: 6, duration: 0.08)
-        item.removeFromParent()
+//        platform.items.remove(item)
+//        item.node.removeFromParent()
+        platform.remove(item: item)
     }
     
-    fileprivate func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
+    private func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
         return start + percent * (end - start)
     }
     
-    fileprivate func extract(node: String, from contact: SKPhysicsContact) -> SKNode? {
+    private func extract(node: String, from contact: SKPhysicsContact) -> SKNode? {
         return contact.bodyA.node!.name!.contains(node) ? contact.bodyA.node : contact.bodyB.node
     }
     
-    fileprivate func setGameState(isPaused: Bool) {
+    private func setGameState(isPaused: Bool) {
         if isPaused {
             manager.button.texture = manager.playTexture
             physicsWorld.speed = 0
@@ -243,39 +242,4 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.line.isHidden = isPaused
         manager.slider.isHidden = isPaused
     }
-}
-
-extension SKNode {
-    func coinNode() -> SKNode? {
-        return self.children.first { (n) -> Bool in
-            return n.name!.contains("item") && n.userData?.value(forKey: "energy") == nil
-        }
-    }
-    
-    func foodNode() -> SKNode? {
-        return self.children.first(where: { (n) -> Bool in
-            return n.name!.contains("item") && n.userData?.value(forKey: "energy") != nil
-        })
-    }
-    
-    func has(name: String) -> Bool {
-        return self.name!.contains(name)
-    }
-    
-    func wasTouched() -> Bool? {
-        return (self.userData?.value(forKey: "wasTouched") as! Bool)
-    }
-}
-
-enum ParticlesType {
-    case dust
-    case wooden
-    case bronze
-    case gold
-    
-    case bread
-    case meat
-    case egg
-    case chicken
-    case cheese
 }

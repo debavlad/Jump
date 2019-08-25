@@ -10,7 +10,7 @@ import Foundation
 import SpriteKit
 
 class Camera {
-    var node: SKCameraNode!
+    let node: SKCameraNode!
     
     var x: CGFloat {
         get {

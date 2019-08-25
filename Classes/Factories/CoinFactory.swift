@@ -9,8 +9,8 @@
 import Foundation
 import SpriteKit
 
-class Coins {
-    var animations = [String : SKAction]()
+class CoinFactory {
+    private var animations = [String : SKAction]()
     
     init() {
         var wooden = [SKTexture](), golden = [SKTexture](), bronze = [SKTexture]()
@@ -24,7 +24,7 @@ class Coins {
         animations["golden"] = SKAction.animate(with: golden, timePerFrame: 0.1)
     }
     
-    func getRandom(wooden: Double, bronze: Double, golden: Double) -> SKSpriteNode {
+    func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
         let chances = [CoinType.wooden : wooden, CoinType.bronze : bronze, CoinType.golden : golden]
         
         for c in chances {
@@ -38,16 +38,19 @@ class Coins {
         return instantiate(type: .wooden)
     }
     
-    private func instantiate(type: CoinType) -> SKSpriteNode {
-        let name = type.description
-        let coin = SKSpriteNode(imageNamed: name + "0")
+    private func instantiate(type: CoinType) -> Coin {
+        let node = SKSpriteNode(imageNamed: "\(type.description)0")
             .setCoinSettings()
             .pixelated()
-        coin.name = name + "coinitem"
-        coin.run(SKAction.repeatForever(animations[name]!))
-        coin.userData = NSMutableDictionary(capacity: 1)
-        coin.userData?.setValue(false, forKey: "wasTouched")
-        return coin
+//        node.name = type.description + "coinitem"
+        node.name = type.description + "item"
+        node.userData = NSMutableDictionary(capacity: 1)
+        node.userData?.setValue(false, forKey: "wasTouched")
+        
+        let anim = animations[type.description]!
+        node.run(SKAction.repeatForever(anim))
+        
+        return Coin(node: node)
     }
 }
 
