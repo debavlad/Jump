@@ -16,6 +16,7 @@ class Manager {
     var particles: Set<SKEmitterNode>!
     
     private(set) var sky, house, ground, bench, line, slider, button, darken, red, hpBorder: SKSpriteNode!
+    private var houseAnim: SKAction!
     private(set) var pauseTexture, playTexture: SKTexture!
     private var gameover: SKLabelNode!
     
@@ -41,10 +42,16 @@ class Manager {
         bench = scene.childNode(withName: "Bench")?.pixelated()
         gameover = scene.childNode(withName: "GameOver") as? SKLabelNode
         
+        var houseTextures: [SKTexture] = []
+        for i in 0...4 {
+            houseTextures.append(SKTexture(imageNamed: "house\(i)").pixelated())
+        }
+        houseAnim = SKAction.animate(with: houseTextures, timePerFrame: 0.12)
+        house.run(SKAction.repeatForever(houseAnim))
+        
         pauseTexture = SKTexture(imageNamed: "pause").pixelated()
         playTexture = SKTexture(imageNamed: "continue").pixelated()
         
-        ground.physicsBody?.categoryBitMask = Categories.ground
         bench.physicsBody?.categoryBitMask = Categories.ground
     }
     

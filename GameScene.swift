@@ -159,7 +159,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if started {
+        if started && !ended {
             let touch = touches.first!
             let node = atPoint(touch.location(in: self))
             
@@ -173,7 +173,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 sliderTriggered = false
                 stopped ? setGameState(isPaused: false) : setGameState(isPaused: true)
             }
-        } else {
+        } else if !started {
             // if game was not started yet
             // sit anim, wait a lil bit and jump uppppp
             let sit = SKAction.run {
