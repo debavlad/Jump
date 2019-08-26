@@ -42,8 +42,8 @@ class Player {
         yellow = SKTexture(imageNamed: "hp-yellow")
         red = SKTexture(imageNamed: "hp-red")
         
-        hpBorder = node.childNode(withName: "HpBorder") as? SKSpriteNode
-        hpStripe = hpBorder.childNode(withName: "HpStripe") as? SKSpriteNode
+        hpBorder = node.children.first! as? SKSpriteNode
+        hpStripe = hpBorder.children.first! as? SKSpriteNode
         maxStripeWidth = hpStripe.size.width
         
         setPhysics()

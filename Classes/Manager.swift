@@ -15,7 +15,7 @@ class Manager {
     var labels: Set<SKLabelNode>!
     var particles: Set<SKEmitterNode>!
     
-    private(set) var sky, house, ground, bench, line, slider, button, darken, red, hpBorder: SKSpriteNode!
+    private(set) var sky, house, ground, bench, line, slider, button, darken, red, hpBorder, hpStripe: SKSpriteNode!
     private var houseAnim: SKAction!
     private(set) var pauseTexture, playTexture: SKTexture!
     private var gameover: SKLabelNode!
@@ -24,23 +24,108 @@ class Manager {
         self.scene = scene
         labels = Set<SKLabelNode>()
         particles = Set<SKEmitterNode>()
+        setScene(world: world)
         setNodes()
         setCam()
     }
     
-    fileprivate func setNodes() {
-        sky = scene.childNode(withName: "Sky")?.pixelated()
-        house = scene.childNode(withName: "House")?.pixelated()
-        line = scene.childNode(withName: "Line")?.pixelated()
-        slider = line.childNode(withName: "Slider")?.pixelated()
-        button = scene.childNode(withName: "Button")?.pixelated()
-        darken = scene.childNode(withName: "Darken")?.pixelated()
-        red = scene.childNode(withName: "Red")?.pixelated()
-        hpBorder = scene.childNode(withName: "Character")?.childNode(withName: "HpBorder")?.pixelated()
-        ground = scene.childNode(withName: "Ground")?.pixelated()
-        bench = scene.childNode(withName: "Bench")?.pixelated()
-        gameover = scene.childNode(withName: "GameOver") as? SKLabelNode
+    fileprivate func setScene(world: SKNode) {
+        let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         
+        sky = SKSpriteNode(imageNamed: "sky").pixelated()
+        sky.size = CGSize(width: 754, height: 1334)
+        sky.zPosition = -10
+        cam.addChild(sky)
+        
+        house = SKSpriteNode(imageNamed: "house0").pixelated()
+        house.size = CGSize(width: 543, height: 684)
+        house.position = CGPoint(x: 200, y: -121)
+        house.zPosition = 1
+        world.addChild(house)
+        
+        bench = SKSpriteNode()
+        bench.size = CGSize(width: 161, height: 34)
+        bench.position = CGPoint(x: -173, y: -450)
+        bench.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: bench.frame.width, height: bench.frame.height))
+        bench.physicsBody?.categoryBitMask = Categories.ground
+        bench.physicsBody?.isDynamic = false
+        world.addChild(bench)
+        
+        ground = SKSpriteNode(imageNamed: "ground").pixelated()
+        ground.size = CGSize(width: 905, height: 336)
+        ground.position = CGPoint(x: 30, y: -532)
+        world.addChild(ground)
+        
+        
+        let player = SKSpriteNode(imageNamed: "sit0").pixelated()
+        player.name = "Character"
+        player.size = CGSize(width: 48, height: 51)
+        player.setScale(2.5)
+        player.position = CGPoint(x: -165, y: -337)
+        player.zPosition = 10
+        
+        hpBorder = SKSpriteNode(imageNamed: "hp-border").pixelated()
+        hpBorder.size = CGSize(width: 80, height: 4)
+        hpBorder.position = CGPoint(x: 0, y: 32)
+        
+        hpStripe = SKSpriteNode(imageNamed: "hp-green").pixelated()
+        hpStripe.size = CGSize(width: 76, height: 3)
+        hpStripe.anchorPoint = CGPoint(x: 0, y: 0.5)
+        hpStripe.position = CGPoint(x: -38, y: 0)
+        hpStripe.zPosition = -1
+        hpBorder.addChild(hpStripe)
+        hpBorder.alpha = 0
+        
+        player.addChild(hpBorder)
+        world.addChild(player)
+        
+        line = SKSpriteNode(imageNamed: "slider-line").pixelated()
+        line.size = CGSize(width: 610, height: 28)
+        line.position.y = -583
+        line.zPosition = 20
+        line.alpha = 0
+        
+        slider = SKSpriteNode(imageNamed: "slider-0").pixelated()
+        slider.size = CGSize(width: 54, height: 54)
+        slider.position.y = 4
+        slider.zPosition = 21
+        
+        line.addChild(slider)
+        cam.addChild(line)
+        
+        button = SKSpriteNode(imageNamed: "pause").pixelated()
+        button.size = CGSize(width: 106, height: 106)
+        button.position = CGPoint(x: 270, y: 572)
+        button.zPosition = 21
+        button.alpha = 0
+        cam.addChild(button)
+        
+        red = SKSpriteNode()
+        red.size = CGSize(width: 754, height: 1334)
+        red.blendMode = SKBlendMode.add
+        red.color = UIColor.init(red: 120/255, green: 0, blue: 0, alpha: 1)
+        red.alpha = 0
+        red.zPosition = 20
+        cam.addChild(red)
+        
+        darken = SKSpriteNode()
+        darken.size = CGSize(width: 754, height: 1334)
+        darken.alpha = 0
+        darken.color = UIColor.black
+        darken.zPosition = 20
+        cam.addChild(darken)
+        
+        gameover = SKLabelNode(fontNamed: "FFFForward")
+        gameover.fontSize = 80
+        gameover.text = "Game over!"
+        gameover.position.y = 250
+        gameover.zPosition = 21
+        gameover.alpha = 0
+        cam.addChild(gameover)
+        
+    }
+    
+    fileprivate func setNodes() {
         var houseTextures: [SKTexture] = []
         for i in 0...4 {
             houseTextures.append(SKTexture(imageNamed: "house\(i)").pixelated())
@@ -50,8 +135,6 @@ class Manager {
         
         pauseTexture = SKTexture(imageNamed: "pause").pixelated()
         playTexture = SKTexture(imageNamed: "continue").pixelated()
-        
-        bench.physicsBody?.categoryBitMask = Categories.ground
     }
     
     fileprivate func setCam() {

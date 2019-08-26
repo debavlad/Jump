@@ -37,8 +37,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Nodes
         world = SKNode()
-        player = Player(childNode(withName: "Character")!)
         manager = Manager(scene: self, world: world)
+        player = Player(world.childNode(withName: "Character")!)
         player.setParent(world)
         addChild(world)
         trail = Trail(player: player.node)
@@ -65,7 +65,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 item.wasTouched = true
             }
             
-            minY = platformFactory.defineMinY()
+            minY = platformFactory.collection.count > 0 ? platformFactory.defineMinY() : player.y
             
             if player.fallingDown() && col == Collision.playerPlatform {
                 player.animate(player.landAnim)
