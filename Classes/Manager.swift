@@ -150,16 +150,26 @@ class Manager {
     func gameOver() {
         hideUI()
         
-        fade(node: gameover, to: 1.0, duration: 2)
-        fade(node: darken, to: 0.5, duration: 1)
-        fade(node: red, to: 0.3, duration: 0.6)
+        fade(node: gameover, to: 1.0, duration: 2, ride: true)
+        fade(node: darken, to: 0.5, duration: 1, ride: false)
+        fade(node: red, to: 0.3, duration: 0.6, ride: false)
     }
     
-    func fade(node: SKNode, to value: CGFloat, duration: TimeInterval) {
+    func fade(node: SKNode, to value: CGFloat, duration: TimeInterval, ride: Bool) {
         let fade = SKAction.fadeAlpha(to: value, duration: duration)
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4
         
+        if ride {
+            let back = node.copy() as! SKLabelNode
+            back.zPosition = node.zPosition - 1
+            back.fontColor = UIColor.darkGray
+            let move = SKAction.moveBy(x: -10, y: -10, duration: duration)
+            move.timingMode = SKActionTimingMode.easeOut
+            move.speed = 1
+            node.parent!.addChild(back)
+            back.run(SKAction.group([fade, move]))
+        }
         node.run(fade)
     }
     

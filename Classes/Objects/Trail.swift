@@ -31,7 +31,7 @@ class Trail {
         let remove = SKAction.run {
             trail.removeFromParent()
         }
-        group.timingMode = SKActionTimingMode.easeOut
+        group.timingMode = SKActionTimingMode.easeIn
         let sequence = SKAction.sequence([group, remove])
         parent.addChild(trail)
         trail.run(sequence)
