@@ -210,10 +210,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             let wait = SKAction.wait(forDuration: 0.06)
             let push = SKAction.run {
-                //                self.cam.shake(amplitude: 50, amount: 5, step: 10, duration: 0.04)
+//                self.cam.shake(amplitude: 100, amount: 1, step: 0, duration: 0.06)
                 self.player.push(power: 170)
                 let scale = SKAction.scale(to: 1.0, duration: 1)
-                scale.timingMode = SKActionTimingMode.easeOut
+                scale.timingMode = SKActionTimingMode.easeIn
                 self.cam.node.run(scale)
             }
             let group = SKAction.sequence([sit, wait, push])
@@ -245,6 +245,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelated()
         }
     }
+    
+//    func restartGame() {
+//        let gameScene = GameScene(size: self.view!.bounds.size) // create your new scene
+//        let transition = SKTransition.fade(withDuration: 1.0) // create type of transition (you can check in documentation for more transtions)
+//        gameScene.scaleMode = SKSceneScaleMode.aspectFill
+//        self.view!.presentScene(gameScene, transition: transition)
+//    }
     
     
     private func pick(item: Item, platform: Platform) {

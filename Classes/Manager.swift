@@ -16,7 +16,7 @@ class Manager {
     var particles: Set<SKEmitterNode>!
     
     private(set) var sky, house, ground, bench, line, slider, button, darken, red, hpBorder, hpStripe: SKSpriteNode!
-    private var houseAnim: SKAction!
+    private var smokeAnim: SKAction!
     private(set) var pauseTexture, playTexture: SKTexture!
     private var gameover: SKLabelNode!
     
@@ -24,8 +24,8 @@ class Manager {
         self.scene = scene
         labels = Set<SKLabelNode>()
         particles = Set<SKEmitterNode>()
-        setScene(world: world)
         setNodes()
+        setScene(world: world)
         setCam()
     }
     
@@ -37,11 +37,18 @@ class Manager {
         sky.zPosition = -10
         cam.addChild(sky)
         
-        house = SKSpriteNode(imageNamed: "house0").pixelated()
-        house.size = CGSize(width: 543, height: 684)
-        house.position = CGPoint(x: 200, y: -121)
+        house = SKSpriteNode(imageNamed: "house").pixelated()
+        house.size = CGSize(width: 543, height: 632)
+        house.position = CGPoint(x: 200, y: -147.5)
         house.zPosition = 1
         world.addChild(house)
+        
+        let smoke = SKSpriteNode(imageNamed: "smoke0").pixelated()
+        smoke.size = CGSize(width: 119, height: 97)
+        house.addChild(smoke)
+        smoke.zPosition = -1
+        smoke.position = CGPoint(x: -115, y: 363)
+        smoke.run(SKAction.repeatForever(smokeAnim))
         
         bench = SKSpriteNode()
         bench.size = CGSize(width: 161, height: 34)
@@ -126,12 +133,11 @@ class Manager {
     }
     
     fileprivate func setNodes() {
-        var houseTextures: [SKTexture] = []
-        for i in 0...4 {
-            houseTextures.append(SKTexture(imageNamed: "house\(i)").pixelated())
+        var smokeTextures: [SKTexture] = []
+        for i in 0...3 {
+            smokeTextures.append(SKTexture(imageNamed: "smoke\(i)").pixelated())
         }
-        houseAnim = SKAction.animate(with: houseTextures, timePerFrame: 0.12)
-        house.run(SKAction.repeatForever(houseAnim))
+        smokeAnim = SKAction.animate(with: smokeTextures, timePerFrame: 0.12)
         
         pauseTexture = SKTexture(imageNamed: "pause").pixelated()
         playTexture = SKTexture(imageNamed: "continue").pixelated()
