@@ -83,6 +83,16 @@ class PlatformFactory {
         return PlatformType(rawValue: random)!
     }
     
+    func defineMinY() -> CGFloat {
+        var minY: CGFloat = collection.first!.pos.y
+        collection.forEach { (platform) in
+            if platform.pos.y < minY {
+                minY = platform.pos.y
+            }
+        }
+        return minY
+    }
+    
     private func construct(type: PlatformType, pos: CGPoint) -> Platform {
         switch type {
         case .dirt:

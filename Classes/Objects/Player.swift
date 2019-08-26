@@ -11,33 +11,9 @@ import SpriteKit
 
 class Player {
     let node: SKSpriteNode!
-    private var hp: Int = 10 {
-        willSet {
-            if newValue <= 0 {
-                self.hp = 0
-                alive = false
-                hpStripe.size.width = 0
-            } else if newValue > 100 {
-                self.hp = 100
-                hpStripe.size.width = maxStripeWidth
-            } else {
-                self.hp = newValue
-                hpStripe.size.width = maxStripeWidth / 100 * CGFloat(newValue)
-                setStripeColor(hp: newValue)
-            }
-        }
-    }
+    private var hp: Int = 100
     private(set) var alive = true
     
-    var velocity: CGVector {
-        get {
-            return node.physicsBody!.velocity
-        }
-        set {
-            node.physicsBody?.velocity = newValue
-        }
-    }
-    var maxY: CGFloat
     var x: CGFloat {
         set {
             node.position.x = newValue
@@ -62,7 +38,6 @@ class Player {
     init(_ node: SKNode) {
         self.node = node as? SKSpriteNode
         
-        maxY = node.position.y
         green = SKTexture(imageNamed: "hp-green")
         yellow = SKTexture(imageNamed: "hp-yellow")
         red = SKTexture(imageNamed: "hp-red")
@@ -86,12 +61,27 @@ class Player {
         return node.physicsBody!.velocity.dy < 0
     }
     
+    private func setHp(value: Int) {
+        if value <= 0 {
+            hp = 0
+            alive = false
+            hpStripe.size.width = 0
+        } else if value >= 100 {
+            hp = 100
+            hpStripe.size.width = maxStripeWidth
+        } else {
+            hp = value
+            hpStripe.size.width = maxStripeWidth / 100 * CGFloat(value)
+            setStripeColor(hp: value)
+        }
+    }
+    
     func harm(by amount: Int) {
-        hp -= amount
+        setHp(value: hp - amount)
     }
     
     func heal(by amount: Int) {
-        hp += amount
+        setHp(value: hp + amount)
     }
     
     func push(power: Int) {

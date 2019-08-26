@@ -28,7 +28,6 @@ class Manager {
         setCam()
     }
     
-    
     fileprivate func setNodes() {
         sky = scene.childNode(withName: "Sky")?.pixelated()
         house = scene.childNode(withName: "House")?.pixelated()

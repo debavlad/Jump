@@ -15,6 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var cam: Camera!
     private var manager: Manager!
     private var player: Player!
+    private var trail: Trail!
     
     private var platformFactory: PlatformFactory!
     private var cloudFactory: CloudFactory!
@@ -23,6 +24,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var sliderTouch: UITouch!
     private var sliderTriggered = false, started = false, stopped = false, ended = false
     private var bounds: Bounds!
+    private var minY: CGFloat!
     
     
     override func didMove(to view: SKView) {
@@ -39,11 +41,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager = Manager(scene: self, world: world)
         player.setParent(world)
         addChild(world)
+        trail = Trail(player: player.node)
+        trail.create(in: world)
         
         platformFactory = PlatformFactory(world: world, 150, frame.height/2)
         cloudFactory = CloudFactory(frame: frame, world: world)
         
         bounds = Bounds()
+        minY = player.y
         
         manager.slider.position.x = player.x
         movement = player.x
@@ -60,8 +65,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 item.wasTouched = true
             }
             
+            minY = platformFactory.defineMinY()
+            
             if player.fallingDown() && col == Collision.playerPlatform {
                 player.animate(player.landAnim)
+                
+                trail.create(in: world, scale: 30)
                 
                 let node = extract(node: "platform", from: contact)!
                 let platform = platformFactory.find(pos: node.position)
@@ -82,7 +91,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     player.push(power: platform.power)
                 } else {
                     player.push(power: 70)
-                    endGame()
+                    endGame(wait: 0.7)
                 }
                 
 //                if platform.get().has(name: "sand") {
@@ -99,30 +108,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    private func endGame() {
-//        cam.shake(amplitude: 60, amount: 5, step: 0, duration: 0.06)
-        sliderTriggered = false
-        manager.gameOver()
-        let scale = SKAction.scale(to: 0.4, duration: 1)
-        let angle = SKAction.rotate(toAngle: -0.4, duration: 1)
-        let group = SKAction.group([scale, angle])
-        group.timingMode = SKActionTimingMode.easeIn
-        group.speed = 2
-        let stop = SKAction.run {
-            self.physicsWorld.speed = 0
-            self.world.isPaused = true
+    private func endGame(wait: TimeInterval) {
+        let wait = SKAction.wait(forDuration: wait)
+        let action = SKAction.run {
+            self.sliderTriggered = false
+            self.manager.gameOver()
+            
+            let scale = SKAction.scale(to: 0.4, duration: 1)
+            scale.speed = 3
+            scale.timingMode = SKActionTimingMode.easeIn
+            let angle = SKAction.rotate(toAngle: -0.3, duration: 1)
+            angle.speed = 0.6
+            angle.timingMode = SKActionTimingMode.easeInEaseOut
+            let stop = SKAction.run {
+                self.physicsWorld.speed = 0
+                self.world.isPaused = true
+            }
+            let seq = SKAction.sequence([scale, stop])
+            self.cam.node.run(SKAction.group([seq, angle]))
+            
+            self.manager.hideUI()
+            self.ended = true
         }
-        cam.node.run(SKAction.sequence([group, stop]))
-        
-//        manager.hideUI()
-        ended = true
+        run(SKAction.sequence([wait, action]))
     }
     
     override func update(_ currentTime: TimeInterval) {
-        cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 1.5)
+        cam.shake(amplitude: 1, amount: 5, step: 0, duration: 2)
         if !stopped {
             movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.225)
             player.x = movement
+            
+            if trail.distance() > 50 && !ended {
+                trail.create(in: world)
+            }
             
             bounds.minX = frame.minX + cam.x
             bounds.minY = cam.minY - frame.height/2
@@ -134,12 +153,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
+        if player.node.physicsBody!.velocity.dy < -2000 {
+            player.node.physicsBody!.velocity.dy = -2000
+        }
+        
+        if started && player.y < minY && !ended {
+            endGame(wait: 0)
+        }
+        
         if started {
             cam.y = lerp(start: cam.y, end: player.y, percent: cam.easing)
         }
         
         if ended {
-            cam.x = lerp(start: cam.x, end: player.x, percent: cam.easing/4)
+            cam.x = lerp(start: cam.x, end: player.x, percent: cam.easing/3)
         }
         
         if !started && !ended {
@@ -151,7 +178,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if !world.isPaused {
             cloudFactory.create(playerY: player.y, started: started)
-            cloudFactory.remove(bounds: bounds)
+            cloudFactory.bounds = bounds
+            cloudFactory.remove()
             cloudFactory.move()
         }
         

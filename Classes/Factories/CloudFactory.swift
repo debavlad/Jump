@@ -13,6 +13,7 @@ import SpriteKit
 class CloudFactory {
     private var bg, fg: Clouds!
     private let parent: SKNode!
+    var bounds: Bounds!
     
     init(frame: CGRect, world: SKNode) {
         bg = Clouds(250, -frame.height)
@@ -33,11 +34,12 @@ class CloudFactory {
     }
     
     func move() {
-        bg.move()
-        fg.move()
+        bg.move(bounds: bounds)
+        fg.move(bounds: bounds)
     }
     
-    func remove(bounds: Bounds) {
+//    func remove(bounds: Bounds) {
+    func remove() {
         bg.remove(bounds: bounds)
         fg.remove(bounds: bounds)
     }
@@ -71,15 +73,17 @@ private class Clouds {
         }
     }
     
-    func move() {
+    func move(bounds: Bounds) {
         for cloud in set {
-            cloud.position.x += speed
+            if cloud.frame.maxY > bounds.minY {
+                cloud.position.x += speed
+            }
         }
     }
     
     func remove(bounds: Bounds) {
         set.forEach { (cloud) in
-            if cloud.frame.maxY < bounds.minY {
+            if cloud.frame.maxY < bounds.minY - height*2 {
                 cloud.removeFromParent()
                 set.remove(cloud)
             }
