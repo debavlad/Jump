@@ -11,6 +11,7 @@ import SpriteKit
 
 class Manager {
     private let scene: SKScene!
+    public static var counter: Int = 0
     
     private var labels: Set<SKLabelNode>!
     private var particles: Set<SKEmitterNode>!
@@ -39,7 +40,8 @@ class Manager {
         
         let house = SKSpriteNode(imageNamed: "house").pixelated()
         house.size = CGSize(width: 543, height: 632)
-        house.position = CGPoint(x: 200, y: -147.5)
+        house.position = CGPoint(x: 200, y: -97.5)
+//        house.position = CGPoint(x: 200, y: -147.5)
         house.zPosition = 1
         world.addChild(house)
         
@@ -48,11 +50,13 @@ class Manager {
         house.addChild(smoke)
         smoke.zPosition = -1
         smoke.position = CGPoint(x: -115, y: 363)
+//        smoke.position = CGPoint(x: -115, y: 363)
         smoke.run(SKAction.repeatForever(smokeAnim))
         
         let bench = SKSpriteNode()
         bench.size = CGSize(width: 161, height: 34)
-        bench.position = CGPoint(x: -173, y: -450)
+        bench.position = CGPoint(x: -173, y: -400)
+//        bench.position = CGPoint(x: -173, y: -450)
         bench.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: bench.frame.width, height: bench.frame.height))
         bench.physicsBody?.categoryBitMask = Categories.ground
         bench.physicsBody?.isDynamic = false
@@ -60,7 +64,8 @@ class Manager {
         
         let ground = SKSpriteNode(imageNamed: "ground").pixelated()
         ground.size = CGSize(width: 905, height: 336)
-        ground.position = CGPoint(x: 30, y: -532)
+        ground.position = CGPoint(x: 30, y: -482)
+//        ground.position = CGPoint(x: 30, y: -532)
         world.addChild(ground)
         
         
@@ -68,7 +73,12 @@ class Manager {
         player.name = "Character"
         player.size = CGSize(width: 48, height: 51)
         player.setScale(2.5)
-        player.position = CGPoint(x: -165, y: -300)
+        if GameScene.counter > 0 {
+            player.position = CGPoint(x: -165, y: -250)
+        } else {
+            player.position = CGPoint(x: -165, y: -300)
+        }
+//        player.position = CGPoint(x: -165, y: -300)
         player.zPosition = 10
         
         hpBorder = SKSpriteNode(imageNamed: "hp-border").pixelated()
@@ -133,19 +143,6 @@ class Manager {
         backBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -300))
         backBtn.node.alpha = 0
         cam.addChild(backBtn.node)
-//        let lbl = SKLabelNode(fontNamed: "Coder's Crux")
-//        lbl.position.y = -8
-//        lbl.fontSize = 85
-//        lbl.fontColor = UIColor(red: 127/255, green: 161/255, blue: 172/255, alpha: 1)
-//        lbl.text = "BACK TO MENU"
-//
-//        btn = SKSpriteNode(imageNamed: "btn0").pixelated()
-//        btn.position.y = -300
-//        btn.zPosition = 21
-//        btn.size = CGSize(width: 575, height: 150)
-//        btn.addChild(lbl)
-//        btn.alpha = 0
-//        cam.addChild(btn)
     }
     
     fileprivate func setNodes() {

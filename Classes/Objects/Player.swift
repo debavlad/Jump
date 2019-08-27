@@ -122,7 +122,11 @@ class Player {
         node.physicsBody?.contactTestBitMask = Categories.coin | Categories.food | Categories.platform
         node.physicsBody?.allowsRotation = false
         node.physicsBody?.friction = 0
-        node.physicsBody?.restitution = 0.3
+        if GameScene.counter > 0 {
+            node.physicsBody?.restitution = 0.4
+        } else {
+            node.physicsBody?.restitution = 0
+        }
         node.physicsBody?.linearDamping = 0
         node.physicsBody?.angularDamping = 0
     }

@@ -53,7 +53,7 @@ class Platform: Hashable {
     }
     
     func findItem(type: String) -> Item? {
-        if items != nil {
+        if hasItems() {
             return items.first(where: { (item) -> Bool in
                 item.type == type
             })

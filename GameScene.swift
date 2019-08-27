@@ -14,6 +14,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var manager: Manager!
     private var player: Player!
     private var trail: Trail!
+    static var counter: Int = 0
     
     private var world: SKNode!
     private var black: SKSpriteNode!
@@ -33,13 +34,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         black = SKSpriteNode(color: .black, size: CGSize(width: 754, height: 1334))
         black.zPosition = 25
-        black.alpha = 1
+        black.alpha = 0
         
         // Camera
         cam = Camera(scene: self)
         cam.node.addChild(black)
         
-        black.run(SKAction.fadeOut(withDuration: 0.4))
+        if GameScene.counter > 0 {
+            black.alpha = 1
+            black.run(SKAction.fadeOut(withDuration: 0.4))
+        }
         
         // Nodes
         world = SKNode()
@@ -154,7 +158,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             bounds.maxX = frame.size.width/2 + cam.x
             bounds.maxY = cam.maxY + frame.height/2
             
-            if player.fallingDown() && player.currentAnim != player.fallAnim {
+            if started && player.fallingDown() && player.currentAnim != player.fallAnim {
                 player.animate(player.fallAnim)
             }
         }
@@ -265,6 +269,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func backToMenu() {
+        
         let wait = SKAction.wait(forDuration: 0.6)
         let physics = SKAction.run {
             self.player.node.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
@@ -274,6 +279,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.black.run(SKAction.fadeIn(withDuration: 0.6))
         }
         let act = SKAction.run {
+            GameScene.counter += 1
             let scene = GameScene(size: self.frame.size)
             scene.scaleMode = SKSceneScaleMode.aspectFill
             self.view!.presentScene(scene)
