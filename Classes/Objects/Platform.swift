@@ -38,7 +38,6 @@ class Platform: Hashable {
         self.harm = data.harm
     }
     
-    
     func add(item: Item) {
         if items == nil {
             items = Set<Item>()

@@ -12,11 +12,11 @@ import SpriteKit
 class PlatformFactory {
     var distance, lastY: CGFloat
     
-    private(set) var width, height: CGFloat
+    private let width, height: CGFloat
     private let coinFactory: CoinFactory!
     private let foodFactory: FoodFactory!
     private(set) var collection: Set<Platform>!
-    private let world: SKNode!
+    private let parent: SKNode!
     
     init(world: SKNode, _ distance: CGFloat, _ lastY: CGFloat) {
         self.distance = distance
@@ -27,9 +27,8 @@ class PlatformFactory {
         coinFactory = CoinFactory()
         foodFactory = FoodFactory()
         collection = Set<Platform>()
-        self.world = world
+        self.parent = world
     }
-    
     
     func remove(minY: CGFloat) {
         collection.forEach { (platform) in
@@ -45,11 +44,6 @@ class PlatformFactory {
                 collection.remove(platform)
             }
         }
-    }
-    
-    func remove(platform: Platform) {
-        collection.remove(platform)
-        platform.node.removeFromParent()
     }
     
     func create(playerY: CGFloat) {
@@ -69,7 +63,7 @@ class PlatformFactory {
                 platform.add(item: f)
             }
             
-            world.addChild(platform.node)
+            parent.addChild(platform.node)
             collection.insert(platform)
         }
     }

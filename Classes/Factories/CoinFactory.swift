@@ -26,7 +26,7 @@ class CoinFactory {
     
     func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
         let chances = [CoinType.wooden : wooden, CoinType.bronze : bronze, CoinType.golden : golden]
-        
+         
         for c in chances {
             let random = Double.random(in: 0...wooden + bronze + golden)
             if random < c.value {
@@ -42,10 +42,7 @@ class CoinFactory {
         let node = SKSpriteNode(imageNamed: "\(type.description)0")
             .setCoinSettings()
             .pixelated()
-//        node.name = type.description + "coinitem"
         node.name = type.description + "item"
-        node.userData = NSMutableDictionary(capacity: 1)
-        node.userData?.setValue(false, forKey: "wasTouched")
         
         let anim = animations[type.description]!
         node.run(SKAction.repeatForever(anim))

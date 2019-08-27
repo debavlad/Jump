@@ -10,36 +10,27 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    private var world: SKNode!
-    
     private var cam: Camera!
     private var manager: Manager!
     private var player: Player!
     private var trail: Trail!
-    private var scsize: CGSize!
     
-    private var platformFactory: PlatformFactory!
+    private var world: SKNode!
     private var cloudFactory: CloudFactory!
+    private var platformFactory: PlatformFactory!
     
-    private var movement, offset: CGFloat!
+    private var movement, offset, minY: CGFloat!
     private var sliderTouch: UITouch!
     private var triggeredBtn: Button!
     private var sliderTriggered = false, started = false, stopped = false, ended = false
     private var bounds: Bounds!
-    private var minY: CGFloat!
-    
     
     override func didMove(to view: SKView) {
-        scsize = UIScreen.main.bounds.size
-        scsize.height *= 2
-        scsize.width *= 2
-        
         // Physics
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0, dy: -23)
         
         // Camera
-        scsize = CGSize(width: frame.size.width, height: frame.size.height)
         cam = Camera(scene: self)
         
         // Nodes
@@ -141,7 +132,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-//        print(view!.frame.size)
         cam.shake(amplitude: 1, amount: 5, step: 0, duration: 2)
         if !stopped {
             movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.225)
@@ -151,14 +141,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 trail.create(in: world)
             }
             
-//            print(player.x)
-            
-//            print(position.y)
             bounds.minX = -frame.size.width/2 + cam.x
-//            bounds.minX = frame.minX + cam.x
             bounds.minY = cam.minY - frame.height/2
             bounds.maxX = frame.size.width/2 + cam.x
-//            bounds.maxX = frame.maxX + cam.x
             bounds.maxY = cam.maxY + frame.height/2
             
             if player.fallingDown() && player.currentAnim != player.fallAnim {
@@ -211,7 +196,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 offset = manager.slider.position.x - sliderTouch.location(in: self).x
                 
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
-            } else if node == manager.button {
+            } else if node == manager.pauseBtn {
                 sliderTriggered = false
                 stopped ? setGameState(isPaused: false) : setGameState(isPaused: true)
             }
@@ -236,9 +221,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if ended {
             let touch = touches.first!
             let node = atPoint(touch.location(in: self))
-            if node == manager.btn.node || node == manager.btn.label {
-                manager.btn.state(pushed: true)
-                triggeredBtn = manager.btn
+            if node == manager.backBtn.node || node == manager.backBtn.label {
+                manager.backBtn.state(pushed: true)
+                triggeredBtn = manager.backBtn
                 backToMenu()
             }
         }
@@ -270,21 +255,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func backToMenu() {
+    private func backToMenu() {
         let scene = GameScene(size: frame.size)
-//        print(scene.camera?.xScale, scene.camera?.yScale)
         scene.scaleMode = SKSceneScaleMode.aspectFill
         view!.presentScene(scene)
         
         removeAllChildren()
     }
-//    func restartGame() {
-//        let gameScene = GameScene(size: self.view!.bounds.size) // create your new scene
-//        let transition = SKTransition.fade(withDuration: 1.0) // create type of transition (you can check in documentation for more transtions)
-//        gameScene.scaleMode = SKSceneScaleMode.aspectFill
-//        self.view!.presentScene(gameScene, transition: transition)
-//    }
-    
     
     private func pick(item: Item, platform: Platform) {
         // breaditem; goldenitem
@@ -295,15 +272,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         name += "Particles"
         // BreadParticles; GoldenParticles
         
-//        let parentPos = item.node.parent!.position
         let itemPos = CGPoint(x: platform.pos.x + item.node.position.x, y: platform.pos.y + item.node.position.y)
         manager.addParticles(to: world, filename: String(name), pos: itemPos)
-        
         if item is Coin {
             manager.addLabel(to: world, pos: platform.pos)
         }
-//        platform.items.remove(item)
-//        item.node.removeFromParent()
         platform.remove(item: item)
     }
     
@@ -317,11 +290,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func setGameState(isPaused: Bool) {
         if isPaused {
-            manager.button.texture = manager.playTexture
+            manager.pauseBtn.texture = manager.playTexture
             physicsWorld.speed = 0
             manager.darken.alpha = 0.3
         } else {
-            manager.button.texture = manager.pauseTexture
+            manager.pauseBtn.texture = manager.pauseTexture
             physicsWorld.speed = 1
             manager.darken.alpha = 0
         }

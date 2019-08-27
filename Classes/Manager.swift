@@ -12,14 +12,14 @@ import SpriteKit
 class Manager {
     private let scene: SKScene!
     
-    var labels: Set<SKLabelNode>!
-    var particles: Set<SKEmitterNode>!
+    private var labels: Set<SKLabelNode>!
+    private var particles: Set<SKEmitterNode>!
     
-    var btn: Button!
-    private(set) var sky, house, ground, bench, line, slider, button, darken, red, hpBorder, hpStripe: SKSpriteNode!
-    private var smokeAnim: SKAction!
-    private(set) var pauseTexture, playTexture: SKTexture!
+    private(set) var backBtn: Button!
     private var gameover: SKLabelNode!
+    private(set) var line, slider, pauseBtn, darken, red, hpBorder, hpStripe: SKSpriteNode!
+    private(set) var pauseTexture, playTexture: SKTexture!
+    private var smokeAnim: SKAction!
     
     init(scene: SKScene, world: SKNode) {
         self.scene = scene
@@ -27,18 +27,17 @@ class Manager {
         particles = Set<SKEmitterNode>()
         setNodes()
         setScene(world: world)
-//        setCam()
     }
     
     fileprivate func setScene(world: SKNode) {
         let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         
-        sky = SKSpriteNode(imageNamed: "sky").pixelated()
+        let sky = SKSpriteNode(imageNamed: "sky").pixelated()
         sky.size = CGSize(width: 754, height: 1334)
         sky.zPosition = -10
         cam.addChild(sky)
         
-        house = SKSpriteNode(imageNamed: "house").pixelated()
+        let house = SKSpriteNode(imageNamed: "house").pixelated()
         house.size = CGSize(width: 543, height: 632)
         house.position = CGPoint(x: 200, y: -147.5)
         house.zPosition = 1
@@ -51,7 +50,7 @@ class Manager {
         smoke.position = CGPoint(x: -115, y: 363)
         smoke.run(SKAction.repeatForever(smokeAnim))
         
-        bench = SKSpriteNode()
+        let bench = SKSpriteNode()
         bench.size = CGSize(width: 161, height: 34)
         bench.position = CGPoint(x: -173, y: -450)
         bench.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: bench.frame.width, height: bench.frame.height))
@@ -59,7 +58,7 @@ class Manager {
         bench.physicsBody?.isDynamic = false
         world.addChild(bench)
         
-        ground = SKSpriteNode(imageNamed: "ground").pixelated()
+        let ground = SKSpriteNode(imageNamed: "ground").pixelated()
         ground.size = CGSize(width: 905, height: 336)
         ground.position = CGPoint(x: 30, y: -532)
         world.addChild(ground)
@@ -101,12 +100,12 @@ class Manager {
         line.addChild(slider)
         cam.addChild(line)
         
-        button = SKSpriteNode(imageNamed: "pause").pixelated()
-        button.size = CGSize(width: 106, height: 106)
-        button.position = CGPoint(x: 270, y: 572)
-        button.zPosition = 21
-        button.alpha = 0
-        cam.addChild(button)
+        pauseBtn = SKSpriteNode(imageNamed: "pause").pixelated()
+        pauseBtn.size = CGSize(width: 106, height: 106)
+        pauseBtn.position = CGPoint(x: 270, y: 572)
+        pauseBtn.zPosition = 21
+        pauseBtn.alpha = 0
+        cam.addChild(pauseBtn)
         
         red = SKSpriteNode()
         red.size = CGSize(width: 754, height: 1334)
@@ -131,9 +130,9 @@ class Manager {
         gameover.alpha = 0
         cam.addChild(gameover)
         
-        btn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -300))
-        btn.node.alpha = 0
-        cam.addChild(btn.node)
+        backBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -300))
+        backBtn.node.alpha = 0
+        cam.addChild(backBtn.node)
 //        let lbl = SKLabelNode(fontNamed: "Coder's Crux")
 //        lbl.position.y = -8
 //        lbl.fontSize = 85
@@ -160,20 +159,10 @@ class Manager {
         playTexture = SKTexture(imageNamed: "continue").pixelated()
     }
     
-//    fileprivate func setCam() {
-//        let cam = scene.childNode(withName: "Cam") as! SKCameraNode
-//        sky.move(toParent: cam)
-//        line.move(toParent: cam)
-//        button.move(toParent: cam)
-//        darken.move(toParent: cam)
-//        red.move(toParent: cam)
-//        gameover.move(toParent: cam)
-//    }
-    
     func gameOver() {
         hideUI()
         
-        fade(node: btn.node, to: 1.0, duration: 2, ride: false)
+        fade(node: backBtn.node, to: 1.0, duration: 2, ride: false)
         fade(node: gameover, to: 1.0, duration: 2, ride: true)
         fade(node: darken, to: 0.5, duration: 1, ride: false)
         fade(node: red, to: 0.3, duration: 0.6, ride: false)
@@ -272,7 +261,7 @@ class Manager {
 
         line.run(fade)
         hpBorder.run(fade)
-        button.run(fade)
+        pauseBtn.run(fade)
     }
     
     func hideUI() {
@@ -282,7 +271,7 @@ class Manager {
         
         line.run(fade)
         hpBorder.run(fade)
-        button.run(fade)
+        pauseBtn.run(fade)
     }
 }
 
