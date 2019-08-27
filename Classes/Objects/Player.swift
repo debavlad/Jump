@@ -29,6 +29,7 @@ class Player {
     }
     
     private let green, yellow, red: SKTexture!
+    private var msg: Message?
     private let hpBorder, hpStripe: SKSpriteNode!
     private let maxStripeWidth: CGFloat
     
@@ -48,8 +49,27 @@ class Player {
         
         setPhysics()
         setAnimations()
-        turn(left: true)
+//        turn(left: true)
         node.run(SKAction.repeatForever(sitAnim))
+    }
+    
+    func display(msg: Message) {
+        if self.msg == nil {
+            let m = msg
+            self.msg = m
+            if node.xScale == -2.5 {
+                m.node.xScale = -m.node.xScale
+                m.node.position.x = -m.offset
+            }
+            m.node.setScale(0)
+            node.addChild(m.node)
+            let scale = SKAction.scale(to: 1.0, duration: 1)
+            scale.timingMode = SKActionTimingMode.easeOut
+            scale.speed = 3
+            let move = SKAction.move(to: CGPoint(x: self.msg!.node.position.x, y: self.msg!.node.position.y), duration: 0.3)
+            move.timingMode = SKActionTimingMode.easeOut
+            m.node.run(SKAction.group([scale, move]))
+        }
     }
     
     func animate(_ anim: SKAction) {
@@ -94,9 +114,18 @@ class Player {
         if left {
             node.xScale = -2.5
             hpBorder.xScale = -0.4
+            if let m = msg {
+                m.node.xScale = -1
+                m.node.position.x = -m.offset
+            }
         } else {
             node.xScale = 2.5
             hpBorder.xScale = 0.4
+            if let m = msg {
+                m.node.xScale = 1
+                m.node.position.x = m.offset
+            }
+                
         }
     }
     

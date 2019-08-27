@@ -48,7 +48,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Nodes
         world = SKNode()
         manager = Manager(scene: self, world: world)
+        
         player = Player(world.childNode(withName: "Character")!)
+//        let msg = Message(scale: 2, length: 8)
+//        player.display(msg: msg)
+        player.turn(left: true)
+        
         player.setParent(world)
         addChild(world)
         trail = Trail(player: player.node)
@@ -63,6 +68,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.slider.position.x = player.x
         movement = player.x
         cam.node.setScale(0.85)
+//        player.node.addChild(msg.node)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -79,6 +85,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             if player.fallingDown() && col == Collision.playerPlatform {
                 player.animate(player.landAnim)
+                
+                let msg = Message(scale: 2, length: 8)
+                player.display(msg: msg)
                 
                 trail.create(in: world, scale: 30)
                 
@@ -146,7 +155,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         cam.shake(amplitude: 1, amount: 5, step: 0, duration: 2)
         if !stopped {
-            movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.225)
+//            movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.225)
+            movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.25)
             player.x = movement
             
             if trail.distance() > 50 && !ended {
