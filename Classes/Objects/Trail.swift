@@ -22,7 +22,7 @@ class Trail {
         trail.position = player.position
         trail.setScale(scale)
         trail.colorBlendFactor = 1
-        trail.color = UIColor.darkGray
+        trail.color = UIColor.white
         last = trail
         
         let alpha = SKAction.fadeAlpha(to: 0, duration: 2)

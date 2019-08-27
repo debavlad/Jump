@@ -12,7 +12,7 @@ import SpriteKit
 class PlatformFactory {
     var distance, lastY: CGFloat
     
-    private let width, height: CGFloat
+    private(set) var width, height: CGFloat
     private let coinFactory: CoinFactory!
     private let foodFactory: FoodFactory!
     private(set) var collection: Set<Platform>!

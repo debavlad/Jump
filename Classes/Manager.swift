@@ -15,6 +15,7 @@ class Manager {
     var labels: Set<SKLabelNode>!
     var particles: Set<SKEmitterNode>!
     
+    var btn: Button!
     private(set) var sky, house, ground, bench, line, slider, button, darken, red, hpBorder, hpStripe: SKSpriteNode!
     private var smokeAnim: SKAction!
     private(set) var pauseTexture, playTexture: SKTexture!
@@ -26,7 +27,7 @@ class Manager {
         particles = Set<SKEmitterNode>()
         setNodes()
         setScene(world: world)
-        setCam()
+//        setCam()
     }
     
     fileprivate func setScene(world: SKNode) {
@@ -130,6 +131,22 @@ class Manager {
         gameover.alpha = 0
         cam.addChild(gameover)
         
+        btn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -300))
+        btn.node.alpha = 0
+        cam.addChild(btn.node)
+//        let lbl = SKLabelNode(fontNamed: "Coder's Crux")
+//        lbl.position.y = -8
+//        lbl.fontSize = 85
+//        lbl.fontColor = UIColor(red: 127/255, green: 161/255, blue: 172/255, alpha: 1)
+//        lbl.text = "BACK TO MENU"
+//
+//        btn = SKSpriteNode(imageNamed: "btn0").pixelated()
+//        btn.position.y = -300
+//        btn.zPosition = 21
+//        btn.size = CGSize(width: 575, height: 150)
+//        btn.addChild(lbl)
+//        btn.alpha = 0
+//        cam.addChild(btn)
     }
     
     fileprivate func setNodes() {
@@ -143,19 +160,20 @@ class Manager {
         playTexture = SKTexture(imageNamed: "continue").pixelated()
     }
     
-    fileprivate func setCam() {
-        let cam = scene.childNode(withName: "Cam") as! SKCameraNode
-        sky.move(toParent: cam)
-        line.move(toParent: cam)
-        button.move(toParent: cam)
-        darken.move(toParent: cam)
-        red.move(toParent: cam)
-        gameover.move(toParent: cam)
-    }
+//    fileprivate func setCam() {
+//        let cam = scene.childNode(withName: "Cam") as! SKCameraNode
+//        sky.move(toParent: cam)
+//        line.move(toParent: cam)
+//        button.move(toParent: cam)
+//        darken.move(toParent: cam)
+//        red.move(toParent: cam)
+//        gameover.move(toParent: cam)
+//    }
     
     func gameOver() {
         hideUI()
         
+        fade(node: btn.node, to: 1.0, duration: 2, ride: false)
         fade(node: gameover, to: 1.0, duration: 2, ride: true)
         fade(node: darken, to: 0.5, duration: 1, ride: false)
         fade(node: red, to: 0.3, duration: 0.6, ride: false)

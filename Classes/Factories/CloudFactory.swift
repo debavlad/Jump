@@ -19,6 +19,8 @@ class CloudFactory {
         bg = Clouds(250, -frame.height)
         fg = Clouds(1200, -frame.height)
         self.parent = world
+        
+        print("cloud factory init")
     }
     
     func create(playerY: CGFloat, started: Bool) {
@@ -42,6 +44,7 @@ class CloudFactory {
     func remove() {
         bg.remove(bounds: bounds)
         fg.remove(bounds: bounds)
+//        print(bounds.minX, bounds.maxX)
     }
 }
 
