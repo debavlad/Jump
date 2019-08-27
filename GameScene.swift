@@ -16,6 +16,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var trail: Trail!
     
     private var world: SKNode!
+    private var black: SKSpriteNode!
     private var cloudFactory: CloudFactory!
     private var platformFactory: PlatformFactory!
     
@@ -30,8 +31,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0, dy: -23)
         
+        black = SKSpriteNode(color: .black, size: CGSize(width: 754, height: 1334))
+        black.zPosition = 25
+        black.alpha = 1
+        
         // Camera
         cam = Camera(scene: self)
+        cam.node.addChild(black)
+        
+        black.run(SKAction.fadeOut(withDuration: 0.4))
         
         // Nodes
         world = SKNode()
@@ -249,18 +257,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let st = sliderTouch, touches.contains(st) {
             sliderTriggered = false
             manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelated()
-        } else if triggeredBtn != nil {
+        }
+        else if triggeredBtn != nil {
             triggeredBtn.state(pushed: false)
             triggeredBtn = nil
         }
     }
     
     private func backToMenu() {
-        let scene = GameScene(size: frame.size)
-        scene.scaleMode = SKSceneScaleMode.aspectFill
-        view!.presentScene(scene)
-        
-        removeAllChildren()
+        let wait = SKAction.wait(forDuration: 0.6)
+        let physics = SKAction.run {
+            self.player.node.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
+            self.physicsWorld.gravity = CGVector(dx: 0, dy: -18)
+            self.physicsWorld.speed = 1
+            self.world.isPaused = false
+            self.black.run(SKAction.fadeIn(withDuration: 0.6))
+        }
+        let act = SKAction.run {
+            let scene = GameScene(size: self.frame.size)
+            scene.scaleMode = SKSceneScaleMode.aspectFill
+            self.view!.presentScene(scene)
+            self.removeAllChildren()
+        }
+        run(SKAction.sequence([SKAction.group([wait, physics]), act ]))
     }
     
     private func pick(item: Item, platform: Platform) {

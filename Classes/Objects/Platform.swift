@@ -29,7 +29,7 @@ class Platform: Hashable {
         node.physicsBody?.mass = 10
         node.physicsBody?.linearDamping = 0
         node.physicsBody?.angularDamping = 0
-        node.physicsBody?.contactTestBitMask = 0
+        node.physicsBody?.contactTestBitMask = Categories.player
         node.physicsBody?.categoryBitMask = Categories.platform
         node.physicsBody?.isDynamic = false
         node.position = data.pos

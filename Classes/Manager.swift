@@ -68,7 +68,7 @@ class Manager {
         player.name = "Character"
         player.size = CGSize(width: 48, height: 51)
         player.setScale(2.5)
-        player.position = CGPoint(x: -165, y: -337)
+        player.position = CGPoint(x: -165, y: -300)
         player.zPosition = 10
         
         hpBorder = SKSpriteNode(imageNamed: "hp-border").pixelated()
@@ -265,7 +265,7 @@ class Manager {
     }
     
     func hideUI() {
-        let fade = SKAction.fadeAlpha(to: 0, duration: 2)
+        let fade = SKAction.fadeAlpha(to: 0, duration: 1)
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4
         

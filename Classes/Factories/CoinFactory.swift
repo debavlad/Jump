@@ -26,7 +26,7 @@ class CoinFactory {
     
     func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
         let chances = [CoinType.wooden : wooden, CoinType.bronze : bronze, CoinType.golden : golden]
-         
+        
         for c in chances {
             let random = Double.random(in: 0...wooden + bronze + golden)
             if random < c.value {
