@@ -40,7 +40,7 @@ class Manager {
         
         let house = SKSpriteNode(imageNamed: "house").pixelated()
         house.size = CGSize(width: 543, height: 632)
-        house.position = CGPoint(x: 200, y: -97.5)
+        house.position = CGPoint(x: 200, y: -47)
 //        house.position = CGPoint(x: 200, y: -147.5)
         house.zPosition = 1
         world.addChild(house)
@@ -55,7 +55,7 @@ class Manager {
         
         let bench = SKSpriteNode()
         bench.size = CGSize(width: 161, height: 34)
-        bench.position = CGPoint(x: -173, y: -400)
+        bench.position = CGPoint(x: -173, y: -352)
 //        bench.position = CGPoint(x: -173, y: -450)
         bench.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: bench.frame.width, height: bench.frame.height))
         bench.physicsBody?.categoryBitMask = Categories.ground
@@ -63,8 +63,10 @@ class Manager {
         world.addChild(bench)
         
         let ground = SKSpriteNode(imageNamed: "ground").pixelated()
-        ground.size = CGSize(width: 905, height: 336)
-        ground.position = CGPoint(x: 30, y: -482)
+        ground.setScale(7)
+        print(ground.size.height, ground.size.width)
+//        ground.size = CGSize(width: 905, height: 336)
+        ground.position = CGPoint(x: 30, y: -530)
 //        ground.position = CGPoint(x: 30, y: -532)
         world.addChild(ground)
         
@@ -72,7 +74,7 @@ class Manager {
         let player = SKSpriteNode(imageNamed: "sit0").pixelated()
         player.name = "Character"
         player.size = CGSize(width: 120, height: 127.5)
-        player.position = CGPoint(x: -165, y: GameScene.counter > 0 ? -250 : -300)
+        player.position = CGPoint(x: -160, y: GameScene.counter > 0 ? -200 : -250)
         player.zPosition = 10
         
         hpBorder = SKSpriteNode(imageNamed: "hp-border").pixelated()

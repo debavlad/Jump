@@ -73,7 +73,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.slider.position.x = player.x
         movement = player.x
         cam.node.setScale(0.85)
-//        player.node.addChild(msg.node)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -224,15 +223,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let sit = SKAction.run {
                 self.player.node.texture = SKTexture(imageNamed: "prepare0").pixelated()
             }
-            let wait = SKAction.wait(forDuration: 0.06)
             let push = SKAction.run {
                 self.player.push(power: 170)
+//                self.cam.shake(amplitude: 40, amount: 6, step: 6, duration: 0.06)
                 let scale = SKAction.scale(to: 1.0, duration: 1)
                 scale.timingMode = SKActionTimingMode.easeIn
                 self.cam.node.run(scale)
                 self.manager.hide(nodes: self.player.msg!.node)
             }
-            let seq = SKAction.sequence([sit, wait, push])
+            let seq = SKAction.sequence([sit, push])
             player.node.removeAllActions()
             manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn)
             run(seq)
