@@ -86,9 +86,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if player.fallingDown() && col == Collision.playerPlatform {
                 player.animate(player.landAnim)
                 
-                let msg = Message(scale: 2, length: 8)
-                player.display(msg: msg)
-                
                 trail.create(in: world, scale: 30)
                 
                 let node = extract(node: "platform", from: contact)!
@@ -311,6 +308,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.addParticles(to: world, filename: String(name), pos: itemPos)
         if item is Coin {
             manager.addLabel(to: world, pos: platform.pos)
+            let msg = Message(scale: 2, text: "+1")
+            player.display(msg: msg, duration: TimeInterval(0.5))
         }
         platform.remove(item: item)
     }

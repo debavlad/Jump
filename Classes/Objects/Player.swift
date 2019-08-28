@@ -53,23 +53,22 @@ class Player {
         node.run(SKAction.repeatForever(sitAnim))
     }
     
-    func display(msg: Message) {
-        if self.msg == nil {
-            let m = msg
-            self.msg = m
-            if node.xScale == -2.5 {
-                m.node.xScale = -m.node.xScale
-                m.node.position.x = -m.offset
-            }
-            m.node.setScale(0)
-            node.addChild(m.node)
-            let scale = SKAction.scale(to: 1.0, duration: 1)
-            scale.timingMode = SKActionTimingMode.easeOut
-            scale.speed = 3
-            let move = SKAction.move(to: CGPoint(x: self.msg!.node.position.x, y: self.msg!.node.position.y), duration: 0.3)
-            move.timingMode = SKActionTimingMode.easeOut
-            m.node.run(SKAction.group([scale, move]))
-        }
+    func display(msg: Message, duration: TimeInterval) {
+        //        if self.msg == nil {
+        msg.loc = Location.right
+        self.msg = msg
+        
+        self.node.addChild(msg.node)
+        let show = SKAction.fadeAlpha(to: 1.0, duration: 0.5)
+        show.timingMode = SKActionTimingMode.easeOut
+        show.speed = 2
+        let wait = SKAction.wait(forDuration: duration)
+        let hide = SKAction.fadeAlpha(to: 0, duration: 0.5)
+        hide.timingMode = SKActionTimingMode.easeIn
+        hide.speed = 2
+        
+        msg.node.run(SKAction.sequence([show, wait, hide]))
+        //        }
     }
     
     func animate(_ anim: SKAction) {
@@ -112,20 +111,20 @@ class Player {
     
     func turn(left: Bool) {
         if left {
-            node.xScale = -2.5
-            hpBorder.xScale = -0.4
-            if let m = msg {
-                m.node.xScale = -1
-                m.node.position.x = -m.offset
-            }
+            node.xScale = -1
+            hpBorder.xScale = -1
+            
+            msg?.turn(left: false)
+//            msg!.node.xScale = -1
+//            msg!.node.position.x = -msg!.offset
+//            msg!.lbl.xScale = 1
         } else {
-            node.xScale = 2.5
-            hpBorder.xScale = 0.4
-            if let m = msg {
-                m.node.xScale = 1
-                m.node.position.x = m.offset
-            }
-                
+            node.xScale = 1
+            hpBorder.xScale = 1
+            msg?.turn(left: true)
+//            msg!.node.xScale = 1
+//            msg!.node.position.x = msg!.offset
+//            msg!.lbl.xScale = 1
         }
     }
     

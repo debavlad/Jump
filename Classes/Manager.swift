@@ -71,28 +71,22 @@ class Manager {
         
         let player = SKSpriteNode(imageNamed: "sit0").pixelated()
         player.name = "Character"
-        player.size = CGSize(width: 48, height: 51)
-        player.setScale(2.5)
-        if GameScene.counter > 0 {
-            player.position = CGPoint(x: -165, y: -250)
-        } else {
-            player.position = CGPoint(x: -165, y: -300)
-        }
-//        player.position = CGPoint(x: -165, y: -300)
+        player.size = CGSize(width: 120, height: 127.5)
+        player.position = CGPoint(x: -165, y: GameScene.counter > 0 ? -250 : -300)
         player.zPosition = 10
         
         hpBorder = SKSpriteNode(imageNamed: "hp-border").pixelated()
-        hpBorder.size = CGSize(width: 80, height: 4)
-        hpBorder.position = CGPoint(x: 0, y: 32)
-        
-        hpStripe = SKSpriteNode(imageNamed: "hp-green").pixelated()
-        hpStripe.size = CGSize(width: 76, height: 3)
-        hpStripe.anchorPoint = CGPoint(x: 0, y: 0.5)
-        hpStripe.position = CGPoint(x: -38, y: 0)
-        hpStripe.zPosition = -1
-        hpBorder.addChild(hpStripe)
+        hpBorder.size = CGSize(width: 84, height: 11)
+        hpBorder.position = CGPoint(x: 0, y: player.frame.height/2 + 20)
         hpBorder.alpha = 0
         
+        hpStripe = SKSpriteNode(imageNamed: "hp-green").pixelated()
+        hpStripe.size = CGSize(width: hpBorder.frame.width - 4, height: hpBorder.frame.height - 4)
+        hpStripe.anchorPoint = CGPoint(x: 0, y: 0.5)
+        hpStripe.position.x = hpBorder.frame.minX + 2
+        hpStripe.zPosition = -1
+        
+        hpBorder.addChild(hpStripe)
         player.addChild(hpBorder)
         world.addChild(player)
         

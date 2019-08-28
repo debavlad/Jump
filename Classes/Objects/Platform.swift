@@ -31,6 +31,7 @@ class Platform: Hashable {
         node.physicsBody?.angularDamping = 0
         node.physicsBody?.contactTestBitMask = Categories.player
         node.physicsBody?.categoryBitMask = Categories.platform
+        node.physicsBody?.collisionBitMask = Categories.coin | Categories.food
         node.physicsBody?.isDynamic = false
         node.position = data.pos
         
