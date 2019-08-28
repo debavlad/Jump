@@ -78,6 +78,16 @@ class Message {
             }
         }
     }
+    
+    func move() {
+        let up = SKAction.move(by: CGVector(dx: 0, dy: 10), duration: 1.5)
+        up.timingMode = SKActionTimingMode.easeInEaseOut
+        
+        let down = SKAction.move(by: CGVector(dx: 0, dy: -10), duration: 1.5)
+        down.timingMode = SKActionTimingMode.easeInEaseOut
+        let seq = SKAction.sequence([up, down])
+        node.run(SKAction.repeatForever(seq))
+    }
 }
 
 enum Location {

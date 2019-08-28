@@ -151,7 +151,7 @@ class Manager {
     }
     
     func gameOver() {
-        hideUI()
+        hide(nodes: line, hpBorder, pauseBtn)
         
         fade(node: backBtn.node, to: 1.0, duration: 2, ride: false)
         fade(node: gameover, to: 1.0, duration: 2, ride: true)
@@ -245,24 +245,44 @@ class Manager {
         }
     }
     
-    func showUI() {
+//    func showUI() {
+//        let fade = SKAction.fadeAlpha(to: 1.0, duration: 2)
+//        fade.timingMode = SKActionTimingMode.easeOut
+//        fade.speed = 4
+//
+//        line.run(fade)
+//        hpBorder.run(fade)
+//        pauseBtn.run(fade)
+//    }
+    
+//    func hideUI() {
+//        let fade = SKAction.fadeAlpha(to: 0, duration: 1)
+//        fade.timingMode = SKActionTimingMode.easeOut
+//        fade.speed = 4
+//
+//        line.run(fade)
+//        hpBorder.run(fade)
+//        pauseBtn.run(fade)
+//    }
+    
+    func show(nodes: SKNode...) {
         let fade = SKAction.fadeAlpha(to: 1.0, duration: 2)
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4
-
-        line.run(fade)
-        hpBorder.run(fade)
-        pauseBtn.run(fade)
+        
+        for node in nodes {
+            node.run(fade)
+        }
     }
     
-    func hideUI() {
-        let fade = SKAction.fadeAlpha(to: 0, duration: 1)
+    func hide(nodes: SKNode...) {
+        let fade = SKAction.fadeAlpha(to: 0, duration: 0.6)
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4
         
-        line.run(fade)
-        hpBorder.run(fade)
-        pauseBtn.run(fade)
+        for node in nodes {
+            node.run(fade)
+        }
     }
 }
 

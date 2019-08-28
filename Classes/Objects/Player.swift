@@ -29,7 +29,7 @@ class Player {
     }
     
     private let green, yellow, red: SKTexture!
-    private var msg: Message?
+    var msg: Message?
     private let hpBorder, hpStripe: SKSpriteNode!
     private let maxStripeWidth: CGFloat
     
@@ -53,7 +53,7 @@ class Player {
         node.run(SKAction.repeatForever(sitAnim))
     }
     
-    func display(msg: Message, duration: TimeInterval) {
+    func display(msg: Message, duration: TimeInterval = 0) {
         //        if self.msg == nil {
         msg.loc = Location.right
         self.msg = msg
@@ -67,7 +67,11 @@ class Player {
         hide.timingMode = SKActionTimingMode.easeIn
         hide.speed = 2
         
-        msg.node.run(SKAction.sequence([show, wait, hide]))
+        if duration != 0 {
+            msg.node.run(SKAction.sequence([show, wait, hide]))
+        } else {
+            msg.node.run(show)
+        }
         //        }
     }
     

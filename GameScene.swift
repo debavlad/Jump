@@ -49,10 +49,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         world = SKNode()
         manager = Manager(scene: self, world: world)
         
+        manager.show(nodes: manager.line)
+        
         player = Player(world.childNode(withName: "Character")!)
-//        let msg = Message(scale: 2, length: 8)
-//        player.display(msg: msg)
+        let text = "HOLD THE SLIDER"
+        let msg = Message(scale: 2, text: text)
+        msg.loc = Location.right
+        player.display(msg: msg)
         player.turn(left: true)
+        msg.move()
         
         player.setParent(world)
         addChild(world)
@@ -133,7 +138,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let scale = SKAction.scale(to: 0.4, duration: 1)
             scale.speed = 3
             scale.timingMode = SKActionTimingMode.easeIn
-            let angle = SKAction.rotate(toAngle: -0.3, duration: 1)
+            let x: CGFloat = self.player.x > 0 ? -0.3 : 0.3
+            let angle = SKAction.rotate(toAngle: x, duration: 1)
             angle.speed = 0.6
             angle.timingMode = SKActionTimingMode.easeInEaseOut
             let stop = SKAction.run {
@@ -143,7 +149,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let seq = SKAction.sequence([scale, stop])
             self.cam.node.run(SKAction.group([seq, angle]))
             
-            self.manager.hideUI()
+//            self.manager.hideUI()
+            self.manager.hide(nodes: self.manager.line, self.manager.hpBorder, self.manager.pauseBtn)
             self.ended = true
         }
         run(SKAction.sequence([wait, action]))
@@ -205,41 +212,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if started && !ended {
-            let touch = touches.first!
-            let node = atPoint(touch.location(in: self))
+        let touch = touches.first!
+        let node = atPoint(touch.location(in: self))
+        
+        if !started && node == manager.slider {
+            sliderTriggered = true
+            sliderTouch = touch
+            offset = manager.slider.position.x - sliderTouch.location(in: cam.node).x
+            manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
             
-            if node == manager.slider {
-                sliderTriggered = true
-                sliderTouch = touch
-                offset = manager.slider.position.x - sliderTouch.location(in: self).x
-                
-                manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
-            } else if node == manager.pauseBtn {
-                sliderTriggered = false
-                stopped ? setGameState(isPaused: false) : setGameState(isPaused: true)
-            }
-        } else if !started {
-            // if game was not started yet
-            // sit anim, wait a lil bit and jump uppppp
             let sit = SKAction.run {
                 self.player.node.texture = SKTexture(imageNamed: "prepare0").pixelated()
             }
             let wait = SKAction.wait(forDuration: 0.06)
             let push = SKAction.run {
-//                self.cam.shake(amplitude: 100, amount: 1, step: 0, duration: 0.06)
                 self.player.push(power: 170)
                 let scale = SKAction.scale(to: 1.0, duration: 1)
                 scale.timingMode = SKActionTimingMode.easeIn
                 self.cam.node.run(scale)
+                self.manager.hide(nodes: self.player.msg!.node)
             }
-            let group = SKAction.sequence([sit, wait, push])
+            let seq = SKAction.sequence([sit, wait, push])
             player.node.removeAllActions()
-            manager.showUI()
-            run(group)
-        } else if ended {
-            let touch = touches.first!
-            let node = atPoint(touch.location(in: self))
+            manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn)
+            run(seq)
+        }
+        else if started && !ended {
+            if node == manager.slider {
+                sliderTriggered = true
+                sliderTouch = touch
+                offset = manager.slider.position.x - sliderTouch.location(in: cam.node).x
+                manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
+            } else if node == manager.pauseBtn {
+                sliderTriggered = false
+                stopped ? setGameState(isPaused: false) : setGameState(isPaused: true)
+            }
+        }
+        else if ended {
             if node == manager.backBtn.node || node == manager.backBtn.label {
                 manager.backBtn.state(pushed: true)
                 triggeredBtn = manager.backBtn
@@ -308,8 +317,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.addParticles(to: world, filename: String(name), pos: itemPos)
         if item is Coin {
             manager.addLabel(to: world, pos: platform.pos)
-            let msg = Message(scale: 2, text: "+1")
-            player.display(msg: msg, duration: TimeInterval(0.5))
         }
         platform.remove(item: item)
     }
