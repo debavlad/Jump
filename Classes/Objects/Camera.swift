@@ -44,7 +44,6 @@ class Camera {
         node = SKCameraNode()
         node.name = "Cam"
         scene.camera = node
-//        print(node.xScale, node.yScale, scene.frame.size.width, scene.frame.size.height)
         scene.addChild(node)
         easing = 0.065
     }

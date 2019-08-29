@@ -20,19 +20,22 @@ class Trail {
     func create(in parent: SKNode, scale: CGFloat = 15) {
         let trail = SKSpriteNode(imageNamed: "particle")
         trail.position = player.position
+        trail.zPosition = 9
         trail.setScale(scale)
-        trail.colorBlendFactor = 1
         trail.color = UIColor.white
+        trail.colorBlendFactor = 1
         last = trail
         
-        let alpha = SKAction.fadeAlpha(to: 0, duration: 2)
-        let scaleDown = SKAction.scale(to: 0.5, duration: 2)
-        let group = SKAction.group([alpha, scaleDown])
+        let fadeOut = SKAction.fadeOut(withDuration: 1)
+        let scaleDown = SKAction.scale(to: 0.5, duration: 1)
+        let group = SKAction.group([fadeOut, scaleDown])
+        group.timingMode = SKActionTimingMode.easeIn
+        
         let remove = SKAction.run {
             trail.removeFromParent()
         }
-        group.timingMode = SKActionTimingMode.easeIn
         let sequence = SKAction.sequence([group, remove])
+        
         parent.addChild(trail)
         trail.run(sequence)
     }

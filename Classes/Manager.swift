@@ -11,13 +11,11 @@ import SpriteKit
 
 class Manager {
     private let scene: SKScene!
-    public static var counter: Int = 0
-    
     private var labels: Set<SKLabelNode>!
     private var particles: Set<SKEmitterNode>!
     
-    private(set) var backBtn: Button!
-    private var gameover: SKLabelNode!
+    private(set) var menuBtn: Button!
+    private var gameOver: SKLabelNode!
     private(set) var line, slider, pauseBtn, darken, red, hpBorder, hpStripe: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private var smokeAnim: SKAction!
@@ -26,11 +24,20 @@ class Manager {
         self.scene = scene
         labels = Set<SKLabelNode>()
         particles = Set<SKEmitterNode>()
-        setNodes()
+        setAnimations()
         setScene(world: world)
     }
     
-    fileprivate func setScene(world: SKNode) {
+    func switchUI() {
+        hide(nodes: line, hpBorder, pauseBtn)
+        
+        fade(node: menuBtn.node, to: 1.0, duration: 2)
+        fade(node: gameOver, to: 1.0, duration: 2)
+        fade(node: darken, to: 0.5, duration: 1)
+        fade(node: red, to: 0.3, duration: 0.6)
+    }
+    
+    private func setScene(world: SKNode) {
         let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         
         let sky = SKSpriteNode(imageNamed: "sky").pixelated()
@@ -41,7 +48,6 @@ class Manager {
         let house = SKSpriteNode(imageNamed: "house").pixelated()
         house.size = CGSize(width: 543, height: 632)
         house.position = CGPoint(x: 200, y: -47)
-//        house.position = CGPoint(x: 200, y: -147.5)
         house.zPosition = 1
         world.addChild(house)
         
@@ -50,31 +56,26 @@ class Manager {
         house.addChild(smoke)
         smoke.zPosition = -1
         smoke.position = CGPoint(x: -115, y: 363)
-//        smoke.position = CGPoint(x: -115, y: 363)
         smoke.run(SKAction.repeatForever(smokeAnim))
         
         let bench = SKSpriteNode()
         bench.size = CGSize(width: 161, height: 34)
         bench.position = CGPoint(x: -173, y: -352)
-//        bench.position = CGPoint(x: -173, y: -450)
         bench.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: bench.frame.width, height: bench.frame.height))
         bench.physicsBody?.categoryBitMask = Categories.ground
         bench.physicsBody?.isDynamic = false
         world.addChild(bench)
         
         let ground = SKSpriteNode(imageNamed: "ground").pixelated()
-        ground.setScale(7)
-        print(ground.size.height, ground.size.width)
-//        ground.size = CGSize(width: 905, height: 336)
+        ground.size = CGSize(width: 826, height: 518)
         ground.position = CGPoint(x: 30, y: -530)
-//        ground.position = CGPoint(x: 30, y: -532)
         world.addChild(ground)
         
         
         let player = SKSpriteNode(imageNamed: "sit0").pixelated()
         player.name = "Character"
         player.size = CGSize(width: 120, height: 127.5)
-        player.position = CGPoint(x: -160, y: GameScene.counter > 0 ? -200 : -250)
+        player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
         player.zPosition = 10
         
         hpBorder = SKSpriteNode(imageNamed: "hp-border").pixelated()
@@ -128,20 +129,20 @@ class Manager {
         darken.zPosition = 20
         cam.addChild(darken)
         
-        gameover = SKLabelNode(fontNamed: "FFFForward")
-        gameover.fontSize = 80
-        gameover.text = "Game over!"
-        gameover.position.y = 250
-        gameover.zPosition = 21
-        gameover.alpha = 0
-        cam.addChild(gameover)
+        gameOver = SKLabelNode(fontNamed: "FFFForward")
+        gameOver.fontSize = 80
+        gameOver.text = "Game over!"
+        gameOver.position.y = 250
+        gameOver.zPosition = 21
+        gameOver.alpha = 0
+        cam.addChild(gameOver)
         
-        backBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -300))
-        backBtn.node.alpha = 0
-        cam.addChild(backBtn.node)
+        menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -300))
+        menuBtn.node.alpha = 0
+        cam.addChild(menuBtn.node)
     }
     
-    fileprivate func setNodes() {
+    private func setAnimations() {
         var smokeTextures: [SKTexture] = []
         for i in 0...3 {
             smokeTextures.append(SKTexture(imageNamed: "smoke\(i)").pixelated())
@@ -152,45 +153,18 @@ class Manager {
         playTexture = SKTexture(imageNamed: "continue").pixelated()
     }
     
-    func gameOver() {
-        hide(nodes: line, hpBorder, pauseBtn)
-        
-        fade(node: backBtn.node, to: 1.0, duration: 2, ride: false)
-        fade(node: gameover, to: 1.0, duration: 2, ride: true)
-        fade(node: darken, to: 0.5, duration: 1, ride: false)
-        fade(node: red, to: 0.3, duration: 0.6, ride: false)
-    }
-    
-    func fade(node: SKNode, to value: CGFloat, duration: TimeInterval, ride: Bool) {
-        let fade = SKAction.fadeAlpha(to: value, duration: duration)
-        fade.timingMode = SKActionTimingMode.easeOut
-        fade.speed = 4
-        
-        if ride {
-            let back = node.copy() as! SKLabelNode
-            back.zPosition = node.zPosition - 1
-            back.fontColor = UIColor.darkGray
-            let move = SKAction.moveBy(x: -10, y: -10, duration: duration)
-            move.timingMode = SKActionTimingMode.easeOut
-            move.speed = 1
-            node.parent!.addChild(back)
-            back.run(SKAction.group([fade, move]))
-        }
-        node.run(fade)
-    }
-    
-    func addParticles(to parent: SKNode, filename: String, pos: CGPoint) {
+    func addEmitter(to parent: SKNode, filename: String, position: CGPoint) {
         let emitter = SKEmitterNode(fileNamed: filename)!
         emitter.name = String()
-        emitter.position = pos
+        emitter.position = position
         emitter.zPosition = 3
         emitter.particleZPosition = 3
         
         let add = SKAction.run {
             parent.addChild(emitter)
+            self.particles.insert(emitter)
         }
-        let duration = emitter.particleLifetime
-        let wait = SKAction.wait(forDuration: TimeInterval(duration))
+        let wait = SKAction.wait(forDuration: TimeInterval(emitter.particleLifetime))
         let remove = SKAction.run {
             if !parent.isPaused {
                 emitter.removeFromParent()
@@ -200,10 +174,30 @@ class Manager {
         
         let seq = SKAction.sequence([add, wait, remove])
         scene.run(seq)
-        particles.insert(emitter)
     }
     
-    func removeParticles(minY: CGFloat) {
+    func addLabel(to parent: SKNode, position: CGPoint) {
+        let label = SKLabelNode(text: "+1")
+        label.name = String()
+        label.fontName = "DisposableDroidBB"
+        label.fontColor = UIColor.white
+        label.fontSize = 64
+        label.position = CGPoint(x: position.x + 70, y: position.y + 70)
+        label.zPosition = 18
+        
+        label.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20))
+        label.physicsBody?.collisionBitMask = 0
+        label.physicsBody?.categoryBitMask = 0
+        label.physicsBody?.contactTestBitMask = 0
+        
+        parent.addChild(label)
+        labels.insert(label)
+        label.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
+        let rotate = CGFloat.random(in: -0.0005...0.0005)
+        label.physicsBody?.applyAngularImpulse(rotate)
+    }
+    
+    func removeEmitters(minY: CGFloat) {
         if particles.count > 1 {
             particles.filter({ (node) -> Bool in
                 return node.frame.maxY < minY
@@ -212,28 +206,6 @@ class Manager {
                 emitter.removeFromParent()
             }
         }
-    }
-    
-    func addLabel(to parent: SKNode, pos: CGPoint) {
-        let lbl = SKLabelNode(text: "+1")
-        lbl.name = String()
-        lbl.fontName = "DisposableDroidBB"
-        lbl.fontColor = UIColor.white
-        lbl.fontSize = 64
-        lbl.position = CGPoint(x: pos.x + 70, y: pos.y + 70)
-        lbl.zPosition = 18
-        
-        lbl.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20))
-        lbl.physicsBody?.collisionBitMask = 0
-        lbl.physicsBody?.categoryBitMask = 0
-        lbl.physicsBody?.contactTestBitMask = 0
-        
-        parent.addChild(lbl)
-        lbl.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 60))
-        let rotate = CGFloat.random(in: -0.0005...0.0005)
-        lbl.physicsBody?.applyAngularImpulse(rotate)
-        
-        labels.insert(lbl)
     }
     
     func removeLabels(minY: CGFloat) {
@@ -247,25 +219,26 @@ class Manager {
         }
     }
     
-//    func showUI() {
-//        let fade = SKAction.fadeAlpha(to: 1.0, duration: 2)
-//        fade.timingMode = SKActionTimingMode.easeOut
-//        fade.speed = 4
-//
-//        line.run(fade)
-//        hpBorder.run(fade)
-//        pauseBtn.run(fade)
-//    }
     
-//    func hideUI() {
-//        let fade = SKAction.fadeAlpha(to: 0, duration: 1)
-//        fade.timingMode = SKActionTimingMode.easeOut
-//        fade.speed = 4
-//
-//        line.run(fade)
-//        hpBorder.run(fade)
-//        pauseBtn.run(fade)
-//    }
+    private func fade(node: SKNode, to value: CGFloat, duration: TimeInterval) {
+        let fade = SKAction.fadeAlpha(to: value, duration: duration)
+        fade.timingMode = SKActionTimingMode.easeOut
+        fade.speed = 4
+        
+        if node is SKLabelNode {
+            let back = node.copy() as! SKLabelNode
+            back.zPosition = node.zPosition - 1
+            back.fontColor = UIColor.darkGray
+            
+            let move = SKAction.moveBy(x: -10, y: -10, duration: duration)
+            move.timingMode = SKActionTimingMode.easeOut
+            move.speed = 1
+            
+            node.parent!.addChild(back)
+            back.run(SKAction.group([fade, move]))
+        }
+        node.run(fade)
+    }
     
     func show(nodes: SKNode...) {
         let fade = SKAction.fadeAlpha(to: 1.0, duration: 2)

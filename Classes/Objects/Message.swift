@@ -12,27 +12,73 @@ import SpriteKit
 class Message {
     let node: SKSpriteNode!
     let offset: CGFloat
-    let lbl: SKLabelNode!
+    let label: SKLabelNode!
     var loc: Location!
+    
+    init(text: String, size: CGFloat) {
+        loc = .right
+        offset = 40
+        
+        node = SKSpriteNode()
+//        node.position = CGPoint(x: offset, y: offset)
+        
+        label = SKLabelNode(text: text)
+        label.fontName = "Coder's Crux"
+        label.fontColor = .black
+        label.fontSize = size
+        label.zPosition = 2
+        
+        let left = SKSpriteNode(imageNamed: "msg-left").pixelated()
+        print("left: \(left.size)")
+        left.move(toParent: node)
+        
+        let mid = SKSpriteNode(imageNamed: "msg-mid").pixelated()
+        mid.size = CGSize(width: label.frame.width + offset, height: label.frame.height + offset)
+        print("mid: \(mid.size)")
+        mid.move(toParent: node)
+        
+        let btm = SKSpriteNode(imageNamed: "msg-btm").pixelated()
+        print("btm: \(btm.size)")
+        btm.move(toParent: node)
+        btm.zPosition = 1
+        
+        let right = SKSpriteNode(imageNamed: "msg-right").pixelated()
+        print("right: \(right.size)")
+        right.move(toParent: node)
+        
+        let scale = mid.frame.height / left.frame.height
+        left.setScale(scale)
+        right.setScale(scale)
+        btm.setScale(scale)
+        
+        mid.position.x = left.frame.maxX + mid.frame.width/2
+        btm.position = CGPoint(x: mid.frame.minX, y: mid.frame.minY)
+        right.position.x = mid.frame.maxX + right.frame.width/2
+        label.position = CGPoint(x: mid.position.x, y: mid.position.y - label.frame.height/2)
+        
+        node.anchorPoint = CGPoint(x: 0, y: 0)
+        node.position = CGPoint(x: 30, y: 60)
+        node.addChild(label)
+    }
     
     init(scale: CGFloat, text: String) {
         loc = .right
         offset = 27 * scale
         
-        lbl = SKLabelNode(text: text)
-        lbl.fontName = "Coder's Crux"
-        lbl.fontColor = .black
-        lbl.fontSize = 43
-        lbl.zPosition = 2
+        label = SKLabelNode(text: text)
+        label.fontName = "Coder's Crux"
+        label.fontColor = .black
+        label.fontSize = 43
+        label.zPosition = 2
         
         node = SKSpriteNode()
         node.position = CGPoint(x: offset, y: offset)
         
         let left = SKSpriteNode(imageNamed: "msg-left").pixelated()
-        left.size = CGSize(width: 4 * scale, height: lbl.frame.height * scale)
+        left.size = CGSize(width: 4 * scale, height: label.frame.height * scale)
         
         let mid = SKSpriteNode(imageNamed: "msg-mid").pixelated()
-        mid.size = CGSize(width: lbl.frame.width * scale/1.7, height: lbl.frame.height * scale)
+        mid.size = CGSize(width: label.frame.width * scale/1.7, height: label.frame.height * scale)
         mid.position.x = left.frame.maxX + mid.frame.width/2
         
         let btm = SKSpriteNode(imageNamed: "msg-btm").pixelated()
@@ -41,7 +87,7 @@ class Message {
         btm.zPosition = 1
         
         let right = SKSpriteNode(imageNamed: "msg-right").pixelated()
-        right.size = CGSize(width: 4 * scale, height: lbl.frame.height * scale)
+        right.size = CGSize(width: 4 * scale, height: label.frame.height * scale)
         right.position.x = mid.frame.maxX + right.frame.width/2
         
         node.addChild(left)
@@ -49,10 +95,10 @@ class Message {
         node.addChild(right)
         node.addChild(btm)
         
-        lbl.position = CGPoint(x: mid.position.x, y: mid.position.y - lbl.fontSize/5)
+        label.position = CGPoint(x: mid.position.x, y: mid.position.y - label.fontSize/5)
         node.anchorPoint = btm.position
         node.alpha = 0
-        node.addChild(lbl)
+        node.addChild(label)
     }
     
     func turn(left: Bool) {
@@ -60,21 +106,21 @@ class Message {
             if left {
                 node.xScale = 1
                 node.position.x = offset
-                lbl.xScale = 1
+                label.xScale = 1
             } else {
                 node.xScale = -1
                 node.position.x = -offset
-                lbl.xScale = 1
+                label.xScale = 1
             }
         } else if loc == Location.left {
             if left {
                 node.xScale = -1
                 node.position.x = -offset
-                lbl.xScale = -1
+                label.xScale = -1
             } else {
                 node.xScale = 1
                 node.position.x = offset
-                lbl.xScale = -1
+                label.xScale = -1
             }
         }
     }

@@ -19,6 +19,14 @@ class Item: Hashable {
         self.type = type
     }
     
+    func disablePhysics() {
+        node.physicsBody?.collisionBitMask = 0
+        node.physicsBody?.contactTestBitMask = 0
+        node.physicsBody?.categoryBitMask = 0
+        node.physicsBody?.allowsRotation = true
+        node.physicsBody?.isDynamic = true
+    }
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(node)
     }

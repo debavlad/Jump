@@ -29,12 +29,12 @@ class Player {
     }
     
     private let green, yellow, red: SKTexture!
-    var msg: Message?
+    private(set) var message: Message?
     private let hpBorder, hpStripe: SKSpriteNode!
     private let maxStripeWidth: CGFloat
     
-    private(set) var jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
-    var currentAnim: SKAction!
+    private(set) var currentAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
+    
     
     init(_ node: SKNode) {
         self.node = node as? SKSpriteNode
@@ -49,14 +49,12 @@ class Player {
         
         setPhysics()
         setAnimations()
-//        turn(left: true)
         node.run(SKAction.repeatForever(sitAnim))
     }
     
     func display(msg: Message, duration: TimeInterval = 0) {
-        //        if self.msg == nil {
         msg.loc = Location.right
-        self.msg = msg
+        self.message = msg
         
         self.node.addChild(msg.node)
         let show = SKAction.fadeAlpha(to: 1.0, duration: 0.5)
@@ -72,7 +70,6 @@ class Player {
         } else {
             msg.node.run(show)
         }
-        //        }
     }
     
     func animate(_ anim: SKAction) {
@@ -82,21 +79,6 @@ class Player {
     
     func fallingDown() -> Bool {
         return node.physicsBody!.velocity.dy < 0
-    }
-    
-    private func setHp(value: Int) {
-        if value <= 0 {
-            hp = 0
-            alive = false
-            hpStripe.size.width = 0
-        } else if value >= 100 {
-            hp = 100
-            hpStripe.size.width = maxStripeWidth
-        } else {
-            hp = value
-            hpStripe.size.width = maxStripeWidth / 100 * CGFloat(value)
-            setStripeColor(hp: value)
-        }
     }
     
     func harm(by amount: Int) {
@@ -117,23 +99,28 @@ class Player {
         if left {
             node.xScale = -1
             hpBorder.xScale = -1
-            
-            msg?.turn(left: false)
-//            msg!.node.xScale = -1
-//            msg!.node.position.x = -msg!.offset
-//            msg!.lbl.xScale = 1
+            message?.turn(left: false)
         } else {
             node.xScale = 1
             hpBorder.xScale = 1
-            msg?.turn(left: true)
-//            msg!.node.xScale = 1
-//            msg!.node.position.x = msg!.offset
-//            msg!.lbl.xScale = 1
+            message?.turn(left: true)
         }
     }
     
-    func setParent(_ parent: SKNode) {
-        node.move(toParent: parent)
+    
+    private func setHp(value: Int) {
+        if value <= 0 {
+            hp = 0
+            alive = false
+            hpStripe.size.width = 0
+        } else if value >= 100 {
+            hp = 100
+            hpStripe.size.width = maxStripeWidth
+        } else {
+            hp = value
+            hpStripe.size.width = maxStripeWidth / 100 * CGFloat(value)
+            setStripeColor(hp: value)
+        }
     }
     
     private func setStripeColor(hp: Int) {
@@ -154,7 +141,7 @@ class Player {
         node.physicsBody?.contactTestBitMask = Categories.coin | Categories.food | Categories.platform
         node.physicsBody?.allowsRotation = false
         node.physicsBody?.friction = 0
-        if GameScene.counter > 0 {
+        if GameScene.restarted {
             node.physicsBody?.restitution = 0.4
         } else {
             node.physicsBody?.restitution = 0
