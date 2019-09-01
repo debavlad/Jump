@@ -59,7 +59,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         trail = Trail(player: player.node)
         trail.create(in: world)
         
-        platformFactory = PlatformFactory(world: world, 150, frame.height/2)
+        platformFactory = PlatformFactory(world: world, 125...200, frame.height/2)
         cloudFactory = CloudFactory(frame: frame, world: world)
         bounds = Bounds()
         minY = player.y

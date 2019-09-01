@@ -47,15 +47,24 @@ class Platform: Hashable {
         item.node.removeFromParent()
     }
     
-    func move(width: CGFloat) {
+    func moveByX(width: CGFloat) {
         let right = SKAction.move(to: CGPoint(x: width, y: node.position.y), duration: 2)
         right.timingMode = SKActionTimingMode.easeInEaseOut
-//        right.speed = 2
         let left = SKAction.move(to: CGPoint(x: -width, y: node.position.y), duration: 2)
         left.timingMode = SKActionTimingMode.easeInEaseOut
-//        left.speed = 2
         
-        let seq = SKAction.sequence([right, left])
+        let seq = node.position.x > 0 ? SKAction.sequence([left, right]) : SKAction.sequence([right, left])
+        node.run(SKAction.repeatForever(seq))
+    }
+    
+    func moveByY(height: CGFloat) {
+        let lowest = node.position.y, highest = node.position.y + height
+        let up = SKAction.move(to: CGPoint(x: node.position.x, y: highest), duration: 1.5)
+        up.timingMode = SKActionTimingMode.easeInEaseOut
+        let down = SKAction.move(to: CGPoint(x: node.position.x, y: lowest), duration: 1.5)
+        down.timingMode = SKActionTimingMode.easeInEaseOut
+        
+        let seq = SKAction.sequence([up, down])
         node.run(SKAction.repeatForever(seq))
     }
     

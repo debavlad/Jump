@@ -10,7 +10,8 @@ import Foundation
 import SpriteKit
 
 class PlatformFactory {
-    var distance, highestY: CGFloat
+    var highestY: CGFloat
+    let distance: ClosedRange<CGFloat>!
     
     private let width, height: CGFloat
     private let coinFactory: CoinFactory!
@@ -20,7 +21,7 @@ class PlatformFactory {
     private let data: [PlatformType : (texture: String, power: Int, damage: Int)]!
     
     
-    init(world: SKNode, _ distance: CGFloat, _ lastY: CGFloat) {
+    init(world: SKNode, _ distance: ClosedRange<CGFloat>, _ lastY: CGFloat) {
         self.distance = distance
         self.highestY = lastY
         
@@ -42,13 +43,19 @@ class PlatformFactory {
     func create(playerY: CGFloat) {
         if can(playerY: playerY) {
             let type = randomType()
-            let pos = CGPoint(x: CGFloat.random(in: -width...width), y: highestY + distance)
+            let y = highestY + CGFloat.random(in: distance)
+            let pos = CGPoint(x: CGFloat.random(in: -width...width), y: y)
             let platform = construct(type: type, position: pos)
-            highestY = pos.y
+            highestY = type == .dirt ? pos.y + 200: pos.y
             
-//            if hasItem(chance: 0.4) && type != .sand {
-//                platform.move(width: width)
-//            }
+            switch type {
+            case .dirt:
+                platform.moveByY(height: 200)
+            case .sand:
+                break
+            case .wood, .stone:
+                platform.moveByX(width: width)
+            }
             
             let coin = hasItem(chance: 0.5) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
             if let c = coin {
@@ -60,7 +67,6 @@ class PlatformFactory {
                 platform.add(item: f)
             }
             
-            platform.move(width: width)
             parent.addChild(platform.node)
             collection.insert(platform)
         }
@@ -113,7 +119,7 @@ class PlatformFactory {
     
     
     private func can(playerY: CGFloat) -> Bool {
-        return highestY + distance < playerY + height
+        return highestY + distance.lowerBound < playerY + height
     }
     
     private func randomType() -> PlatformType {
