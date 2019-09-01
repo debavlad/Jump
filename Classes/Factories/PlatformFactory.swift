@@ -13,6 +13,7 @@ class PlatformFactory {
     var highestY: CGFloat
     let distance: ClosedRange<CGFloat>!
     
+    private var lastPlatformType = PlatformType.dirt
     private let width, height: CGFloat
     private let coinFactory: CoinFactory!
     private let foodFactory: FoodFactory!
@@ -42,15 +43,21 @@ class PlatformFactory {
     
     func create(playerY: CGFloat) {
         if can(playerY: playerY) {
-            let type = randomType()
+            var type: PlatformType
+            repeat {
+                type = randomType()
+            } while type == lastPlatformType
+            
+            lastPlatformType = type
+            
             let y = highestY + CGFloat.random(in: distance)
             let pos = CGPoint(x: CGFloat.random(in: -width...width), y: y)
             let platform = construct(type: type, position: pos)
-            highestY = type == .dirt ? pos.y + 200: pos.y
+            highestY = type == .dirt ? pos.y + 150: pos.y
             
             switch type {
             case .dirt:
-                platform.moveByY(height: 200)
+                platform.moveByY(height: 150)
             case .sand:
                 break
             case .wood, .stone:

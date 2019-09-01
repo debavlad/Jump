@@ -91,8 +91,7 @@ extension SKSpriteNode {
         physicsBody?.collisionBitMask = Categories.platform
         physicsBody?.friction = 0
         physicsBody?.restitution = 0
-        physicsBody?.isDynamic = true
-        
+        physicsBody?.isDynamic = false
         return self
     }
 }

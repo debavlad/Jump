@@ -146,10 +146,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 trail.create(in: world)
             }
             
-            bounds.minX = -frame.size.width/2 + cam.x
-            bounds.minY = cam.minY - frame.height/2
-            bounds.maxX = frame.size.width/2 + cam.x
-            bounds.maxY = cam.maxY + frame.height/2
+//            bounds.minX = -frame.size.width/2 + cam.x
+//            bounds.minY = cam.minY - frame.height/2
+//            bounds.maxX = frame.size.width/2 + cam.x
+//            bounds.maxY = cam.maxY + frame.height/2
         }
         
         if started {
@@ -165,6 +165,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             if !ended {
+                _ = getBounds()
                 platformFactory.create(playerY: player.y)
                 platformFactory.remove(minY: bounds.minY)
                 
@@ -182,13 +183,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if !world.isPaused {
             cloudFactory.create(playerY: player.y, started: started)
-            cloudFactory.bounds = bounds
+            cloudFactory.bounds = getBounds()
             cloudFactory.remove()
             cloudFactory.move()
         }
         
         manager.removeLabels(minY: cam.minY - frame.height/2)
         manager.removeEmitters(minY: cam.minY - frame.height/2)
+    }
+    
+    func getBounds() -> Bounds {
+        bounds.minX = -frame.size.width/2 + cam.x
+        bounds.minY = cam.minY - frame.height/2
+        bounds.maxX = frame.size.width/2 + cam.x
+        bounds.maxY = cam.maxY + frame.height/2
+        return bounds
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
