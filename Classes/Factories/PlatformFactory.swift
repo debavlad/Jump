@@ -46,6 +46,10 @@ class PlatformFactory {
             let platform = construct(type: type, position: pos)
             highestY = pos.y
             
+//            if hasItem(chance: 0.4) && type != .sand {
+//                platform.move(width: width)
+//            }
+            
             let coin = hasItem(chance: 0.5) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
             if let c = coin {
                 platform.add(item: c)
@@ -56,6 +60,7 @@ class PlatformFactory {
                 platform.add(item: f)
             }
             
+            platform.move(width: width)
             parent.addChild(platform.node)
             collection.insert(platform)
         }

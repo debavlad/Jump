@@ -16,9 +16,9 @@ class Manager {
     
     private(set) var menuBtn: Button!
     private var gameOver: SKLabelNode!
-    private(set) var line, slider, pauseBtn, darken, red, hpBorder, hpStripe: SKSpriteNode!
+    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
-    private var smokeAnim: SKAction!
+    private(set) var smokeAnim, doorAnim: SKAction!
     
     init(scene: SKScene, world: SKNode) {
         self.scene = scene
@@ -50,6 +50,12 @@ class Manager {
         house.position = CGPoint(x: 200, y: -47)
         house.zPosition = 1
         world.addChild(house)
+        
+        door = SKSpriteNode(imageNamed: "door0").pixelated()
+        door.size = CGSize(width: 112, height: 134)
+        door.position = CGPoint(x: -119, y: -220)
+        door.zPosition = 2
+        house.addChild(door)
         
         let smoke = SKSpriteNode(imageNamed: "smoke0").pixelated()
         smoke.size = CGSize(width: 119, height: 97)
@@ -148,6 +154,14 @@ class Manager {
             smokeTextures.append(SKTexture(imageNamed: "smoke\(i)").pixelated())
         }
         smokeAnim = SKAction.animate(with: smokeTextures, timePerFrame: 0.12)
+        
+        var doorTextures: [SKTexture] = []
+        for i in 1...6 {
+            doorTextures.append(SKTexture(imageNamed: "door\(i)").pixelated())
+        }
+        doorAnim = SKAction.animate(with: doorTextures, timePerFrame: 0.065)
+        doorAnim.timingMode = SKActionTimingMode.easeOut
+        doorAnim.speed = 5
         
         pauseTexture = SKTexture(imageNamed: "pause").pixelated()
         playTexture = SKTexture(imageNamed: "continue").pixelated()

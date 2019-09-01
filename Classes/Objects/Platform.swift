@@ -47,7 +47,20 @@ class Platform: Hashable {
         item.node.removeFromParent()
     }
     
+    func move(width: CGFloat) {
+        let right = SKAction.move(to: CGPoint(x: width, y: node.position.y), duration: 2)
+        right.timingMode = SKActionTimingMode.easeInEaseOut
+//        right.speed = 2
+        let left = SKAction.move(to: CGPoint(x: -width, y: node.position.y), duration: 2)
+        left.timingMode = SKActionTimingMode.easeInEaseOut
+//        left.speed = 2
+        
+        let seq = SKAction.sequence([right, left])
+        node.run(SKAction.repeatForever(seq))
+    }
+    
     func fall(contactX: CGFloat) {
+        
         node.zPosition = -1
         node.physicsBody?.collisionBitMask = 0
         node.physicsBody?.contactTestBitMask = 0
@@ -62,6 +75,7 @@ class Platform: Hashable {
                 item.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -20))
             }
         }
+//        node.removeAllActions()
     }
     
     func findItem(type: String) -> Item? {

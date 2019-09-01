@@ -110,11 +110,11 @@ private class Clouds {
         if background {
             let scale = CGFloat.random(in: 12...16)
             cloud = construct(z: -5, scale: scale, alpha: 1)
-            speed = 0.5
+            speed = 0.85
         } else {
             let scale = CGFloat.random(in: 22...28)
             cloud = construct(z: 15, scale: scale, alpha: 0.5)
-            speed = 0.25
+            speed = 0.35
         }
         
         if let pos = position {

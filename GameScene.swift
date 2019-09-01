@@ -17,6 +17,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     static var restarted: Bool = false
     
     private var world: SKNode!
+    private var sliderMsg, doorMsg: Message!
     private var fade: SKSpriteNode!
     private var cloudFactory: CloudFactory!
     private var platformFactory: PlatformFactory!
@@ -45,15 +46,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.show(nodes: manager.line)
         
         player = Player(world.childNode(withName: "Character")!)
-        let msg = Message(text: "START THE GAME", size: 55)
-        manager.slider.addChild(msg.node)
-//        let msg = Message(scale: 2, text: "START THE GAME")
-//        msg.node.alpha = 1
-//        manager.slider.addChild(msg.node)
-//        player.display(msg: msg)
         player.turn(left: true)
-        msg.move()
         
+        sliderMsg = Message(text: "START THE GAME", position: CGPoint(x: 35, y: 70))
+        manager.slider.addChild(sliderMsg.node)
+        
+        doorMsg = Message(text: "CHANGE THE SKIN", position: CGPoint(x: -50, y: 100))
+        doorMsg.flip(scale: 0.75)
+        manager.door.addChild(doorMsg.node)
         
         addChild(world)
         trail = Trail(player: player.node)
@@ -66,7 +66,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         manager.slider.position.x = player.x
         movement = player.x
-        cam.node.setScale(0.85)
+        cam.node.setScale(0.75)
         
         if GameScene.restarted {
             fade.run(SKAction.fadeOut(withDuration: 0.4))
@@ -195,22 +195,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let touch = touches.first!
         let node = atPoint(touch.location(in: self))
         
-        if !started && node == manager.slider {
-            sliderTouch = touch
-            offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
-            manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
-            
-            let push = SKAction.run {
-                self.player.push(power: 170)
-//                self.cam.shake(amplitude: 40, amount: 6, step: 6, duration: 0.06)
-                let scale = SKAction.scale(to: 1.0, duration: 1)
-                scale.timingMode = SKActionTimingMode.easeIn
-                self.cam.node.run(scale)
-//                self.manager.hide(nodes: self.player.message!.node)
+        if !started {
+            if node == manager.slider {
+                sliderTouch = touch
+                offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
+                manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
+                
+                let push = SKAction.run {
+                    self.player.push(power: 170)
+                    self.cam.shake(amplitude: 50, amount: 6, step: 6, duration: 0.055)
+                    let scale = SKAction.scale(to: 1.0, duration: 1)
+                    scale.timingMode = SKActionTimingMode.easeIn
+                    self.cam.node.run(scale)
+                    //                self.manager.hide(nodes: self.player.message!.node)
+                }
+                player.node.removeAllActions()
+                manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn)
+                run(push)
+                manager.hide(nodes: doorMsg.node, sliderMsg.node)
+                
+            } else if node == manager.door {
+                
+                
+                manager.door.run(manager.doorAnim)
+                manager.hide(nodes: doorMsg.node, manager.line)
             }
-            player.node.removeAllActions()
-            manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn)
-            run(push)
         }
         else if started && !ended {
             if node == manager.slider {

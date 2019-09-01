@@ -53,7 +53,6 @@ class Player {
     }
     
     func display(msg: Message, duration: TimeInterval = 0) {
-        msg.loc = Location.right
         self.message = msg
         
         self.node.addChild(msg.node)
@@ -99,11 +98,11 @@ class Player {
         if left {
             node.xScale = -1
             hpBorder.xScale = -1
-            message?.turn(left: false)
+//            message?.turn(left: false)
         } else {
             node.xScale = 1
             hpBorder.xScale = 1
-            message?.turn(left: true)
+//            message?.turn(left: true)
         }
     }
     
