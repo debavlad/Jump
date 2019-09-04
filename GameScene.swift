@@ -15,6 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var player: Player!
     private var trail: Trail!
     static var restarted: Bool = false
+    static var skinName: String = "bman"
     
     private var world: SKNode!
     private var sliderMsg, doorMsg: Message!
@@ -165,7 +166,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             if !ended {
-                _ = getBounds()
+                getBounds()
                 platformFactory.create(playerY: player.y)
                 platformFactory.remove(minY: bounds.minY)
                 
@@ -224,10 +225,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 manager.hide(nodes: doorMsg.node, sliderMsg.node)
                 
             } else if node == manager.door {
-                
-                
                 manager.door.run(manager.doorAnim)
                 manager.hide(nodes: doorMsg.node, manager.line)
+                
+                let wait = SKAction.wait(forDuration: 0.5)
+                let fade = SKAction.run {
+                    self.fade.run(SKAction.fadeIn(withDuration: 0.5))
+                }
+                let act = SKAction.run {
+                    let scene = ShopScene(size: self.frame.size)
+                    self.view!.presentScene(scene)
+                    self.removeAllChildren()
+                }
+                run(SKAction.sequence([SKAction.group([wait, fade]), act]))
             }
         }
         else if started && !ended {

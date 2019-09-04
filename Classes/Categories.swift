@@ -15,3 +15,4 @@ class Categories {
     static let ground: UInt32 = 0x1 << 4
     static let platform: UInt32 = 0x1 << 5
 }
+

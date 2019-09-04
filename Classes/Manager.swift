@@ -78,7 +78,7 @@ class Manager {
         world.addChild(ground)
         
         
-        let player = SKSpriteNode(imageNamed: "sit0").pixelated()
+        let player = SKSpriteNode(imageNamed: "\(GameScene.skinName)-sit0").pixelated()
         player.name = "Character"
         player.size = CGSize(width: 120, height: 127.5)
         player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
@@ -159,9 +159,8 @@ class Manager {
         for i in 1...6 {
             doorTextures.append(SKTexture(imageNamed: "door\(i)").pixelated())
         }
-        doorAnim = SKAction.animate(with: doorTextures, timePerFrame: 0.065)
+        doorAnim = SKAction.animate(with: doorTextures, timePerFrame: 0.06)
         doorAnim.timingMode = SKActionTimingMode.easeOut
-        doorAnim.speed = 5
         
         pauseTexture = SKTexture(imageNamed: "pause").pixelated()
         playTexture = SKTexture(imageNamed: "continue").pixelated()

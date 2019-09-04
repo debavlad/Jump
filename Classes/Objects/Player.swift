@@ -152,25 +152,25 @@ class Player {
     private func setAnimations() {
         var jump: [SKTexture] = []
         for i in 0...3 {
-            jump.append(SKTexture(imageNamed: "jump\(i)").pixelated())
+            jump.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
         }
         jumpAnim = SKAction.animate(with: jump, timePerFrame: 0.125)
         
         var fall: [SKTexture] = []
         for i in 4...5 {
-            fall.append(SKTexture(imageNamed: "jump\(i)").pixelated())
+            fall.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
         }
         fallAnim = SKAction.animate(with: fall, timePerFrame: 0.125)
         
         var land: [SKTexture] = []
         for i in 6...8 {
-            land.append(SKTexture(imageNamed: "jump\(i)").pixelated())
+            land.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
         }
         landAnim = SKAction.animate(with: land, timePerFrame: 0.06)
         
         var sit: [SKTexture] = []
         for i in 0...7 {
-            sit.append(SKTexture(imageNamed: "sit\(i)").pixelated())
+            sit.append(SKTexture(imageNamed: "\(GameScene.skinName)-sit\(i)").pixelated())
         }
         sitAnim = SKAction.animate(with: sit, timePerFrame: 0.15)
     }
