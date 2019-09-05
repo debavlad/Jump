@@ -17,7 +17,7 @@ class CloudFactory {
     
     init(frame: CGRect, world: SKNode) {
         bg = Clouds(250, -frame.height)
-        fg = Clouds(1200, -frame.height)
+        fg = Clouds(1200, -frame.height/1.25)
         self.parent = world
     }
     
