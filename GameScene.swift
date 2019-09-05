@@ -15,7 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var player: Player!
     private var trail: Trail!
     static var restarted: Bool = false
-    static var skinName: String = "bman"
+    static var skinName: String = "zombie"
     
     private var world: SKNode!
     private var sliderMsg, doorMsg: Message!
@@ -226,7 +226,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
             } else if node == manager.door {
                 manager.door.run(manager.doorAnim)
-                manager.hide(nodes: doorMsg.node, manager.line)
+                manager.hide(nodes: manager.line)
+                
+                let scale = SKAction.scale(to: 0.025, duration: 1)
+                scale.timingMode = SKActionTimingMode.easeInEaseOut
+                let move = SKAction.moveBy(x: 150, y: -250, duration: 1)
+                move.timingMode = SKActionTimingMode.easeInEaseOut
                 
                 let wait = SKAction.wait(forDuration: 0.5)
                 let fade = SKAction.run {
@@ -238,6 +243,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.removeAllChildren()
                 }
                 run(SKAction.sequence([SKAction.group([wait, fade]), act]))
+                cam.node.run(SKAction.group([scale, move]))
             }
         }
         else if started && !ended {

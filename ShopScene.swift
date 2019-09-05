@@ -13,136 +13,140 @@ class ShopScene: SKScene {
     private var fade, bg, leftArrow, rightArrow, skin: SKSpriteNode!
     private var naming: SKLabelNode!
     private var triggeredNode: SKNode!
-    private var pages: [SKSpriteNode]!
+    private var pages: [SKSpriteNode] = []
+    private var cam: Camera!
     
     private var skins: [Skin]!
     private var curIndex: Int = 0
     
     override func didMove(to view: SKView) {
-        skins = [Skin(name: "FARMER", textureName: "farmer"),
-                 Skin(name: "BUSINESSMAN", textureName: "bman")]
-        
-        scaleMode = .aspectFill
+        setScene()
+    }
+    
+    private func setScene() {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         bg = SKSpriteNode(imageNamed: "shop-bg").pixelated()
         bg.size = frame.size
         addChild(bg)
         
-        let panel = SKNode()
-        panel.position.y = 40
+        cam = Camera(scene: self)
+        cam.node.setScale(0.8)
         
         skin = SKSpriteNode(imageNamed: "\(GameScene.skinName)-jump0").pixelated()
         skin.zPosition = 2
-        skin.setScale(3.5)
-        panel.addChild(skin)
+        skin.setScale(3)
+        skin.xScale = -3
+        skin.position = CGPoint(x: 0, y: -230)
         
-        let shadow = SKSpriteNode(imageNamed: "shadow").pixelated()
-        shadow.zPosition = 1
-        shadow.setScale(8)
-        shadow.position.y = -90
-        panel.addChild(shadow)
+//        let scale = SKAction.scale(to: 0.7, duration: 2)
+//        scale.speed = 5
+//        scale.timingMode = SKActionTimingMode.easeOut
+//        cam.node.run(scale)
         
-        pages = []
+        addChild(skin)
         
-        let pageCounter = SKNode()
-        for i in 0..<skins.count {
-            let page = SKSpriteNode(imageNamed: "page0").pixelated()
-            if i == 0 {
-                page.texture = SKTexture(imageNamed: "page1").pixelated()
-            }
-            page.setScale(4)
-            page.position.x = 50 * CGFloat(i)
-//            pages[i] = page
-            pages.insert(page, at: i)
-            pageCounter.addChild(page)
-        }
-        pageCounter.position.y = -205
-        pageCounter.position.x = -25
-        pageCounter.zPosition = 2
-        panel.addChild(pageCounter)
-        
-        leftArrow = SKSpriteNode(imageNamed: "dis-arrow0").pixelated()
+        leftArrow = SKSpriteNode(imageNamed: "disabled-arrow").pixelated()
         leftArrow.zPosition = 2
-        leftArrow.position.x = -150
+        leftArrow.position = CGPoint(x: -250, y: -150)
         leftArrow.yScale = 6
         leftArrow.xScale = -6
-        panel.addChild(leftArrow)
+        cam.node.addChild(leftArrow)
         
-        rightArrow = SKSpriteNode(imageNamed: "act-arrow0").pixelated()
+        rightArrow = SKSpriteNode(imageNamed: "arrow").pixelated()
         rightArrow.zPosition = 2
-        rightArrow.position.x = 150
+        rightArrow.position = CGPoint(x: 250, y: -150)
         rightArrow.setScale(6)
-        panel.addChild(rightArrow)
+        cam.node.addChild(rightArrow)
         
         naming = SKLabelNode(fontNamed: "Coder's Crux")
-        naming.text = "BUSINESSMAN"
         naming.fontSize = 70
-        naming.position.y = -170
+        naming.position.y = 60
         naming.zPosition = 2
-        panel.addChild(naming)
+        addChild(naming)
         
         fade = SKSpriteNode(color: .black, size: frame.size)
-        fade.alpha = 1
         fade.zPosition = 5
         addChild(fade)
         
-        addChild(panel)
+        skins = [
+            Skin(name: "Farmer", textureName: "farmer"),
+            Skin(name: "Zombie", textureName: "zombie"),
+            Skin(name: "Businessman", textureName: "bman")
+        ]
+        
+        let pageCounter = SKNode()
+        pageCounter.position = CGPoint(x: -50, y: 30)
+        pageCounter.zPosition = 2
+        for i in 0..<skins.count {
+            let page = SKSpriteNode(imageNamed: "inactive-page").pixelated()
+            page.position.x = 50 * CGFloat(i)
+            page.setScale(4)
+            
+            pages.insert(page, at: i)
+            pageCounter.addChild(page)
+        }
+        
+        addChild(pageCounter)
         loadSkin(skin: skins[curIndex])
         
-        fade.run(SKAction.fadeOut(withDuration: 0.3))
+        let fadeOut = SKAction.fadeOut(withDuration: 0.5)
+        fadeOut.timingMode = SKActionTimingMode.easeOut
+        fade.run(fadeOut)
     }
     
     func loadSkin(skin: Skin) {
-        let textureName = "\(skin.textureName)-jump0"
+        let textureName = "\(skin.textureName)-sit0"
         self.skin.texture = SKTexture(imageNamed: textureName).pixelated()
         self.naming.text = skin.name
         
         for i in 0..<pages.count {
             if i == curIndex {
-                pages[i].texture = SKTexture(imageNamed: "page1").pixelated()
+                pages[i].texture = SKTexture(imageNamed: "current-page").pixelated()
             } else {
-                pages[i].texture = SKTexture(imageNamed: "page0").pixelated()
+                pages[i].texture = SKTexture(imageNamed: "inactive-page").pixelated()
             }
         }
         
         if curIndex == 0 {
-            leftArrow.texture = SKTexture(imageNamed: "dis-arrow0").pixelated()
+            leftArrow.texture = SKTexture(imageNamed: "disabled-arrow").pixelated()
         } else {
-            leftArrow.texture = SKTexture(imageNamed: "act-arrow0").pixelated()
+            leftArrow.texture = SKTexture(imageNamed: "arrow").pixelated()
         }
         
         if curIndex == skins.count - 1 {
-            rightArrow.texture = SKTexture(imageNamed: "dis-arrow0").pixelated()
+            rightArrow.texture = SKTexture(imageNamed: "disabled-arrow").pixelated()
         } else {
-            rightArrow.texture = SKTexture(imageNamed: "act-arrow0").pixelated()
+            rightArrow.texture = SKTexture(imageNamed: "arrow").pixelated()
         }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first!
-        let node = atPoint(touch.location(in: self))
+//        let node = atPoint(touch.location(in: self))
         
-//        if node == rightArrow && curIndex != skins.count - 1 {
         if touch.location(in: self).x > 0 && curIndex != skins.count - 1 {
-            rightArrow.texture = SKTexture(imageNamed: "act-arrow1").pixelated()
+            rightArrow.yScale = -6
             triggeredNode = rightArrow
-//        } else if node == leftArrow && curIndex != 0 {
         } else if touch.location(in: self).x <= 0 && curIndex != 0 {
-            leftArrow.texture = SKTexture(imageNamed: "act-arrow1").pixelated()
+            leftArrow.yScale = -6
             triggeredNode = leftArrow
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if triggeredNode == rightArrow {
-            rightArrow.texture = SKTexture(imageNamed: "act-arrow0").pixelated()
+            rightArrow.yScale = 6
             curIndex += 1
         } else if triggeredNode == leftArrow {
-            leftArrow.texture = SKTexture(imageNamed: "act-arrow0").pixelated()
+            leftArrow.yScale = 6
             curIndex -= 1
         }
         
         loadSkin(skin: skins[curIndex])
         triggeredNode = nil
+    }
+    
+    override func update(_ currentTime: TimeInterval) {
+        cam.shake(amplitude: 1, amount: 5, step: 0, duration: 2)
     }
 }

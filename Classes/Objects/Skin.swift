@@ -14,7 +14,7 @@ class Skin {
     var textureName: String
     
     init(name: String, textureName: String) {
-        self.name = name
+        self.name = name.uppercased()
 //        self.texture = SKTexture(imageNamed: textureName).pixelated()
         self.textureName = textureName
     }
