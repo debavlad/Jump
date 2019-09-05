@@ -66,7 +66,7 @@ class Manager {
         
         let bench = SKSpriteNode()
         bench.size = CGSize(width: 161, height: 34)
-        bench.position = CGPoint(x: -173, y: -352)
+        bench.position = CGPoint(x: -173, y: -347)
         bench.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: bench.frame.width, height: bench.frame.height))
         bench.physicsBody?.categoryBitMask = Categories.ground
         bench.physicsBody?.isDynamic = false
@@ -80,7 +80,8 @@ class Manager {
         
         let player = SKSpriteNode(imageNamed: "\(GameScene.skinName)-sit0").pixelated()
         player.name = "Character"
-        player.size = CGSize(width: 120, height: 127.5)
+//        player.size = CGSize(width: 120, height: 127.5)
+        player.size = CGSize(width: 132, height: 140)
         player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
         player.zPosition = 10
         

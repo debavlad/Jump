@@ -15,7 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var player: Player!
     private var trail: Trail!
     static var restarted: Bool = false
-    static var skinName: String = "zombie"
+    static var skinName: String = "bman"
     
     private var world: SKNode!
     private var sliderMsg, doorMsg: Message!
