@@ -13,6 +13,7 @@ class Player {
     let node: SKSpriteNode!
     private var hp: Int = 100
     private(set) var alive = true
+    private(set) var score = 0
     
     var x: CGFloat {
         set {
@@ -74,6 +75,10 @@ class Player {
     func animate(_ anim: SKAction) {
         node.run(anim)
         currentAnim = anim
+    }
+    
+    func setScore(value: Int) {
+        score = value
     }
     
     func fallingDown() -> Bool {

@@ -37,12 +37,6 @@ class ShopScene: SKScene {
         skin.setScale(3)
         skin.xScale = -3
         skin.position = CGPoint(x: 0, y: -230)
-        
-//        let scale = SKAction.scale(to: 0.7, duration: 2)
-//        scale.speed = 5
-//        scale.timingMode = SKActionTimingMode.easeOut
-//        cam.node.run(scale)
-        
         addChild(skin)
         
         leftArrow = SKSpriteNode(imageNamed: "disabled-arrow").pixelated()
@@ -89,7 +83,7 @@ class ShopScene: SKScene {
         addChild(pageCounter)
         loadSkin(skin: skins[curIndex])
         
-        let fadeOut = SKAction.fadeOut(withDuration: 0.5)
+        let fadeOut = SKAction.fadeOut(withDuration: 0.3)
         fadeOut.timingMode = SKActionTimingMode.easeOut
         fade.run(fadeOut)
     }

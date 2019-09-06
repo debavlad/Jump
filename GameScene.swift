@@ -26,7 +26,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var movement, offset, minY: CGFloat!
     private var sliderTouch: UITouch?
     private var triggeredBtn: Button!
-    private var started = false, stopped = false, ended = false
+    private var started = false, stopped = false, ended = false, firstContact = false
     private var bounds: Bounds!
     
     
@@ -85,7 +85,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
             
-            minY = platformFactory.collection.isEmpty ? player.y : platformFactory.lowestY()
+//            minY = platformFactory.collection.isEmpty ? player.y : platformFactory.lowestY()
+            firstContact = true
             
             if player.fallingDown() && col == Collision.playerPlatform {
                 player.animate(player.landAnim)
@@ -122,17 +123,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if platform.node.name!.contains("sand") {
                     platform.fall(contactX: contact.contactPoint.x)
                 }
-                
-//                if platform.get().has(name: "sand") {
-//                    let wait = SKAction.wait(forDuration: 0.12)
-//                    let fall = SKAction.run {
-//                        platform.get().physicsBody?.isDynamic = true
-//                        platform.get().physicsBody?.collisionBitMask = 0
-//                        platform.get().physicsBody?.categoryBitMask = 0
-//                        platform.get().physicsBody?.contactTestBitMask = 0
-//                    }
-//                    run(SKAction.sequence([wait, fall]))
-//                }
             }
         }
     }
@@ -143,14 +133,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.25)
             player.x = movement
             
+            if let lowestY = platformFactory.lowestY(), player.y > lowestY {
+                minY = lowestY
+            }
+            
             if trail.distance() > 50 && !ended {
                 trail.create(in: world)
             }
             
-//            bounds.minX = -frame.size.width/2 + cam.x
-//            bounds.minY = cam.minY - frame.height/2
-//            bounds.maxX = frame.size.width/2 + cam.x
-//            bounds.maxY = cam.maxY + frame.height/2
+            if player.y/100 > 0 && player.y/100 > CGFloat(player.score) {
+                manager.setScore(points: Int(player.y/100))
+                player.setScore(value: Int(player.y/100))
+            }
         }
         
         if started {
@@ -220,9 +214,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     //                self.manager.hide(nodes: self.player.message!.node)
                 }
                 player.node.removeAllActions()
-                manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn)
+                manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore, manager.shadow)
                 run(push)
-                manager.hide(nodes: doorMsg.node, sliderMsg.node)
+                manager.hide(nodes: sliderMsg.node)
+                doorMsg.node.alpha = 0
                 
             } else if node == manager.door {
                 manager.door.run(manager.doorAnim)
@@ -230,8 +225,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 let scale = SKAction.scale(to: 0.025, duration: 1)
                 scale.timingMode = SKActionTimingMode.easeInEaseOut
-                let move = SKAction.moveBy(x: 150, y: -250, duration: 1)
-                move.timingMode = SKActionTimingMode.easeInEaseOut
+                let move = SKAction.moveBy(x: 200, y: -300, duration: 1)
+                move.timingMode = SKActionTimingMode.easeIn
                 
                 let wait = SKAction.wait(forDuration: 0.5)
                 let fade = SKAction.run {
@@ -334,7 +329,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             let scaleStop = SKAction.sequence([scale, stop])
             self.cam.node.run(SKAction.group([scaleStop, rotate]))
-            self.manager.hide(nodes: self.manager.line, self.manager.hpBorder, self.manager.pauseBtn)
+            self.manager.hide(nodes: self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore, self.manager.shadow)
             self.ended = true
         }
         run(SKAction.sequence([wait, action]))

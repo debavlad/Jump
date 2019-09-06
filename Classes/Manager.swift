@@ -15,8 +15,8 @@ class Manager {
     private var particles: Set<SKEmitterNode>!
     
     private(set) var menuBtn: Button!
-    private var gameOver: SKLabelNode!
-    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe: SKSpriteNode!
+    private(set) var gameOver, gameScore, menuScore, shadow, ptsScore, lblScore: SKLabelNode!
+    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
     
@@ -31,10 +31,11 @@ class Manager {
     func switchUI() {
         hide(nodes: line, hpBorder, pauseBtn)
         
-        fade(node: menuBtn.node, to: 1.0, duration: 2)
-        fade(node: gameOver, to: 1.0, duration: 2)
-        fade(node: darken, to: 0.5, duration: 1)
-        fade(node: red, to: 0.3, duration: 0.6)
+        fade(node: menuBtn.node, to: 1.0, duration: 2, false)
+        fade(node: gameOver, to: 1.0, duration: 2, true)
+        fade(node: mScore, to: 1.0, duration: 2, false)
+        fade(node: darken, to: 0.5, duration: 1, false)
+        fade(node: red, to: 0.3, duration: 0.6, false)
     }
     
     private func setScene(world: SKNode) {
@@ -139,14 +140,72 @@ class Manager {
         gameOver = SKLabelNode(fontNamed: "FFFForward")
         gameOver.fontSize = 80
         gameOver.text = "Game over!"
-        gameOver.position.y = 250
+        gameOver.position.y = 350
         gameOver.zPosition = 21
         gameOver.alpha = 0
         cam.addChild(gameOver)
         
-        menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -300))
+        menuScore = SKLabelNode(fontNamed: "Coder's Crux")
+        
+        mScore = SKSpriteNode()
+        mScore.zPosition = 21
+        mScore.alpha = 0
+        mScore.position = CGPoint(x: gameOver.position.x, y: gameOver.position.y - 100)
+        
+        lblScore = SKLabelNode(fontNamed: "Coder's Crux")
+        lblScore.text = "SCORE:"
+        lblScore.fontSize = 90
+        mScore.addChild(lblScore)
+        
+        ptsScore = SKLabelNode(fontNamed: "Coder's Crux")
+        ptsScore.text = "0"
+        ptsScore.fontSize = 90
+        ptsScore.fontColor = UIColor(red: 253/255, green: 255/255, blue: 115/255, alpha: 1)
+        ptsScore.position.x = lblScore.frame.maxX + ptsScore.frame.width/2 + 15
+        mScore.addChild(ptsScore)
+        
+        cam.addChild(mScore)
+        
+        
+//        menuScore.zPosition = 21
+//        menuScore.alpha = 0
+//        menuScore.text = "SCORE:0"
+//        menuScore.fontSize = 90
+//        menuScore.position = gameOver.position
+//        menuScore.position.y -= 100
+//        cam.addChild(menuScore)
+        
+        gameScore = SKLabelNode(fontNamed: "FFFForward")
+        gameScore.zPosition = 21
+        gameScore.alpha = 0
+        gameScore.text = "0"
+        gameScore.fontSize = 50
+        gameScore.position = CGPoint(x: -310 + gameScore.frame.width/2, y: 572 - gameScore.frame.height/2)
+        gameScore.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+//        gameScore.fontColor = UIColor(red: 134/255, green: 134/255, blue: 134/255, alpha: 1)
+        cam.addChild(gameScore)
+        
+        shadow = gameScore.copy() as! SKLabelNode
+//        shadow.fontColor = .darkGray
+//        shadow.alpha = 0
+//        shadow.position.x -= 7.5
+//        shadow.position.y -= 7.5
+//        shadow.zPosition = 20
+//        cam.addChild(shadow)
+        
+        menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -400))
         menuBtn.node.alpha = 0
         cam.addChild(menuBtn.node)
+    }
+    
+    func setScore(points: Int) {
+        gameScore.text = String(points)
+        gameScore.position = CGPoint(x: -310 + gameScore.frame.width/2, y: 572 - gameScore.frame.height/2)
+        shadow.text = String(points)
+        shadow.position = CGPoint(x: gameScore.position.x - 7.5, y: gameScore.position.y - 7.5)
+        ptsScore.text = "\(points)"
+        ptsScore.position.x = lblScore.frame.maxX + ptsScore.frame.width/2 + 15
+        mScore.position = CGPoint(x: gameOver.position.x - ptsScore.frame.width/2, y: gameOver.position.y - 100)
     }
     
     private func setAnimations() {
@@ -234,12 +293,13 @@ class Manager {
     }
     
     
-    private func fade(node: SKNode, to value: CGFloat, duration: TimeInterval) {
+    private func fade(node: SKNode, to value: CGFloat, duration: TimeInterval, _ shadow: Bool) {
         let fade = SKAction.fadeAlpha(to: value, duration: duration)
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4
         
-        if node is SKLabelNode {
+//        if node is SKLabelNode {
+        if shadow {
             let back = node.copy() as! SKLabelNode
             back.zPosition = node.zPosition - 1
             back.fontColor = UIColor.darkGray
@@ -291,5 +351,14 @@ extension SKTexture {
     func pixelated() -> SKTexture {
         self.filteringMode = .nearest
         return self
+    }
+}
+
+extension NSMutableAttributedString{
+    func setColorForText(_ textToFind: String, with color: UIColor) {
+        let range = self.mutableString.range(of: textToFind, options: .caseInsensitive)
+        if range.location != NSNotFound {
+            addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: range)
+        }
     }
 }

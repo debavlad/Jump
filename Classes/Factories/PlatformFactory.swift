@@ -114,11 +114,14 @@ class PlatformFactory {
         })!
     }
     
-    func lowestY() -> CGFloat {
-        var minY: CGFloat = collection.first!.node.position.y
-        collection.forEach { (platform) in
-            if platform.node.position.y < minY {
-                minY = platform.node.position.y
+    func lowestY() -> CGFloat? {
+        var minY: CGFloat? = nil
+        if let first = collection.first {
+            minY = first.node.position.y
+            collection.forEach { (platform) in
+                if platform.node.position.y < minY! {
+                    minY = platform.node.position.y
+                }
             }
         }
         return minY
