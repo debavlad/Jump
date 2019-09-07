@@ -11,8 +11,9 @@ import GameplayKit
 import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
+//    var audioPlayer: AVAudioPlayer?
 //    var audioPlayer, audioPlayer2: AVAudioPlayer?
-    var platformPlayer, coinPlayer, foodPlayer: AVAudioPlayer?
+//    var platformPlayer, coinPlayer, foodPlayer: AVAudioPlayer?
     
     private var cam: Camera!
     private var manager: Manager!
@@ -31,21 +32,92 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var started = false, stopped = false, ended = false
     private var bounds: Bounds!
     
-    func play(sound: String, on player: AVAudioPlayer?) {
-        guard let url = Bundle.main.url(forResource: sound, withExtension: "wav") else { return }
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-            let player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.wav.rawValue)
-            guard let player = player else { return }
-            player.volume = 0.1
-            player.play()
-        } catch let error {
-            print(error.localizedDescription)
+//    func play(sound: String, on player: AVAudioPlayer?) {
+//        guard let url = Bundle.main.url(forResource: sound, withExtension: "wav") else { return }
+//        do {
+//            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+//            try AVAudioSession.sharedInstance().setActive(true)
+//            let player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.wav.rawValue)
+//            guard let player = player else { return }
+//            player.volume = 0.1
+//            player.play()
+//        } catch let error {
+//            print(error.localizedDescription)
+//        }
+//    }
+    var audioPlayer = AVAudioPlayer(), audioPlayer2 = AVAudioPlayer()
+    
+    func playingSoundWith(fileName: String) {
+        DispatchQueue.global(qos: .background).async {
+            do {
+                self.audioPlayer = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "wav")!)
+                self.audioPlayer.prepareToPlay()
+                let session = AVAudioSession()
+                do {
+                    try session.setCategory(.playback)
+                } catch {
+                    print(error.localizedDescription)
+                }
+                self.audioPlayer.play()
+            } catch {
+                print(error)
+            }
         }
     }
     
+    func playingSound2With(fileName: String) {
+        DispatchQueue.global(qos: .background).async {
+            do {
+                self.audioPlayer2 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "wav")!)
+                self.audioPlayer2.prepareToPlay()
+                let session = AVAudioSession()
+                do {
+                    try session.setCategory(.playback)
+                } catch {
+                    print(error.localizedDescription)
+                }
+                self.audioPlayer2.play()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func playSound() {
+//        do {
+            /* iOS 10 and earlier require the following line:
+             player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileTypeMPEGLayer3) */
+            
+//            guard let audioPlayer = audioPlayer else { return }
+//
+//            audioPlayer.play()
+//            audioPlayer.prepareToPlay()
+        
+//        } catch let error {
+//            print(error.localizedDescription)
+//        }
+    }
+    
     override func didMove(to view: SKView) {
+//        if let url = Bundle.main.url(forResource: "coin-pickup", withExtension: "wav") {
+//            do {
+//                audioPlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.wav.rawValue)
+//            } catch let error {
+//                print(error.localizedDescription)
+//            }
+//        }
+//        guard let url = Bundle.main.url(forResource: "coin-pickup", withExtension: "wav") else { return }
+//        do {
+//            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+//            try AVAudioSession.sharedInstance().setActive(true)
+//
+//            /* The following line is required for the player to work on iOS 11. Change the file type accordingly*/
+//            audioPlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+//            audioPlayer!.prepareToPlay()
+//        } catch let err {
+//            print(err.localizedDescription)
+//        }
+        
         fade = SKSpriteNode(color: .black, size: frame.size)
         fade.alpha = GameScene.restarted ? 1 : 0
         fade.zPosition = 25
@@ -107,20 +179,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 // Define platform obj
                 let node = extract(node: "platform", from: contact)!
                 let platform = platformFactory.find(platform: node)
-                DispatchQueue.global(qos: .background).async {
+//                DispatchQueue.global(qos: .background).async {
                     switch platform.damage {
                     case 2:
-                        self.play(sound: "dirt-footstep")
+                        self.playingSoundWith(fileName: "dirt-footstep")
                     case 3:
-                        self.play(sound: "sand-footstep")
+                        self.playingSoundWith(fileName: "sand-footstep")
                     case 4:
-                        self.play(sound: "wood-footstep")
+                        self.playingSoundWith(fileName: "wood-footstep")
                     case 5:
-                        self.play(sound: "stone-footstep")
+                        self.playingSoundWith(fileName: "stone-footstep")
                     default:
                         break
                     }
-                }
+//                }
                 
                 // Pick items up
                 if platform.hasItems() {
@@ -128,6 +200,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         if item.wasTouched {
                             switch item {
                             case is Coin:
+                                DispatchQueue.global(qos: .background).async {
+                                    self.playSound()
+                                }
                                 pick(item: item, platform: platform)
                             case is Food:
                                 player.heal(by: (item as! Food).energy)
@@ -382,14 +457,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.addEmitter(to: world, filename: String(name), position: pos)
         if item is Coin {
             manager.addLabel(to: world, position: platform.node.position)
-            DispatchQueue.global(qos: .background).async {
-                self.play(sound: "coin-pickup")
-            }
-        } else if item is Food {
-            DispatchQueue.global(qos: .background).async {
-                self.play(sound: "food-pickup")
-            }
+            playingSound2With(fileName: "coin-pickup")
+//            playSound()
+//            DispatchQueue.global(qos: .background).async {
+//                self.audioPlayer.play()
+//            }
+//            DispatchQueue.global(qos: .background).async {
+//                self.play(sound: "coin-pickup")
+//            }
         }
+//        else if item is Food {
+//            DispatchQueue.global(qos: .background).async {
+//                self.play(sound: "food-pickup")
+//            }
+//        }
         platform.remove(item: item)
         cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)
     }
