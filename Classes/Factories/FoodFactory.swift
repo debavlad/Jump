@@ -23,12 +23,12 @@ class FoodFactory {
     func random() -> Food {
         let random = Int.random(in: 0..<energies.count)
         let type = FoodType(rawValue: random)
-        let food = instantiate(type: type!)
+        let food = create(type: type!)
         
         return food
     }
     
-    private func instantiate(type: FoodType) -> Food {
+    private func create(type: FoodType) -> Food {
         let node = SKSpriteNode(imageNamed: type.description)
             .setFoodSettings()
             .randomize()
@@ -67,16 +67,12 @@ extension SKSpriteNode {
         let x = CGFloat.random(in: -30...30)
         position = CGPoint(x: x, y: 30)
         
-        let isMirrored = Bool.random()
-        if isMirrored {
-            xScale = -6
-        }
+        let behind = Bool.random()
+        zPosition = behind ? -1 : 2
         
-        let isBehind = Bool.random()
-        if isBehind {
-            zPosition = -1
-        } else {
-            zPosition = 2
+        let mirrored = Bool.random()
+        if mirrored {
+            xScale = -6
         }
         
         return self
@@ -84,6 +80,7 @@ extension SKSpriteNode {
     
     func setFoodSettings() -> SKSpriteNode {
         setScale(6)
+        
         physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
         physicsBody?.affectedByGravity = true
         physicsBody?.categoryBitMask = Categories.food
@@ -92,6 +89,7 @@ extension SKSpriteNode {
         physicsBody?.friction = 0
         physicsBody?.restitution = 0
         physicsBody?.isDynamic = false
+        
         return self
     }
 }

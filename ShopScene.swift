@@ -41,14 +41,14 @@ class ShopScene: SKScene {
         
         leftArrow = SKSpriteNode(imageNamed: "disabled-arrow").pixelated()
         leftArrow.zPosition = 2
-        leftArrow.position = CGPoint(x: -250, y: -150)
+        leftArrow.position = CGPoint(x: -250, y: -300)
         leftArrow.yScale = 6
         leftArrow.xScale = -6
         cam.node.addChild(leftArrow)
         
         rightArrow = SKSpriteNode(imageNamed: "arrow").pixelated()
         rightArrow.zPosition = 2
-        rightArrow.position = CGPoint(x: 250, y: -150)
+        rightArrow.position = CGPoint(x: 250, y: -300)
         rightArrow.setScale(6)
         cam.node.addChild(rightArrow)
         

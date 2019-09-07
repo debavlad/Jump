@@ -10,11 +10,6 @@ import Foundation
 import SpriteKit
 
 class Player {
-    let node: SKSpriteNode!
-    private var hp: Int = 100
-    private(set) var alive = true
-    private(set) var score = 0
-    
     var x: CGFloat {
         set {
             node.position.x = newValue
@@ -28,13 +23,16 @@ class Player {
             return node.position.y
         }
     }
+    let node: SKSpriteNode!
     
+    private var hp: Int = 100
+    private(set) var alive = true
+    private(set) var score = 0
     private let green, yellow, red: SKTexture!
-    private(set) var message: Message?
     private let hpBorder, hpStripe: SKSpriteNode!
-    private let maxStripeWidth: CGFloat
+    private let maxHpStripeWidth: CGFloat
     
-    private(set) var currentAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
+    private(set) var currAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
     
     
     init(_ node: SKNode) {
@@ -43,54 +41,34 @@ class Player {
         green = SKTexture(imageNamed: "hp-green")
         yellow = SKTexture(imageNamed: "hp-yellow")
         red = SKTexture(imageNamed: "hp-red")
-        
         hpBorder = node.children.first! as? SKSpriteNode
         hpStripe = hpBorder.children.first! as? SKSpriteNode
-        maxStripeWidth = hpStripe.size.width
+        maxHpStripeWidth = hpStripe.size.width
         
         setPhysics()
         setAnimations()
         node.run(SKAction.repeatForever(sitAnim))
     }
     
-    func display(msg: Message, duration: TimeInterval = 0) {
-        self.message = msg
-        
-        self.node.addChild(msg.node)
-        let show = SKAction.fadeAlpha(to: 1.0, duration: 0.5)
-        show.timingMode = SKActionTimingMode.easeOut
-        show.speed = 2
-        let wait = SKAction.wait(forDuration: duration)
-        let hide = SKAction.fadeAlpha(to: 0, duration: 0.5)
-        hide.timingMode = SKActionTimingMode.easeIn
-        hide.speed = 2
-        
-        if duration != 0 {
-            msg.node.run(SKAction.sequence([show, wait, hide]))
-        } else {
-            msg.node.run(show)
-        }
+    func run(animation: SKAction) {
+        node.run(animation)
+        currAnim = animation
     }
     
-    func animate(_ anim: SKAction) {
-        node.run(anim)
-        currentAnim = anim
+    func set(score: Int) {
+        self.score = score
     }
     
-    func setScore(value: Int) {
-        score = value
-    }
-    
-    func fallingDown() -> Bool {
+    func falling() -> Bool {
         return node.physicsBody!.velocity.dy < 0
     }
     
     func harm(by amount: Int) {
-        setHp(value: hp - amount)
+        set(hp: hp - amount)
     }
     
     func heal(by amount: Int) {
-        setHp(value: hp + amount)
+        set(hp: hp + amount)
     }
     
     func push(power: Int) {
@@ -103,31 +81,29 @@ class Player {
         if left {
             node.xScale = -1
             hpBorder.xScale = -1
-//            message?.turn(left: false)
         } else {
             node.xScale = 1
             hpBorder.xScale = 1
-//            message?.turn(left: true)
         }
     }
     
     
-    private func setHp(value: Int) {
-        if value <= 0 {
-            hp = 0
+    private func set(hp: Int) {
+        if hp <= 0 {
+            self.hp = 0
             alive = false
             hpStripe.size.width = 0
-        } else if value >= 100 {
-            hp = 100
-            hpStripe.size.width = maxStripeWidth
+        } else if hp >= 100 {
+            self.hp = 100
+            hpStripe.size.width = maxHpStripeWidth
         } else {
-            hp = value
-            hpStripe.size.width = maxStripeWidth / 100 * CGFloat(value)
-            setStripeColor(hp: value)
+            self.hp = hp
+            hpStripe.size.width = maxHpStripeWidth / 100 * CGFloat(hp)
+            setStripeColor()
         }
     }
     
-    private func setStripeColor(hp: Int) {
+    private func setStripeColor() {
         if hp > 0 && hp <= 25 {
             hpStripe.texture = red
         } else if hp > 25 && hp <= 50 {
@@ -139,7 +115,6 @@ class Player {
     
     private func setPhysics() {
         node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
-//        node.physicsBody?.usesPreciseCollisionDetection = true
         node.physicsBody?.collisionBitMask = Categories.ground
         node.physicsBody?.categoryBitMask = Categories.player
         node.physicsBody?.contactTestBitMask = Categories.coin | Categories.food | Categories.platform
@@ -155,28 +130,30 @@ class Player {
     }
     
     private func setAnimations() {
-        var jump: [SKTexture] = []
+        var jumpTextures = [SKTexture](),
+            fallTextures = [SKTexture](),
+            landTextures = [SKTexture](),
+            sitTextures = [SKTexture]()
+        
         for i in 0...3 {
-            jump.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
+            jumpTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
         }
-        jumpAnim = SKAction.animate(with: jump, timePerFrame: 0.125)
         
-        var fall: [SKTexture] = []
         for i in 4...5 {
-            fall.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
+            fallTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
         }
-        fallAnim = SKAction.animate(with: fall, timePerFrame: 0.125)
         
-        var land: [SKTexture] = []
         for i in 6...8 {
-            land.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
+            landTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
         }
-        landAnim = SKAction.animate(with: land, timePerFrame: 0.06)
         
-        var sit: [SKTexture] = []
         for i in 0...7 {
-            sit.append(SKTexture(imageNamed: "\(GameScene.skinName)-sit\(i)").pixelated())
+            sitTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-sit\(i)").pixelated())
         }
-        sitAnim = SKAction.animate(with: sit, timePerFrame: 0.15)
+        
+        jumpAnim = SKAction.animate(with: jumpTextures, timePerFrame: 0.11)
+        fallAnim = SKAction.animate(with: fallTextures, timePerFrame: 0.11)
+        landAnim = SKAction.animate(with: landTextures, timePerFrame: 0.06)
+        sitAnim = SKAction.animate(with: sitTextures, timePerFrame: 0.15)
     }
 }

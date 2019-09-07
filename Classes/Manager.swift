@@ -14,14 +14,17 @@ class Manager {
     private var labels: Set<SKLabelNode>!
     private var particles: Set<SKEmitterNode>!
     
+    private var width, height: CGFloat
     private(set) var menuBtn: Button!
-    private(set) var gameOver, gameScore, menuScore, shadow, ptsScore, lblScore: SKLabelNode!
+    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore: SKLabelNode!
     private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
     
     init(scene: SKScene, world: SKNode) {
         self.scene = scene
+        width = UIScreen.main.bounds.width
+        height = UIScreen.main.bounds.height
         labels = Set<SKLabelNode>()
         particles = Set<SKEmitterNode>()
         setAnimations()
@@ -42,7 +45,7 @@ class Manager {
         let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         
         let sky = SKSpriteNode(imageNamed: "sky").pixelated()
-        sky.size = CGSize(width: 754, height: 1334)
+        sky.size = scene.frame.size
         sky.zPosition = -10
         cam.addChild(sky)
         
@@ -81,7 +84,6 @@ class Manager {
         
         let player = SKSpriteNode(imageNamed: "\(GameScene.skinName)-sit0").pixelated()
         player.name = "Character"
-//        player.size = CGSize(width: 120, height: 127.5)
         player.size = CGSize(width: 132, height: 140)
         player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
         player.zPosition = 10
@@ -103,7 +105,7 @@ class Manager {
         
         line = SKSpriteNode(imageNamed: "slider-line").pixelated()
         line.size = CGSize(width: 610, height: 28)
-        line.position.y = -583
+        line.position.y = -height + 90
         line.zPosition = 20
         line.alpha = 0
         
@@ -117,13 +119,15 @@ class Manager {
         
         pauseBtn = SKSpriteNode(imageNamed: "pause").pixelated()
         pauseBtn.size = CGSize(width: 106, height: 106)
-        pauseBtn.position = CGPoint(x: 270, y: 572)
+        pauseBtn.position.y = height - 100
+        pauseBtn.position.x = width - 100
+        pauseBtn.position = CGPoint(x: width - 100, y: height - 100)
         pauseBtn.zPosition = 21
         pauseBtn.alpha = 0
         cam.addChild(pauseBtn)
         
         red = SKSpriteNode()
-        red.size = CGSize(width: 754, height: 1334)
+        red.size = scene.frame.size
         red.blendMode = SKBlendMode.add
         red.color = UIColor.init(red: 120/255, green: 0, blue: 0, alpha: 1)
         red.alpha = 0
@@ -131,7 +135,7 @@ class Manager {
         cam.addChild(red)
         
         darken = SKSpriteNode()
-        darken.size = CGSize(width: 754, height: 1334)
+        darken.size = scene.frame.size
         darken.alpha = 0
         darken.color = UIColor.black
         darken.zPosition = 20
@@ -163,47 +167,26 @@ class Manager {
         ptsScore.fontColor = UIColor(red: 253/255, green: 255/255, blue: 115/255, alpha: 1)
         ptsScore.position.x = lblScore.frame.maxX + ptsScore.frame.width/2 + 15
         mScore.addChild(ptsScore)
-        
         cam.addChild(mScore)
-        
-        
-//        menuScore.zPosition = 21
-//        menuScore.alpha = 0
-//        menuScore.text = "SCORE:0"
-//        menuScore.fontSize = 90
-//        menuScore.position = gameOver.position
-//        menuScore.position.y -= 100
-//        cam.addChild(menuScore)
         
         gameScore = SKLabelNode(fontNamed: "FFFForward")
         gameScore.zPosition = 21
         gameScore.alpha = 0
         gameScore.text = "0"
         gameScore.fontSize = 50
-        gameScore.position = CGPoint(x: -310 + gameScore.frame.width/2, y: 572 - gameScore.frame.height/2)
+        gameScore.position = CGPoint(x: -width + gameScore.frame.width/2 + 100, y: height - gameScore.frame.height/2 - 100)
         gameScore.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
-//        gameScore.fontColor = UIColor(red: 134/255, green: 134/255, blue: 134/255, alpha: 1)
         cam.addChild(gameScore)
-        
-        shadow = gameScore.copy() as! SKLabelNode
-//        shadow.fontColor = .darkGray
-//        shadow.alpha = 0
-//        shadow.position.x -= 7.5
-//        shadow.position.y -= 7.5
-//        shadow.zPosition = 20
-//        cam.addChild(shadow)
         
         menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -400))
         menuBtn.node.alpha = 0
         cam.addChild(menuBtn.node)
     }
     
-    func setScore(points: Int) {
-        gameScore.text = String(points)
-        gameScore.position = CGPoint(x: -310 + gameScore.frame.width/2, y: 572 - gameScore.frame.height/2)
-        shadow.text = String(points)
-        shadow.position = CGPoint(x: gameScore.position.x - 7.5, y: gameScore.position.y - 7.5)
-        ptsScore.text = "\(points)"
+    func set(score: Int) {
+        gameScore.text = String(score)
+        gameScore.position = CGPoint(x: -width + gameScore.frame.width/2 + 60, y: height - gameScore.frame.height/2 - 100)
+        ptsScore.text = "\(score)"
         ptsScore.position.x = lblScore.frame.maxX + ptsScore.frame.width/2 + 15
         mScore.position = CGPoint(x: gameOver.position.x - ptsScore.frame.width/2, y: gameOver.position.y - 100)
     }

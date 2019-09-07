@@ -12,26 +12,26 @@ import SpriteKit
 class PlatformFactory {
     var highestY: CGFloat
     let distance: ClosedRange<CGFloat>!
-    
+    private(set) var collection: Set<Platform>!
+    private let data: [PlatformType : (texture: String, power: Int, damage: Int)]!
     private var lastPlatformType = PlatformType.dirt
-    private let width, height: CGFloat
+    private let parent: SKNode!
+    
     private let coinFactory: CoinFactory!
     private let foodFactory: FoodFactory!
-    private(set) var collection: Set<Platform>!
-    private let parent: SKNode!
-    private let data: [PlatformType : (texture: String, power: Int, damage: Int)]!
+    private let width, height: CGFloat
     
     
-    init(world: SKNode, _ distance: ClosedRange<CGFloat>, _ lastY: CGFloat) {
-        self.distance = distance
-        self.highestY = lastY
-        
+    init(parent: SKNode, startY: CGFloat, distance: ClosedRange<CGFloat>) {
         width = UIScreen.main.bounds.width - 100
         height = UIScreen.main.bounds.height + 50
+        
+        self.highestY = startY
+        self.distance = distance
         coinFactory = CoinFactory()
         foodFactory = FoodFactory()
         collection = Set<Platform>()
-        self.parent = world
+        self.parent = parent
         
         data = [
             PlatformType.dirt : ("dirt-platform", 75, 3),
@@ -41,42 +41,37 @@ class PlatformFactory {
         ]
     }
     
-    func create(playerY: CGFloat) {
-        if can(playerY: playerY) {
-            var type: PlatformType
-            repeat {
-                type = randomType()
-            } while type == lastPlatformType
-            
-            lastPlatformType = type
-            
-            let y = highestY + CGFloat.random(in: distance)
-            let pos = CGPoint(x: CGFloat.random(in: -width...width), y: y)
-            let platform = construct(type: type, position: pos)
-            highestY = type == .dirt ? pos.y + 150: pos.y
-            
-            switch type {
-            case .dirt:
-                platform.moveByY(height: 150)
-            case .sand:
-                break
-            case .wood, .stone:
-                platform.moveByX(width: width)
-            }
-            
-            let coin = hasItem(chance: 0.5) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
-            if let c = coin {
-                platform.add(item: c)
-            }
-            
-            let food = hasItem(chance: 0.2) ? foodFactory.random() : nil
-            if let f = food {
-                platform.add(item: f)
-            }
-            
-            parent.addChild(platform.node)
-            collection.insert(platform)
+    func create() {
+        let type = randomType()
+        lastPlatformType = type
+        
+        let x = CGFloat.random(in: -width...width)
+        let y = highestY + CGFloat.random(in: distance)
+        let pos = CGPoint(x: x, y: y)
+        let platform = construct(type: type, position: pos)
+        highestY = type == .dirt ? pos.y + 150: pos.y
+        
+        switch type {
+        case .dirt:
+            platform.moveByY(height: 150)
+        case .sand:
+            break
+        case .wood, .stone:
+            platform.moveByX(width: width)
         }
+        
+        let coin = hasItem(chance: 0.5) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
+        if let c = coin {
+            platform.add(item: c)
+        }
+        
+        let food = hasItem(chance: 0.2) ? foodFactory.random() : nil
+        if let f = food {
+            platform.add(item: f)
+        }
+        
+        parent.addChild(platform.node)
+        collection.insert(platform)
     }
     
     func remove(minY: CGFloat) {
@@ -128,7 +123,7 @@ class PlatformFactory {
     }
     
     
-    private func can(playerY: CGFloat) -> Bool {
+    func can(playerY: CGFloat) -> Bool {
         return highestY + distance.lowerBound < playerY + height
     }
     

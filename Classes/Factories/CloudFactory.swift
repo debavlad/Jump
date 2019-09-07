@@ -11,8 +11,8 @@ import SpriteKit
 
 
 class CloudFactory {
-    private var bg, fg: Clouds!
     private let parent: SKNode!
+    private var bg, fg: Clouds!
     var bounds: Bounds!
     
     init(frame: CGRect, world: SKNode) {
@@ -92,7 +92,6 @@ private class Clouds {
             }).count <= 1 {
                 let pos = CGPoint(x: bounds.minX, y: cloud.position.y)
                 let new = create(position: pos)
-//                new.position.x -= new.frame.width/2
                 cloud.parent?.addChild(new)
                 set.insert(new)
             }

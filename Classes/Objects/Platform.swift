@@ -10,7 +10,7 @@ import Foundation
 import SpriteKit
 
 class Platform: Hashable {
-    private(set) var node: SKSpriteNode!
+    let node: SKSpriteNode!
     private(set) var items: Set<Item>!
     private(set) var power, damage: Int
     
@@ -28,6 +28,7 @@ class Platform: Hashable {
         node.physicsBody?.categoryBitMask = Categories.platform
         node.physicsBody?.collisionBitMask = Categories.coin | Categories.food
         node.physicsBody?.isDynamic = false
+        
         self.damage = data.damage
         self.power = data.power
     }
@@ -37,7 +38,6 @@ class Platform: Hashable {
         if items == nil {
             items = Set<Item>()
         }
-        
         items.insert(item)
         node.addChild(item.node)
     }
@@ -58,10 +58,11 @@ class Platform: Hashable {
     }
     
     func moveByY(height: CGFloat) {
-        let lowest = node.position.y, highest = node.position.y + height
+        let minY = node.position.y, highest = node.position.y + height
+        
         let up = SKAction.move(to: CGPoint(x: node.position.x, y: highest), duration: 1.5)
         up.timingMode = SKActionTimingMode.easeInEaseOut
-        let down = SKAction.move(to: CGPoint(x: node.position.x, y: lowest), duration: 1.5)
+        let down = SKAction.move(to: CGPoint(x: node.position.x, y: minY), duration: 1.5)
         down.timingMode = SKActionTimingMode.easeInEaseOut
         
         let seq = SKAction.sequence([up, down])
@@ -69,7 +70,6 @@ class Platform: Hashable {
     }
     
     func fall(contactX: CGFloat) {
-        
         node.zPosition = -1
         node.physicsBody?.collisionBitMask = 0
         node.physicsBody?.contactTestBitMask = 0
@@ -84,16 +84,6 @@ class Platform: Hashable {
                 item.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -20))
             }
         }
-//        node.removeAllActions()
-    }
-    
-    func findItem(type: String) -> Item? {
-        if hasItems() {
-            return items.first(where: { (item) -> Bool in
-                item.type == type
-            })
-        }
-        return nil
     }
     
     func hasItems() -> Bool {

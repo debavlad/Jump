@@ -14,25 +14,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var manager: Manager!
     private var player: Player!
     private var trail: Trail!
-    static var restarted: Bool = false
-    static var skinName: String = "bman"
-    
-    private var world: SKNode!
-    private var sliderMsg, doorMsg: Message!
-    private var fade: SKSpriteNode!
     private var cloudFactory: CloudFactory!
     private var platformFactory: PlatformFactory!
+    private var sliderTip, doorTip: Tip!
+    static var restarted = false, skinName = "farmer"
     
+    private var world: SKNode!
+    private var fade: SKSpriteNode!
     private var movement, offset, minY: CGFloat!
     private var sliderTouch: UITouch?
     private var triggeredBtn: Button!
-    private var started = false, stopped = false, ended = false, firstContact = false
+    private var started = false, stopped = false, ended = false
     private var bounds: Bounds!
     
     
     override func didMove(to view: SKView) {
-        // to-do: rewrite hardcoded cgsize
-        fade = SKSpriteNode(color: .black, size: CGSize(width: 754, height: 1334))
+        fade = SKSpriteNode(color: .black, size: frame.size)
         fade.alpha = GameScene.restarted ? 1 : 0
         fade.zPosition = 25
         
@@ -49,18 +46,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player = Player(world.childNode(withName: "Character")!)
         player.turn(left: true)
         
-        sliderMsg = Message(text: "START THE GAME", position: CGPoint(x: 35, y: 70))
-        manager.slider.addChild(sliderMsg.node)
+        sliderTip = Tip(text: "START THE GAME", position: CGPoint(x: 35, y: 70))
+        manager.slider.addChild(sliderTip.node)
         
-        doorMsg = Message(text: "CHANGE THE SKIN", position: CGPoint(x: -50, y: 100))
-        doorMsg.flip(scale: 0.75)
-        manager.door.addChild(doorMsg.node)
+        doorTip = Tip(text: "CHANGE THE SKIN", position: CGPoint(x: -50, y: 100))
+        doorTip.flip(scale: 0.75)
+        manager.door.addChild(doorTip.node)
         
         addChild(world)
         trail = Trail(player: player.node)
         trail.create(in: world)
         
-        platformFactory = PlatformFactory(world: world, 125...200, frame.height/2)
+        platformFactory = PlatformFactory(parent: world, startY: frame.height/2, distance: 125...200)
         cloudFactory = CloudFactory(frame: frame, world: world)
         bounds = Bounds()
         minY = player.y
@@ -77,7 +74,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         if player.alive {
             let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-            
             if col == Collision.playerFood || col == Collision.playerCoin {
                 if let node = extract(node: "item", from: contact) {
                     let item = platformFactory.find(item: node)
@@ -85,25 +81,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
             
-//            minY = platformFactory.collection.isEmpty ? player.y : platformFactory.lowestY()
-            firstContact = true
-            
-            if player.fallingDown() && col == Collision.playerPlatform {
-                player.animate(player.landAnim)
+            if player.falling() && col == Collision.playerPlatform {
+                // Play animation and create trail line
+                player.run(animation: player.landAnim)
                 trail.create(in: world, scale: 30)
                 manager.addEmitter(to: world, filename: "DustParticles", position: contact.contactPoint)
                 
+                // Define platform obj
                 let node = extract(node: "platform", from: contact)!
                 let platform = platformFactory.find(platform: node)
                 
-                player.harm(by: platform.damage)
-                if player.alive {
-                    player.push(power: platform.power)
-                } else {
-                    player.push(power: 70)
-                    finish(wait: 0.7)
-                }
-                
+                // Pick items up
                 if platform.hasItems() {
                     for item in platform.items {
                         if item.wasTouched {
@@ -120,6 +108,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     }
                 }
                 
+                // Harm and push
+                player.harm(by: platform.damage)
+                if player.alive {
+                    player.push(power: platform.power)
+                } else {
+                    player.push(power: 70)
+                    finish(wait: 0.7)
+                }
+                
                 if platform.node.name!.contains("sand") {
                     platform.fall(contactX: contact.contactPoint.x)
                 }
@@ -129,30 +126,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         cam.shake(amplitude: 1, amount: 5, step: 0, duration: 2)
+        
         if !stopped {
             movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.25)
             player.x = movement
             
+            // Define death point
             if let lowestY = platformFactory.lowestY(), player.y > lowestY {
                 minY = lowestY
             }
             
+            // Create trail line
             if trail.distance() > 50 && !ended {
                 trail.create(in: world)
             }
             
+            // Set score
             if player.y/100 > 0 && player.y/100 > CGFloat(player.score) {
-                manager.setScore(points: Int(player.y/100))
-                player.setScore(value: Int(player.y/100))
+                manager.set(score: Int(player.y/100))
+                player.set(score: Int(player.y/100))
             }
         }
         
         if started {
             cam.y = lerp(start: cam.y, end: player.y, percent: cam.easing)
             
-            if player.fallingDown() {
-                if player.currentAnim != player.fallAnim {
-                    player.animate(player.fallAnim)
+            if player.falling() {
+                if player.currAnim != player.fallAnim {
+                    player.run(animation: player.fallAnim)
                 }
                 if player.node.physicsBody!.velocity.dy < -2000 {
                     player.node.physicsBody!.velocity.dy = -2000
@@ -160,8 +161,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             if !ended {
-                getBounds()
-                platformFactory.create(playerY: player.y)
+                _ = getBounds()
+                if platformFactory.can(playerY: player.y) {
+                    platformFactory.create()
+                }
                 platformFactory.remove(minY: bounds.minY)
                 
                 if player.y < minY {
@@ -214,10 +217,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     //                self.manager.hide(nodes: self.player.message!.node)
                 }
                 player.node.removeAllActions()
-                manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore, manager.shadow)
+                manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore)
                 run(push)
-                manager.hide(nodes: sliderMsg.node)
-                doorMsg.node.alpha = 0
+                manager.hide(nodes: sliderTip.node)
+                doorTip.node.alpha = 0
                 
             } else if node == manager.door {
                 manager.door.run(manager.doorAnim)
@@ -252,7 +255,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         else if ended {
-            if node == manager.menuBtn.node || node == manager.menuBtn.label {
+            if node == manager.menuBtn.node || node == manager.menuBtn.lbl {
                 manager.menuBtn.state(pushed: true)
                 triggeredBtn = manager.menuBtn
                 restart()
@@ -329,7 +332,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             let scaleStop = SKAction.sequence([scale, stop])
             self.cam.node.run(SKAction.group([scaleStop, rotate]))
-            self.manager.hide(nodes: self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore, self.manager.shadow)
+            self.manager.hide(nodes: self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
             self.ended = true
         }
         run(SKAction.sequence([wait, action]))
@@ -350,6 +353,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             manager.addLabel(to: world, position: platform.node.position)
         }
         platform.remove(item: item)
+        cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)
     }
     
     private func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {

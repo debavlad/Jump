@@ -30,15 +30,15 @@ class CoinFactory {
         for c in chances {
             let random = Double.random(in: 0...wooden + bronze + golden)
             if random < c.value {
-                return instantiate(type: c.key)
+                return create(type: c.key)
             }
         }
         
         // return the worst platform if we didn't get anything in loop somehow
-        return instantiate(type: .wooden)
+        return create(type: .wooden)
     }
     
-    private func instantiate(type: CoinType) -> Coin {
+    private func create(type: CoinType) -> Coin {
         let node = SKSpriteNode(imageNamed: "\(type.description)0")
             .setCoinSettings()
             .pixelated()
@@ -75,7 +75,6 @@ extension SKSpriteNode {
         let x = CGFloat.random(in: -20...20)
         position = CGPoint(x: x, y: 57)
         physicsBody = SKPhysicsBody(circleOfRadius: 35)
-//        physicsBody?.affectedByGravity = true
         physicsBody?.isDynamic = false
         physicsBody?.categoryBitMask = Categories.coin
         physicsBody?.contactTestBitMask = Categories.player
