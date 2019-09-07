@@ -45,7 +45,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //            print(error.localizedDescription)
 //        }
 //    }
-    var audioPlayer = AVAudioPlayer(), audioPlayer2 = AVAudioPlayer()
+    var audioPlayer = AVAudioPlayer(), audioPlayer2 = AVAudioPlayer(), audioPlayer3 = AVAudioPlayer()
     
     func playingSoundWith(fileName: String) {
         DispatchQueue.global(qos: .background).async {
@@ -77,6 +77,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     print(error.localizedDescription)
                 }
                 self.audioPlayer2.play()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func playingSound3With(fileName: String) {
+        DispatchQueue.global(qos: .background).async {
+            do {
+                self.audioPlayer3 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "wav")!)
+                self.audioPlayer3.prepareToPlay()
+                let session = AVAudioSession()
+                do {
+                    try session.setCategory(.playback)
+                } catch {
+                    print(error.localizedDescription)
+                }
+                self.audioPlayer3.play()
             } catch {
                 print(error)
             }
@@ -311,6 +329,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if !started {
             if node == manager.slider {
                 sliderTouch = touch
+                playingSoundWith(fileName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
                 
@@ -329,6 +348,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 doorTip.node.alpha = 0
                 
             } else if node == manager.door {
+                playingSoundWith(fileName: "door-open")
+                
                 manager.door.run(manager.doorAnim)
                 manager.hide(nodes: manager.line)
                 
@@ -353,16 +374,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         else if started && !ended {
             if node == manager.slider {
                 sliderTouch = touch
+                playingSoundWith(fileName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
             } else if node == manager.pauseBtn {
                 sliderTouch = nil
+                playingSoundWith(fileName: "push-down")
                 stopped ? gameState(paused: false) : gameState(paused: true)
             }
         }
         else if ended {
             if node == manager.menuBtn.node || node == manager.menuBtn.lbl {
                 manager.menuBtn.state(pushed: true)
+                playingSoundWith(fileName: "push-down")
                 triggeredBtn = manager.menuBtn
                 restart()
             }
@@ -388,9 +412,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let st = sliderTouch, touches.contains(st) {
             sliderTouch = nil
+            playingSoundWith(fileName: "push-up")
             manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelated()
         }
         else if triggeredBtn != nil {
+            playingSoundWith(fileName: "push-up")
             triggeredBtn.state(pushed: false)
             triggeredBtn = nil
         }
@@ -465,6 +491,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //            DispatchQueue.global(qos: .background).async {
 //                self.play(sound: "coin-pickup")
 //            }
+        } else if item is Food {
+            playingSound3With(fileName: "food-pickup")
         }
 //        else if item is Food {
 //            DispatchQueue.global(qos: .background).async {

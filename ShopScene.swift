@@ -8,8 +8,11 @@
 
 import Foundation
 import GameplayKit
+import AVFoundation
 
 class ShopScene: SKScene {
+    var audioPlayer = AVAudioPlayer(), audioPlayer2 = AVAudioPlayer()
+    
     private var fade, bg, leftArrow, rightArrow, skin: SKSpriteNode!
     private var naming: SKLabelNode!
     private var triggeredNode: SKNode!
@@ -88,6 +91,50 @@ class ShopScene: SKScene {
         fade.run(fadeOut)
     }
     
+    func playingSoundWith(fileName: String) {
+        DispatchQueue.global(qos: .background).async {
+            do {
+                self.audioPlayer = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "wav")!)
+                self.audioPlayer.prepareToPlay()
+                let session = AVAudioSession()
+                do {
+                    try session.setCategory(.playback)
+                } catch {
+                    print(error.localizedDescription)
+                }
+                if self.audioPlayer.isPlaying {
+                    self.audioPlayer.stop()
+                    self.audioPlayer.currentTime = 0
+                }
+                self.audioPlayer.play()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func playingSound2With(fileName: String) {
+        DispatchQueue.global(qos: .background).async {
+            do {
+                self.audioPlayer2 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "wav")!)
+                self.audioPlayer2.prepareToPlay()
+                let session = AVAudioSession()
+                do {
+                    try session.setCategory(.playback)
+                } catch {
+                    print(error.localizedDescription)
+                }
+                if self.audioPlayer2.isPlaying {
+                    self.audioPlayer2.stop()
+                    self.audioPlayer2.currentTime = 0
+                }
+                self.audioPlayer2.play()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
     func loadSkin(skin: Skin) {
         let textureName = "\(skin.textureName)-sit0"
         self.skin.texture = SKTexture(imageNamed: textureName).pixelated()
@@ -119,9 +166,11 @@ class ShopScene: SKScene {
 //        let node = atPoint(touch.location(in: self))
         
         if touch.location(in: self).x > 0 && curIndex != skins.count - 1 {
+            playingSoundWith(fileName: "push-down")
             rightArrow.yScale = -6
             triggeredNode = rightArrow
         } else if touch.location(in: self).x <= 0 && curIndex != 0 {
+            playingSound2With(fileName: "push-down")
             leftArrow.yScale = -6
             triggeredNode = leftArrow
         }
@@ -129,9 +178,11 @@ class ShopScene: SKScene {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if triggeredNode == rightArrow {
+            playingSoundWith(fileName: "push-up")
             rightArrow.yScale = 6
             curIndex += 1
         } else if triggeredNode == leftArrow {
+            playingSound2With(fileName: "push-up")
             leftArrow.yScale = 6
             curIndex -= 1
         }
