@@ -8,8 +8,12 @@
 
 import SpriteKit
 import GameplayKit
+import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
+//    var audioPlayer, audioPlayer2: AVAudioPlayer?
+    var platformPlayer, coinPlayer, foodPlayer: AVAudioPlayer?
+    
     private var cam: Camera!
     private var manager: Manager!
     private var player: Player!
@@ -27,6 +31,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var started = false, stopped = false, ended = false
     private var bounds: Bounds!
     
+    func play(sound: String, on player: AVAudioPlayer?) {
+        guard let url = Bundle.main.url(forResource: sound, withExtension: "wav") else { return }
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+            let player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.wav.rawValue)
+            guard let player = player else { return }
+            player.volume = 0.1
+            player.play()
+        } catch let error {
+            print(error.localizedDescription)
+        }
+    }
     
     override func didMove(to view: SKView) {
         fade = SKSpriteNode(color: .black, size: frame.size)
@@ -90,6 +107,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 // Define platform obj
                 let node = extract(node: "platform", from: contact)!
                 let platform = platformFactory.find(platform: node)
+                DispatchQueue.global(qos: .background).async {
+                    switch platform.damage {
+                    case 2:
+                        self.play(sound: "dirt-footstep")
+                    case 3:
+                        self.play(sound: "sand-footstep")
+                    case 4:
+                        self.play(sound: "wood-footstep")
+                    case 5:
+                        self.play(sound: "stone-footstep")
+                    default:
+                        break
+                    }
+                }
                 
                 // Pick items up
                 if platform.hasItems() {
@@ -351,6 +382,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.addEmitter(to: world, filename: String(name), position: pos)
         if item is Coin {
             manager.addLabel(to: world, position: platform.node.position)
+            DispatchQueue.global(qos: .background).async {
+                self.play(sound: "coin-pickup")
+            }
+        } else if item is Food {
+            DispatchQueue.global(qos: .background).async {
+                self.play(sound: "food-pickup")
+            }
         }
         platform.remove(item: item)
         cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)

@@ -34,10 +34,10 @@ class PlatformFactory {
         self.parent = parent
         
         data = [
-            PlatformType.dirt : ("dirt-platform", 75, 3),
+            PlatformType.dirt : ("dirt-platform", 75, 2),
             PlatformType.sand : ("sand-platform", 80, 3),
             PlatformType.wood : ("wooden-platform", 85, 4),
-            PlatformType.stone : ("stone-platform", 90, 4)
+            PlatformType.stone : ("stone-platform", 90, 5)
         ]
     }
     
