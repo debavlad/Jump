@@ -17,7 +17,7 @@ class Manager {
     private var width, height: CGFloat
     private(set) var menuBtn: Button!
     private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore: SKLabelNode!
-    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore: SKSpriteNode!
+    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, woodenCoin, bronzeCoin, goldenCoin: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
     
@@ -35,6 +35,9 @@ class Manager {
         hide(nodes: line, hpBorder, pauseBtn)
         
         fade(node: menuBtn.node, to: 1.0, duration: 2, false)
+        fade(node: woodenCoin, to: 1.0, duration: 2, false)
+        fade(node: bronzeCoin, to: 1.0, duration: 2, false)
+        fade(node: goldenCoin, to: 1.0, duration: 2, false)
         fade(node: gameOver, to: 1.0, duration: 2, true)
         fade(node: mScore, to: 1.0, duration: 2, false)
         fade(node: darken, to: 0.5, duration: 1, false)
@@ -144,7 +147,7 @@ class Manager {
         gameOver = SKLabelNode(fontNamed: "FFFForward")
         gameOver.fontSize = 80
         gameOver.text = "Game over!"
-        gameOver.position.y = 350
+        gameOver.position.y = 400
         gameOver.zPosition = 21
         gameOver.alpha = 0
         cam.addChild(gameOver)
@@ -178,7 +181,54 @@ class Manager {
         gameScore.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         cam.addChild(gameScore)
         
-        menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -400))
+        woodenCoin = SKSpriteNode(imageNamed: "wooden0").pixelated()
+        woodenCoin.size = CGSize(width: 90, height: 99)
+        woodenCoin.position.y = 130
+        woodenCoin.zPosition = 21
+        woodenCoin.alpha = 0
+        cam.addChild(woodenCoin)
+
+        let wooden = SKLabelNode(fontNamed: "Coder's Crux")
+        wooden.text = "0"
+        wooden.fontSize = 140
+        wooden.position = CGPoint(x: 70, y: -wooden.frame.height/2 + 4)
+        woodenCoin.addChild(wooden)
+        
+        bronzeCoin = SKSpriteNode(imageNamed: "bronze0").pixelated()
+        bronzeCoin.size = CGSize(width: 90, height: 99)
+        bronzeCoin.position.y = -20
+        bronzeCoin.zPosition = 21
+        bronzeCoin.alpha = 0
+        cam.addChild(bronzeCoin)
+        
+        let bronze = SKLabelNode(fontNamed: "Coder's Crux")
+        bronze.text = "20"
+        bronze.fontSize = 140
+        bronze.position = CGPoint(x: 70, y: -bronze.frame.height/2 + 4)
+        bronzeCoin.addChild(bronze)
+        
+        goldenCoin = SKSpriteNode(imageNamed: "golden0").pixelated()
+        goldenCoin.size = CGSize(width: 90, height: 99)
+        goldenCoin.position.y = -170
+        goldenCoin.zPosition = 21
+        goldenCoin.alpha = 0
+        cam.addChild(goldenCoin)
+        
+        let golden = SKLabelNode(fontNamed: "Coder's Crux")
+        golden.text = "0"
+        golden.fontSize = 140
+        golden.position = CGPoint(x: 70, y: -golden.frame.height/2 + 4)
+        goldenCoin.addChild(golden)
+        
+        wooden.position.x += wooden.frame.width/2
+        bronze.position.x += bronze.frame.width/2
+        golden.position.x += golden.frame.width/2
+        
+        woodenCoin.position.x -= wooden.frame.width/2
+        bronzeCoin.position.x -= bronze.frame.width/2
+        goldenCoin.position.x -= golden.frame.width/2
+        
+        menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -450))
         menuBtn.node.alpha = 0
         cam.addChild(menuBtn.node)
     }

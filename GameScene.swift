@@ -98,10 +98,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player = Player(world.childNode(withName: "Character")!)
         player.turn(left: true)
         
-        sliderTip = Tip(text: "START THE GAME", position: CGPoint(x: 35, y: 70))
+        sliderTip = Tip(text: "START GAME", position: CGPoint(x: 35, y: 70))
         manager.slider.addChild(sliderTip.node)
         
-        doorTip = Tip(text: "CHANGE THE SKIN", position: CGPoint(x: -50, y: 100))
+        doorTip = Tip(text: "CHANGE SKIN", position: CGPoint(x: -50, y: 100))
         doorTip.flip(scale: 0.75)
         manager.door.addChild(doorTip.node)
         
