@@ -11,7 +11,7 @@ import GameplayKit
 import AVFoundation
 
 class ShopScene: SKScene {
-    var audioPlayer = AVAudioPlayer(), audioPlayer2 = AVAudioPlayer()
+    var leftPlayer = AVAudioPlayer(), rightPlayer = AVAudioPlayer()
     
     private var fade, bg, leftArrow, rightArrow, skin: SKSpriteNode!
     private var naming: SKLabelNode!
@@ -23,6 +23,23 @@ class ShopScene: SKScene {
     private var curIndex: Int = 0
     
     override func didMove(to view: SKView) {
+        do {
+            leftPlayer = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "push-down", withExtension: "wav")!)
+            rightPlayer = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "push-down", withExtension: "wav")!)
+            leftPlayer.volume = 0.2
+            rightPlayer.volume = 0.2
+            leftPlayer.prepareToPlay()
+            rightPlayer.prepareToPlay()
+            let session = AVAudioSession()
+            do {
+                try session.setCategory(.playback)
+            } catch {
+                print(error.localizedDescription)
+            }
+            
+        } catch {
+            print(error.localizedDescription)
+        }
         setScene()
     }
     
@@ -91,47 +108,17 @@ class ShopScene: SKScene {
         fade.run(fadeOut)
     }
     
-    func playingSoundWith(fileName: String) {
-        DispatchQueue.global(qos: .background).async {
-            do {
-                self.audioPlayer = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "wav")!)
-                self.audioPlayer.prepareToPlay()
-                let session = AVAudioSession()
-                do {
-                    try session.setCategory(.playback)
-                } catch {
-                    print(error.localizedDescription)
-                }
-                if self.audioPlayer.isPlaying {
-                    self.audioPlayer.stop()
-                    self.audioPlayer.currentTime = 0
-                }
-                self.audioPlayer.play()
-            } catch {
-                print(error)
-            }
-        }
+    enum ButtonPlayer {
+        case left
+        case right
     }
     
-    func playingSound2With(fileName: String) {
-        DispatchQueue.global(qos: .background).async {
-            do {
-                self.audioPlayer2 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "wav")!)
-                self.audioPlayer2.prepareToPlay()
-                let session = AVAudioSession()
-                do {
-                    try session.setCategory(.playback)
-                } catch {
-                    print(error.localizedDescription)
-                }
-                if self.audioPlayer2.isPlaying {
-                    self.audioPlayer2.stop()
-                    self.audioPlayer2.currentTime = 0
-                }
-                self.audioPlayer2.play()
-            } catch {
-                print(error)
-            }
+    func playSound(side: ButtonPlayer) {
+        switch side {
+        case .left:
+            leftPlayer.play()
+        case .right:
+            rightPlayer.play()
         }
     }
     
@@ -166,11 +153,17 @@ class ShopScene: SKScene {
 //        let node = atPoint(touch.location(in: self))
         
         if touch.location(in: self).x > 0 && curIndex != skins.count - 1 {
-            playingSoundWith(fileName: "push-down")
+            playSound(side: .right)
+            if triggeredNode == leftArrow {
+                leftArrow.yScale = 6
+            }
             rightArrow.yScale = -6
             triggeredNode = rightArrow
         } else if touch.location(in: self).x <= 0 && curIndex != 0 {
-            playingSound2With(fileName: "push-down")
+            playSound(side: .left)
+            if triggeredNode == rightArrow {
+                rightArrow.yScale = 6
+            }
             leftArrow.yScale = -6
             triggeredNode = leftArrow
         }
@@ -178,11 +171,9 @@ class ShopScene: SKScene {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if triggeredNode == rightArrow {
-            playingSoundWith(fileName: "push-up")
             rightArrow.yScale = 6
             curIndex += 1
         } else if triggeredNode == leftArrow {
-            playingSound2With(fileName: "push-up")
             leftArrow.yScale = 6
             curIndex -= 1
         }
