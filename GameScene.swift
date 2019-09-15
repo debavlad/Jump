@@ -165,6 +165,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                             switch item {
                             case is Coin:
                                 pick(item: item, platform: platform)
+                                manager.plusCoin(coin: (item as! Coin).mat)
                             case is Food:
                                 player.heal(by: (item as! Food).energy)
                                 pick(item: item, platform: platform)
@@ -284,6 +285,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.cam.node.run(scale)
                 }
                 player.node.removeAllActions()
+                cloudFactory.doubleSpeed()
                 manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore)
                 run(push)
                 manager.hide(nodes: sliderTip.node)

@@ -47,7 +47,7 @@ class CoinFactory {
         let anim = animations[type.description]!
         node.run(SKAction.repeatForever(anim))
         
-        return Coin(node: node)
+        return Coin(node: node, type: type)
     }
 }
 

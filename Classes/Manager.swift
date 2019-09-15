@@ -16,8 +16,8 @@ class Manager {
     
     private var width, height: CGFloat
     private(set) var menuBtn: Button!
-    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore: SKLabelNode!
-    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, woodenCoin, bronzeCoin, goldenCoin: SKSpriteNode!
+    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel: SKLabelNode!
+    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
     
@@ -34,10 +34,16 @@ class Manager {
     func switchUI() {
         hide(nodes: line, hpBorder, pauseBtn)
         
+        // Centering coins' stats
+        for (icon, lbl) in [(wIcon, wLabel), (bIcon, bLabel), (gIcon, gLabel)] {
+            icon!.position.x = -lbl!.frame.width/2
+            lbl!.position.x = icon!.frame.maxX + lbl!.frame.width + 30
+        }
+        
         fade(node: menuBtn.node, to: 1.0, duration: 2, false)
-        fade(node: woodenCoin, to: 1.0, duration: 2, false)
-        fade(node: bronzeCoin, to: 1.0, duration: 2, false)
-        fade(node: goldenCoin, to: 1.0, duration: 2, false)
+        fade(node: wIcon, to: 1.0, duration: 2, false)
+        fade(node: bIcon, to: 1.0, duration: 2, false)
+        fade(node: gIcon, to: 1.0, duration: 2, false)
         fade(node: gameOver, to: 1.0, duration: 2, true)
         fade(node: mScore, to: 1.0, duration: 2, false)
         fade(node: darken, to: 0.5, duration: 1, false)
@@ -181,52 +187,54 @@ class Manager {
         gameScore.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         cam.addChild(gameScore)
         
-        woodenCoin = SKSpriteNode(imageNamed: "wooden0").pixelated()
-        woodenCoin.size = CGSize(width: 90, height: 99)
-        woodenCoin.position.y = 130
-        woodenCoin.zPosition = 21
-        woodenCoin.alpha = 0
-        cam.addChild(woodenCoin)
+        wIcon = SKSpriteNode(imageNamed: "wooden0").pixelated()
+        wIcon.size = CGSize(width: 90, height: 99)
+        wIcon.position.y = 130
+        wIcon.zPosition = 21
+        wIcon.alpha = 0
+        cam.addChild(wIcon)
 
-        let wooden = SKLabelNode(fontNamed: "Coder's Crux")
-        wooden.text = "0"
-        wooden.fontSize = 140
-        wooden.position = CGPoint(x: 70, y: -wooden.frame.height/2 + 4)
-        woodenCoin.addChild(wooden)
+        wLabel = SKLabelNode(fontNamed: "Coder's Crux")
+        wLabel.text = "0"
+        wLabel.fontSize = 140
+        wLabel.position = CGPoint(x: 0, y: -wLabel.frame.height/2 + 4)
+        wIcon.addChild(wLabel)
         
-        bronzeCoin = SKSpriteNode(imageNamed: "bronze0").pixelated()
-        bronzeCoin.size = CGSize(width: 90, height: 99)
-        bronzeCoin.position.y = -20
-        bronzeCoin.zPosition = 21
-        bronzeCoin.alpha = 0
-        cam.addChild(bronzeCoin)
+        bIcon = SKSpriteNode(imageNamed: "bronze0").pixelated()
+        bIcon.size = CGSize(width: 90, height: 99)
+        bIcon.position.y = -20
+        bIcon.zPosition = 21
+        bIcon.alpha = 0
+        cam.addChild(bIcon)
         
-        let bronze = SKLabelNode(fontNamed: "Coder's Crux")
-        bronze.text = "20"
-        bronze.fontSize = 140
-        bronze.position = CGPoint(x: 70, y: -bronze.frame.height/2 + 4)
-        bronzeCoin.addChild(bronze)
+        bLabel = SKLabelNode(fontNamed: "Coder's Crux")
+        bLabel.text = "0"
+        bLabel.fontSize = 140
+        bLabel.position = CGPoint(x: 0, y: -bLabel.frame.height/2 + 4)
+        bIcon.addChild(bLabel)
         
-        goldenCoin = SKSpriteNode(imageNamed: "golden0").pixelated()
-        goldenCoin.size = CGSize(width: 90, height: 99)
-        goldenCoin.position.y = -170
-        goldenCoin.zPosition = 21
-        goldenCoin.alpha = 0
-        cam.addChild(goldenCoin)
+        gIcon = SKSpriteNode(imageNamed: "golden0").pixelated()
+        gIcon.size = CGSize(width: 90, height: 99)
+        gIcon.position.y = -170
+        gIcon.zPosition = 21
+        gIcon.alpha = 0
+        cam.addChild(gIcon)
         
-        let golden = SKLabelNode(fontNamed: "Coder's Crux")
-        golden.text = "0"
-        golden.fontSize = 140
-        golden.position = CGPoint(x: 70, y: -golden.frame.height/2 + 4)
-        goldenCoin.addChild(golden)
+        gLabel = SKLabelNode(fontNamed: "Coder's Crux")
+        gLabel.text = "0"
+        gLabel.fontSize = 140
+        gLabel.position = CGPoint(x: 0, y: -gLabel.frame.height/2 + 4)
+        gIcon.addChild(gLabel)
         
-        wooden.position.x += wooden.frame.width/2
-        bronze.position.x += bronze.frame.width/2
-        golden.position.x += golden.frame.width/2
+//        wLabel.position.x += wLabel.frame.width/2
+//        bLabel.position.x += bLabel.frame.width/2
+//        gLabel.position.x += gLabel.frame.width/2
+//
+//        wIcon.position.x -= wLabel.frame.width/2
+//        bIcon.position.x -= bLabel.frame.width/2
+//        gIcon.position.x -= gLabel.frame.width/2
         
-        woodenCoin.position.x -= wooden.frame.width/2
-        bronzeCoin.position.x -= bronze.frame.width/2
-        goldenCoin.position.x -= golden.frame.width/2
+        print(wLabel.frame.width/2)
         
         menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -450))
         menuBtn.node.alpha = 0
@@ -239,6 +247,20 @@ class Manager {
         ptsScore.text = "\(score)"
         ptsScore.position.x = lblScore.frame.maxX + ptsScore.frame.width/2 + 15
         mScore.position = CGPoint(x: gameOver.position.x - ptsScore.frame.width/2, y: gameOver.position.y - 100)
+    }
+    
+    func plusCoin(coin: CoinType) {
+        switch coin {
+        case .wooden:
+            let curr = Int(wLabel.text!)!
+            wLabel.text = String(curr + 1)
+        case .bronze:
+            let curr = Int(bLabel.text!)!
+            bLabel.text = String(curr + 1)
+        case .golden:
+            let curr = Int(gLabel.text!)!
+            gLabel.text = String(curr + 1)
+        }
     }
     
     private func setAnimations() {
