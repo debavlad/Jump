@@ -358,10 +358,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sliderTouch = nil
             manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelated()
         }
-        else if triggeredBtn != nil {
-            triggeredBtn.state(pushed: false)
-            triggeredBtn = nil
-        }
+//        else if triggeredBtn != nil {
+//            triggeredBtn.state(pushed: false)
+//            triggeredBtn = nil
+//        }
     }
     
     
@@ -391,7 +391,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.manager.switchUI()
             self.playSound(type: .world, audioName: "hurt")
             
-            let scale = SKAction.scale(to: 0.4, duration: 1)
+            let scale = SKAction.scale(to: 0.3, duration: 1)
             scale.timingMode = SKActionTimingMode.easeIn
             scale.speed = 3
             
@@ -431,7 +431,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playSound(type: .food)
         }
         platform.remove(item: item)
-        cam.shake(amplitude: 10, amount: 2, step: 4, duration: 0.08)
+        cam.shake(amplitude: 20, amount: 2, step: 6, duration: 0.08)
     }
     
     private func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {

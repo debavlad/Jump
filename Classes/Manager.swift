@@ -46,8 +46,8 @@ class Manager {
         fade(node: gIcon, to: 1.0, duration: 2, false)
         fade(node: gameOver, to: 1.0, duration: 2, true)
         fade(node: mScore, to: 1.0, duration: 2, false)
-        fade(node: darken, to: 0.5, duration: 1, false)
-        fade(node: red, to: 0.3, duration: 0.6, false)
+        fade(node: darken, to: 0.6, duration: 1, false)
+        fade(node: red, to: 0.4, duration: 0.6, false)
     }
     
     private func setScene(world: SKNode) {
