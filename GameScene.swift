@@ -136,7 +136,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if player.isFalling() && col == Collision.playerPlatform {
                 // Play animation and create trail line
                 player.run(animation: player.landAnim)
-                trail.create(in: world, scale: 30)
+                trail.create(in: world, scale: 32.5)
                 manager.addEmitter(to: world, filename: "DustParticles", position: contact.contactPoint)
                 
                 // Define platform obj
@@ -145,13 +145,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 var audioName: String!
                 switch platform.damage {
-                case 2:
-                    audioName = "dirt-footstep"
                 case 3:
-                    audioName = "sand-footstep"
+                    audioName = "dirt-footstep"
                 case 4:
-                    audioName = "wood-footstep"
+                    audioName = "sand-footstep"
                 case 5:
+                    audioName = "wood-footstep"
+                case 6:
                     audioName = "stone-footstep"
                 default:
                     break
@@ -205,7 +205,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             // Create trail line
-            if trail.distance() > 50 && !ended {
+            if trail.distance() > 60 && !ended {
                 trail.create(in: world)
             }
             

@@ -17,14 +17,15 @@ class Trail {
     init(target: SKSpriteNode) {
         self.target = target
         anim = SKAction.group([SKAction.fadeOut(withDuration: 1),
-                                    SKAction.scale(to: 0.5, duration: 1)])
+                                    SKAction.scale(to: 0.7, duration: 1)])
         anim.timingMode = SKActionTimingMode.easeIn
     }
     
-    func create(in parent: SKNode, scale: CGFloat = 15) {
+    func create(in parent: SKNode, scale: CGFloat = 17.5) {
         // Creating new particle
         let particle = SKSpriteNode(imageNamed: "particle")
         particle.position = target.position
+        particle.zRotation = CGFloat.random(in: -20...20)
         particle.zPosition = 9
         particle.setScale(scale)
         lastParticle = particle
