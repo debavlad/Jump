@@ -10,25 +10,25 @@ import Foundation
 import SpriteKit
 
 class Item: Hashable {
-    let node: SKSpriteNode!
+    let sprite: SKSpriteNode
     var wasTouched = false
-    let type: String!
+    let type: String
     
-    init(node: SKSpriteNode, type: String) {
-        self.node = node
+    init(sprite: SKSpriteNode, type: String) {
+        self.sprite = sprite
         self.type = type
     }
     
-    func disablePhysics() {
-        node.physicsBody?.collisionBitMask = 0
-        node.physicsBody?.contactTestBitMask = 0
-        node.physicsBody?.categoryBitMask = 0
-        node.physicsBody?.allowsRotation = true
-        node.physicsBody?.isDynamic = true
+    func fall() {
+        sprite.physicsBody?.collisionBitMask = 0
+        sprite.physicsBody?.contactTestBitMask = 0
+        sprite.physicsBody?.categoryBitMask = 0
+        sprite.physicsBody?.allowsRotation = true
+        sprite.physicsBody?.isDynamic = true
     }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(node)
+        hasher.combine(sprite)
     }
     
     static func == (lhs: Item, rhs: Item) -> Bool {

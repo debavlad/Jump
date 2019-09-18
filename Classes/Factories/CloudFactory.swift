@@ -43,9 +43,9 @@ class CloudFactory {
         fg.remove(bounds: bounds)
     }
     
-    func doubleSpeed() {
-        bg.doubleSpeed()
-        fg.doubleSpeed()
+    func speedUp() {
+        bg.speedUp()
+        fg.speedUp()
     }
 }
 
@@ -85,10 +85,8 @@ private class Clouds {
         }
     }
     
-    func doubleSpeed() {
-        print(speed)
+    func speedUp() {
         speed *= 2.5
-        print(speed)
     }
     
     func remove(bounds: Bounds) {
@@ -120,23 +118,15 @@ private class Clouds {
         if background {
             let scale = CGFloat.random(in: 12...16)
             cloud = construct(z: -5, scale: scale, alpha: 1)
-//            speed = 0.85
-//            speed = 1
         } else {
             let scale = CGFloat.random(in: 22...28)
             cloud = construct(z: 15, scale: scale, alpha: 0.5)
-//            speed = 0.35
-//            speed = 0.5
         }
         
         if let pos = position {
             cloud.position = pos
-//            let offset = CGFloat.random(in: -200...0)
             cloud.position.x -= cloud.frame.width/2
-//            cloud.position.x -= cloud.frame.width/2 + offset
         } else {
-//            let offset = CGFloat.random(in: -200...0)
-//            let x = CGFloat.random(in: -width...width) - cloud.frame.width/2 + offset
             let x = CGFloat.random(in: -width...width)
             let y = highestY + distance
             highestY = y

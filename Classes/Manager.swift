@@ -40,7 +40,7 @@ class Manager {
             lbl!.position.x = icon!.frame.maxX + lbl!.frame.width + 30
         }
         
-        fade(node: menuBtn.node, to: 1.0, duration: 2, false)
+        fade(node: menuBtn.sprite, to: 1.0, duration: 2, false)
         fade(node: wIcon, to: 1.0, duration: 2, false)
         fade(node: bIcon, to: 1.0, duration: 2, false)
         fade(node: gIcon, to: 1.0, duration: 2, false)
@@ -187,7 +187,7 @@ class Manager {
         gameScore.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         cam.addChild(gameScore)
         
-        wIcon = SKSpriteNode(imageNamed: "wooden0").pixelated()
+        wIcon = SKSpriteNode(imageNamed: "wood0").pixelated()
         wIcon.size = CGSize(width: 90, height: 99)
         wIcon.position.y = 130
         wIcon.zPosition = 21
@@ -226,19 +226,9 @@ class Manager {
         gLabel.position = CGPoint(x: 0, y: -gLabel.frame.height/2 + 4)
         gIcon.addChild(gLabel)
         
-//        wLabel.position.x += wLabel.frame.width/2
-//        bLabel.position.x += bLabel.frame.width/2
-//        gLabel.position.x += gLabel.frame.width/2
-//
-//        wIcon.position.x -= wLabel.frame.width/2
-//        bIcon.position.x -= bLabel.frame.width/2
-//        gIcon.position.x -= gLabel.frame.width/2
-        
-        print(wLabel.frame.width/2)
-        
         menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -450))
-        menuBtn.node.alpha = 0
-        cam.addChild(menuBtn.node)
+        menuBtn.sprite.alpha = 0
+        cam.addChild(menuBtn.sprite)
     }
     
     func set(score: Int) {
@@ -251,7 +241,7 @@ class Manager {
     
     func plusCoin(coin: CoinType) {
         switch coin {
-        case .wooden:
+        case .wood:
             let curr = Int(wLabel.text!)!
             wLabel.text = String(curr + 1)
         case .bronze:
@@ -353,7 +343,6 @@ class Manager {
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4
         
-//        if node is SKLabelNode {
         if shadow {
             let back = node.copy() as! SKLabelNode
             back.zPosition = node.zPosition - 1

@@ -99,14 +99,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.turn(left: true)
         
         sliderTip = Tip(text: "START GAME", position: CGPoint(x: 35, y: 70))
-        manager.slider.addChild(sliderTip.node)
+        manager.slider.addChild(sliderTip.sprite)
         
         doorTip = Tip(text: "CHANGE SKIN", position: CGPoint(x: -50, y: 100))
         doorTip.flip(scale: 0.75)
-        manager.door.addChild(doorTip.node)
+        manager.door.addChild(doorTip.sprite)
         
         addChild(world)
-        trail = Trail(player: player.node)
+        trail = Trail(target: player.sprite)
         trail.create(in: world)
         
         platformFactory = PlatformFactory(parent: world, startY: frame.height/2, distance: 125...200)
@@ -124,16 +124,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
-        if player.alive {
+        if player.isAlive {
             let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if col == Collision.playerFood || col == Collision.playerCoin {
                 if let node = extract(node: "item", from: contact) {
                     let item = platformFactory.find(item: node)
-                    item?.wasTouched = true
+                    item.wasTouched = true
                 }
             }
             
-            if player.falling() && col == Collision.playerPlatform {
+            if player.isFalling() && col == Collision.playerPlatform {
                 // Play animation and create trail line
                 player.run(animation: player.landAnim)
                 trail.create(in: world, scale: 30)
@@ -165,7 +165,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                             switch item {
                             case is Coin:
                                 pick(item: item, platform: platform)
-                                manager.plusCoin(coin: (item as! Coin).mat)
+                                manager.plusCoin(coin: (item as! Coin).material)
                             case is Food:
                                 player.heal(by: (item as! Food).energy)
                                 pick(item: item, platform: platform)
@@ -178,14 +178,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 // Harm and push
                 player.harm(by: platform.damage)
-                if player.alive {
+                if player.isAlive {
                     player.push(power: platform.power)
                 } else {
                     player.push(power: 70)
                     finish(wait: 0.7)
                 }
                 
-                if platform.node.name!.contains("sand") {
+                if platform.sprite.name!.contains("sand") {
                     platform.fall(contactX: contact.contactPoint.x)
                 }
             }
@@ -219,12 +219,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if started {
             cam.y = lerp(start: cam.y, end: player.y, percent: cam.easing)
             
-            if player.falling() {
-                if player.currAnim != player.fallAnim {
+            if player.isFalling() {
+                if player.currentAnim != player.fallAnim {
                     player.run(animation: player.fallAnim)
                 }
-                if player.node.physicsBody!.velocity.dy < -2000 {
-                    player.node.physicsBody!.velocity.dy = -2000
+                if player.sprite.physicsBody!.velocity.dy < -2000 {
+                    player.sprite.physicsBody!.velocity.dy = -2000
                 }
             }
             
@@ -284,12 +284,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     scale.timingMode = SKActionTimingMode.easeIn
                     self.cam.node.run(scale)
                 }
-                player.node.removeAllActions()
-                cloudFactory.doubleSpeed()
+                player.sprite.removeAllActions()
+                cloudFactory.speedUp()
                 manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore)
                 run(push)
-                manager.hide(nodes: sliderTip.node)
-                doorTip.node.alpha = 0
+                manager.hide(nodes: sliderTip.sprite)
+                doorTip.sprite.alpha = 0
                 
             } else if node == manager.door {
                 playSound(type: .world, audioName: "door-open")
@@ -328,7 +328,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         else if ended {
-            if node == manager.menuBtn.node || node == manager.menuBtn.lbl {
+            if node == manager.menuBtn.sprite || node == manager.menuBtn.label {
                 manager.menuBtn.state(pushed: true)
                 playSound(type: .UI, audioName: "push-down")
                 triggeredBtn = manager.menuBtn
@@ -368,7 +368,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func restart() {
         let wait = SKAction.wait(forDuration: 0.6)
         let physics = SKAction.run {
-            self.player.node.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
+            self.player.sprite.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
             self.physicsWorld.gravity = CGVector(dx: 0, dy: -18)
             self.physicsWorld.speed = 1
             self.world.isPaused = false
@@ -415,22 +415,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func pick(item: Item, platform: Platform) {
         // breaditem; goldenitem
-        var name = item.node.name!.dropLast(4)
+        var name = item.sprite.name!.dropLast(4)
         // bread; golden
         name = name.first!.uppercased() + name.dropFirst()
         // Bread; Golden
         name += "Particles"
         // BreadParticles; GoldenParticles
         
-        let pos = CGPoint(x: platform.node.position.x + item.node.position.x, y: platform.node.position.y + item.node.position.y)
+        let pos = CGPoint(x: platform.sprite.position.x + item.sprite.position.x, y: platform.sprite.position.y + item.sprite.position.y)
         manager.addEmitter(to: world, filename: String(name), position: pos)
         if item is Coin {
-            manager.addLabel(to: world, position: platform.node.position)
+            manager.addLabel(to: world, position: platform.sprite.position)
             playSound(type: .coin)
         } else if item is Food {
             playSound(type: .food)
         }
-        platform.remove(item: item)
+        
+        platformFactory.remove(item: item, from: platform)
         cam.shake(amplitude: 20, amount: 2, step: 6, duration: 0.08)
     }
     

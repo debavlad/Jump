@@ -15,51 +15,51 @@ class CoinFactory {
     init() {
         var wooden = [SKTexture](), golden = [SKTexture](), bronze = [SKTexture]()
         for i in 0...7 {
-            wooden.append(SKTexture(imageNamed: "wooden\(i)").pixelated())
+            wooden.append(SKTexture(imageNamed: "wood\(i)").pixelated())
             bronze.append(SKTexture(imageNamed: "bronze\(i)").pixelated())
             golden.append(SKTexture(imageNamed: "golden\(i)").pixelated())
         }
-        animations["wooden"] = SKAction.animate(with: wooden, timePerFrame: 0.1)
+        animations["wood"] = SKAction.animate(with: wooden, timePerFrame: 0.1)
         animations["bronze"] = SKAction.animate(with: bronze, timePerFrame: 0.1)
         animations["golden"] = SKAction.animate(with: golden, timePerFrame: 0.1)
     }
     
     func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
-        let chances = [CoinType.wooden : wooden, CoinType.bronze : bronze, CoinType.golden : golden]
+        let chances = [CoinType.wood : wooden, CoinType.bronze : bronze, CoinType.golden : golden]
         
         for c in chances {
             let random = Double.random(in: 0...wooden + bronze + golden)
             if random < c.value {
-                return create(type: c.key)
+                return create(of: c.key)
             }
         }
         
         // return the worst platform if we didn't get anything in loop somehow
-        return create(type: .wooden)
+        return create(of: .wood)
     }
     
-    private func create(type: CoinType) -> Coin {
-        let node = SKSpriteNode(imageNamed: "\(type.description)0")
+    private func create(of material: CoinType) -> Coin {
+        let sprite = SKSpriteNode(imageNamed: "\(material.description)0")
             .setCoinSettings()
             .pixelated()
-        node.name = type.description + "item"
+        sprite.name = material.description + "item"
         
-        let anim = animations[type.description]!
-        node.run(SKAction.repeatForever(anim))
+        let anim = animations[material.description]!
+        sprite.run(SKAction.repeatForever(anim))
         
-        return Coin(node: node, type: type)
+        return Coin(node: sprite, material: material)
     }
 }
 
 enum CoinType : CustomStringConvertible {
-    case wooden
+    case wood
     case bronze
     case golden
     
     var description: String {
         switch self {
-        case .wooden:
-            return "wooden"
+        case .wood:
+            return "wood"
         case .bronze:
             return "bronze"
         case .golden:

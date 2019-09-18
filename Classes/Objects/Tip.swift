@@ -10,63 +10,63 @@ import Foundation
 import SpriteKit
 
 class Tip {
-    let node: SKSpriteNode!
-    let lbl: SKLabelNode!
+    let sprite: SKSpriteNode!
+    let label: SKLabelNode!
     
     init(text: String, position: CGPoint, flipped: Bool = false) {
-        lbl = SKLabelNode(fontNamed: "Coder's Crux")
-        lbl.text = text
-        lbl.fontColor = .black
-        lbl.fontSize = 50
-        lbl.zPosition = 2
+        label = SKLabelNode(fontNamed: "Coder's Crux")
+        label.text = text
+        label.fontColor = .black
+        label.fontSize = 50
+        label.zPosition = 2
         
         // Gathering parts into one node
         let left = SKSpriteNode(imageNamed: "msg-left").pixelated()
         let mid = SKSpriteNode(imageNamed: "msg-mid").pixelated()
-        let btm = SKSpriteNode(imageNamed: "msg-btm").pixelated()
+        let bottom = SKSpriteNode(imageNamed: "msg-btm").pixelated()
         let right = SKSpriteNode(imageNamed: "msg-right").pixelated()
         
+        sprite = SKSpriteNode()
         let scale: CGFloat = 6.5
-        node = SKSpriteNode()
-        for part in [left, mid, btm, right] {
+        for part in [left, mid, bottom, right] {
             part.size.height *= scale
             part.size.width *= scale
-            node.addChild(part)
+            sprite.addChild(part)
         }
         
         // Setting parts' positions
-        mid.size.width = lbl.frame.width + mid.size.height/2
+        mid.size.width = label.frame.width + mid.size.height/2
         mid.position.x = left.frame.maxX + mid.frame.width/2
-        btm.position = CGPoint(x: mid.frame.minX, y: mid.frame.minY)
+        bottom.position = CGPoint(x: mid.frame.minX, y: mid.frame.minY)
         right.position.x = mid.frame.maxX + right.frame.width/2
-        btm.zPosition = 1
+        bottom.zPosition = 1
         
         // Tip's position
-        lbl.position = CGPoint(x: mid.position.x, y: mid.position.y - lbl.frame.height/2.5)
-        node.position = position
-        node.zPosition = 5
-        node.addChild(lbl)
+        label.position = CGPoint(x: mid.position.x, y: mid.position.y - label.frame.height/2.5)
+        sprite.position = position
+        sprite.zPosition = 5
+        sprite.addChild(label)
         
         // Customizing
         if flipped {
             flip(scale: scale)
         }
-        act()
+        beginMovement()
     }
     
     func flip(scale: CGFloat) {
-        node.xScale = -scale
-        node.yScale = scale
-        lbl.xScale = -1
-        lbl.yScale = 1
+        sprite.xScale = -scale
+        sprite.yScale = scale
+        label.xScale = -1
+        label.yScale = 1
     }
     
-    private func act() {
+    private func beginMovement() {
         let up = SKAction.move(by: CGVector(dx: 0, dy: 10), duration: 1.5)
         up.timingMode = SKActionTimingMode.easeInEaseOut
         let down = SKAction.move(by: CGVector(dx: 0, dy: -10), duration: 1.5)
         down.timingMode = SKActionTimingMode.easeInEaseOut
         let seq = SKAction.sequence([up, down])
-        node.run(SKAction.repeatForever(seq))
+        sprite.run(SKAction.repeatForever(seq))
     }
 }

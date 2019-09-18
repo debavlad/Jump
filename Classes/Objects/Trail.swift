@@ -10,13 +10,12 @@ import Foundation
 import SpriteKit
 
 class Trail {
+    private let target: SKSpriteNode!
     private var lastParticle: SKSpriteNode!
-    private let player: SKSpriteNode!
     private let anim: SKAction!
     
-    init(player: SKSpriteNode) {
-        self.player = player
-        
+    init(target: SKSpriteNode) {
+        self.target = target
         anim = SKAction.group([SKAction.fadeOut(withDuration: 1),
                                     SKAction.scale(to: 0.5, duration: 1)])
         anim.timingMode = SKActionTimingMode.easeIn
@@ -24,22 +23,22 @@ class Trail {
     
     func create(in parent: SKNode, scale: CGFloat = 15) {
         // Creating new particle
-        let point = SKSpriteNode(imageNamed: "particle")
-        point.position = player.position
-        point.zPosition = 9
-        point.setScale(scale)
-        lastParticle = point
+        let particle = SKSpriteNode(imageNamed: "particle")
+        particle.position = target.position
+        particle.zPosition = 9
+        particle.setScale(scale)
+        lastParticle = particle
         
         // Animate and remove
-        let remove = SKAction.run { point.removeFromParent() }
+        let remove = SKAction.run { particle.removeFromParent() }
         let seq = SKAction.sequence([anim, remove])
-        parent.addChild(point)
-        point.run(seq)
+        parent.addChild(particle)
+        particle.run(seq)
     }
     
     func distance() -> CGFloat {
-        let xDist = player.position.x - lastParticle.position.x
-        let yDist = player.position.y - lastParticle.position.y
+        let xDist = target.position.x - lastParticle.position.x
+        let yDist = target.position.y - lastParticle.position.y
         let dist = sqrt((xDist * xDist) + (yDist * yDist))
         return dist
     }

@@ -13,30 +13,18 @@ class Camera {
     let node: SKCameraNode!
     
     var x: CGFloat {
-        set {
-            node.position.x = newValue
-        }
-        get {
-            return node.position.x
-        }
+        set { node.position.x = newValue }
+        get { return node.position.x }
     }
     var y: CGFloat {
-        set {
-            node.position.y = newValue
-        }
-        get {
-            return node.position.y
-        }
+        set { node.position.y = newValue }
+        get { return node.position.y }
     }
     var minY: CGFloat {
-        get {
-            return node.frame.minY
-        }
+        get { return node.frame.minY }
     }
     var maxY: CGFloat {
-        get {
-            return node.frame.maxY
-        }
+        get { return node.frame.maxY }
     }
     var easing: CGFloat!
     
@@ -45,7 +33,6 @@ class Camera {
         node.name = "Cam"
         scene.camera = node
         scene.addChild(node)
-//        easing = 0.065
         easing = 0.07
     }
     

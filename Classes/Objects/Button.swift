@@ -10,33 +10,33 @@ import Foundation
 import SpriteKit
 
 class Button {
-    let node: SKSpriteNode!
-    private(set) var lbl: SKLabelNode!
-    private var pushed: Bool = false
+    let sprite: SKSpriteNode!
+    private(set) var label: SKLabelNode!
+    private var isPushed: Bool = false
     
     init(text: String, position: CGPoint) {
-        node = SKSpriteNode(imageNamed: "long-btn").pixelated()
-        node.position = position
-        node.zPosition = 21
-        node.size = CGSize(width: 575, height: 150)
+        sprite = SKSpriteNode(imageNamed: "long-btn").pixelated()
+        sprite.size = CGSize(width: 575, height: 150)
+        sprite.position = position
+        sprite.zPosition = 21
         
-        lbl = SKLabelNode(fontNamed: "Coder's Crux")
-        lbl.zPosition = 1
-        lbl.position.y = -8
-        lbl.fontSize = 85
-        lbl.fontColor = UIColor(red: 127/255, green: 161/255, blue: 172/255, alpha: 1)
-        lbl.text = text
+        label = SKLabelNode(fontNamed: "Coder's Crux")
+        label.fontColor = UIColor(red: 127/255, green: 161/255, blue: 172/255, alpha: 1)
+        label.fontSize = 85
+        label.zPosition = 1
+        label.position.y = -8
+        label.text = text
         
-        node.addChild(lbl)
+        sprite.addChild(label)
     }
     
     func state(pushed: Bool) {
         if pushed {
-            node.texture = SKTexture(imageNamed: "long-btn-pushed").pixelated()
-            lbl.position.y = -20
+            sprite.texture = SKTexture(imageNamed: "long-btn-pushed").pixelated()
+            label.position.y = -20
         } else {
-            node.texture = SKTexture(imageNamed: "long-btn").pixelated()
-            lbl.position.y = -8
+            sprite.texture = SKTexture(imageNamed: "long-btn").pixelated()
+            label.position.y = -8
         }
     }
 }

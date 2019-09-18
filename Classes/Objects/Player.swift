@@ -11,39 +11,33 @@ import SpriteKit
 
 class Player {
     var x: CGFloat {
-        set {
-            node.position.x = newValue
-        }
-        get {
-            return node.position.x
-        }
+        set { sprite.position.x = newValue }
+        get { return sprite.position.x }
     }
     var y: CGFloat {
-        get {
-            return node.position.y
-        }
+        get { return sprite.position.y }
     }
-    let node: SKSpriteNode!
-    
-    private var hp: Int = 100
-    private(set) var alive = true
+    let sprite: SKSpriteNode
+    private var health: Int = 100
+    private(set) var isAlive = true
     private(set) var score = 0
-    private let green, yellow, red: SKTexture!
-    private let hpBorder, hpStripe: SKSpriteNode!
-    private let maxHpStripeWidth: CGFloat
     
-    private(set) var currAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
+    private let green, yellow, red: SKTexture!
+    private let hpBorder, hpLine: SKSpriteNode!
+    private let maxLineWidth: CGFloat
+    
+    private(set) var currentAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
     
     
     init(_ node: SKNode) {
-        self.node = node as? SKSpriteNode
+        self.sprite = node as! SKSpriteNode
         
         green = SKTexture(imageNamed: "hp-green")
         yellow = SKTexture(imageNamed: "hp-yellow")
         red = SKTexture(imageNamed: "hp-red")
         hpBorder = node.children.first! as? SKSpriteNode
-        hpStripe = hpBorder.children.first! as? SKSpriteNode
-        maxHpStripeWidth = hpStripe.size.width
+        hpLine = hpBorder.children.first! as? SKSpriteNode
+        maxLineWidth = hpLine.size.width
         
         setPhysics()
         setAnimations()
@@ -51,38 +45,38 @@ class Player {
     }
     
     func run(animation: SKAction) {
-        node.run(animation)
-        currAnim = animation
+        sprite.run(animation)
+        currentAnim = animation
     }
     
     func set(score: Int) {
         self.score = score
     }
     
-    func falling() -> Bool {
-        return node.physicsBody!.velocity.dy < 0
+    func isFalling() -> Bool {
+        return sprite.physicsBody!.velocity.dy < 0
     }
     
     func harm(by amount: Int) {
-        set(hp: hp - amount)
+        set(hp: health - amount)
     }
     
     func heal(by amount: Int) {
-        set(hp: hp + amount)
+        set(hp: health + amount)
     }
     
     func push(power: Int) {
-        node.run(jumpAnim)
-        node.physicsBody!.velocity = CGVector()
-        node.physicsBody!.applyImpulse(CGVector(dx: 0, dy: power))
+        sprite.run(jumpAnim)
+        sprite.physicsBody!.velocity = CGVector()
+        sprite.physicsBody!.applyImpulse(CGVector(dx: 0, dy: power))
     }
     
     func turn(left: Bool) {
         if left {
-            node.xScale = -1
+            sprite.xScale = -1
             hpBorder.xScale = -1
         } else {
-            node.xScale = 1
+            sprite.xScale = 1
             hpBorder.xScale = 1
         }
     }
@@ -90,43 +84,43 @@ class Player {
     
     private func set(hp: Int) {
         if hp <= 0 {
-            self.hp = 0
-            alive = false
-            hpStripe.size.width = 0
+            self.health = 0
+            isAlive = false
+            hpLine.size.width = 0
         } else if hp >= 100 {
-            self.hp = 100
-            hpStripe.size.width = maxHpStripeWidth
+            self.health = 100
+            hpLine.size.width = maxLineWidth
         } else {
-            self.hp = hp
-            hpStripe.size.width = maxHpStripeWidth / 100 * CGFloat(hp)
-            setStripeColor()
+            self.health = hp
+            hpLine.size.width = maxLineWidth / 100 * CGFloat(hp)
+            setLineColor()
         }
     }
     
-    private func setStripeColor() {
-        if hp > 0 && hp <= 25 {
-            hpStripe.texture = red
-        } else if hp > 25 && hp <= 50 {
-            hpStripe.texture = yellow
-        } else if hp > 50 && hp <= 100 {
-            hpStripe.texture = green
+    private func setLineColor() {
+        if health <= 25 {
+            hpLine.texture = red
+        } else if health <= 50 {
+            hpLine.texture = yellow
+        } else if health <= 100 {
+            hpLine.texture = green
         }
     }
     
     private func setPhysics() {
-        node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
-        node.physicsBody?.collisionBitMask = Categories.ground
-        node.physicsBody?.categoryBitMask = Categories.player
-        node.physicsBody?.contactTestBitMask = Categories.coin | Categories.food | Categories.platform
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.friction = 0
+        sprite.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
+        sprite.physicsBody?.collisionBitMask = Categories.ground
+        sprite.physicsBody?.categoryBitMask = Categories.player
+        sprite.physicsBody?.contactTestBitMask = Categories.coin | Categories.food | Categories.platform
+        sprite.physicsBody?.allowsRotation = false
+        sprite.physicsBody?.friction = 0
         if GameScene.restarted {
-            node.physicsBody?.restitution = 0.4
+            sprite.physicsBody?.restitution = 0.4
         } else {
-            node.physicsBody?.restitution = 0
+            sprite.physicsBody?.restitution = 0
         }
-        node.physicsBody?.linearDamping = 0
-        node.physicsBody?.angularDamping = 0
+        sprite.physicsBody?.linearDamping = 0
+        sprite.physicsBody?.angularDamping = 0
     }
     
     private func setAnimations() {

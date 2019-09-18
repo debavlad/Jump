@@ -13,14 +13,14 @@ class FoodFactory {
     private var energies = [FoodType : Int]()
     
     init() {
-        energies[FoodType.meat] = 25
-        energies[FoodType.chicken] = 20
-        energies[FoodType.cheese] = 20
-        energies[FoodType.bread] = 15
-        energies[FoodType.egg] = 15
+        energies[FoodType.meat] = 20
+        energies[FoodType.chicken] = 15
+        energies[FoodType.cheese] = 15
+        energies[FoodType.bread] = 10
+        energies[FoodType.egg] = 10
     }
     
-    func random() -> Food {
+    func getRandomFood() -> Food {
         let random = Int.random(in: 0..<energies.count)
         let type = FoodType(rawValue: random)
         let food = create(type: type!)
@@ -29,13 +29,13 @@ class FoodFactory {
     }
     
     private func create(type: FoodType) -> Food {
-        let node = SKSpriteNode(imageNamed: type.description)
+        let sprite = SKSpriteNode(imageNamed: type.description)
             .setFoodSettings()
             .randomize()
             .pixelated()
-        node.name = type.description + "item"
+        sprite.name = type.description + "item"
         
-        return Food(node: node, energy: energies[type]!)
+        return Food(sprite: sprite, energy: energies[type]!)
     }
 }
 

@@ -10,11 +10,16 @@ import Foundation
 import GameplayKit
 import AVFoundation
 
+struct Skin {
+    var title: String
+    var texture: SKTexture
+}
+
 class ShopScene: SKScene {
     var leftPlayer = AVAudioPlayer(), rightPlayer = AVAudioPlayer()
     
-    private var fade, bg, leftArrow, rightArrow, skin: SKSpriteNode!
-    private var naming: SKLabelNode!
+    private var fade, bg, leftArrow, rightArrow, skinSprite: SKSpriteNode!
+    private var skinTitle: SKLabelNode!
     private var triggeredNode: SKNode!
     private var pages: [SKSpriteNode] = []
     private var cam: Camera!
@@ -52,12 +57,12 @@ class ShopScene: SKScene {
         cam = Camera(scene: self)
         cam.node.setScale(0.8)
         
-        skin = SKSpriteNode(imageNamed: "\(GameScene.skinName)-jump0").pixelated()
-        skin.zPosition = 2
-        skin.setScale(3)
-        skin.xScale = -3
-        skin.position = CGPoint(x: 0, y: -230)
-        addChild(skin)
+        skinSprite = SKSpriteNode(imageNamed: "\(GameScene.skinName)-jump0").pixelated()
+        skinSprite.zPosition = 2
+        skinSprite.setScale(3)
+        skinSprite.xScale = -3
+        skinSprite.position = CGPoint(x: 0, y: -230)
+        addChild(skinSprite)
         
         leftArrow = SKSpriteNode(imageNamed: "disabled-arrow").pixelated()
         leftArrow.zPosition = 2
@@ -72,20 +77,20 @@ class ShopScene: SKScene {
         rightArrow.setScale(6)
         cam.node.addChild(rightArrow)
         
-        naming = SKLabelNode(fontNamed: "Coder's Crux")
-        naming.fontSize = 70
-        naming.position.y = 60
-        naming.zPosition = 2
-        addChild(naming)
+        skinTitle = SKLabelNode(fontNamed: "Coder's Crux")
+        skinTitle.fontSize = 70
+        skinTitle.position.y = 60
+        skinTitle.zPosition = 2
+        addChild(skinTitle)
         
         fade = SKSpriteNode(color: .black, size: frame.size)
         fade.zPosition = 5
         addChild(fade)
         
         skins = [
-            Skin(name: "Farmer", textureName: "farmer"),
-            Skin(name: "Zombie", textureName: "zombie"),
-            Skin(name: "Businessman", textureName: "bman")
+            Skin(title: "Farmer", texture: SKTexture(imageNamed: "farmer-sit0").pixelated()),
+            Skin(title: "Zombie", texture: SKTexture(imageNamed: "zombie-sit0").pixelated()),
+            Skin(title: "Businessman", texture: SKTexture(imageNamed: "bman-sit0").pixelated())
         ]
         
         let pageCounter = SKNode()
@@ -123,9 +128,8 @@ class ShopScene: SKScene {
     }
     
     func loadSkin(skin: Skin) {
-        let textureName = "\(skin.textureName)-sit0"
-        self.skin.texture = SKTexture(imageNamed: textureName).pixelated()
-        self.naming.text = skin.name
+        self.skinSprite.texture = skin.texture
+        self.skinTitle.text = skin.title
         
         for i in 0..<pages.count {
             if i == curIndex {

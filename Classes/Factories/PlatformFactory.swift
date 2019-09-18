@@ -12,8 +12,9 @@ import SpriteKit
 class PlatformFactory {
     var highestY: CGFloat
     let distance: ClosedRange<CGFloat>!
-    private(set) var collection: Set<Platform>!
-    private let data: [PlatformType : (texture: String, power: Int, damage: Int)]!
+    private(set) var platforms: Set<Platform>!
+    private(set) var items: Set<Item>!
+    private let data: [PlatformType : (textureName: String, power: Int, damage: Int)]!
     private var lastPlatformType = PlatformType.dirt
     private let parent: SKNode!
     
@@ -30,7 +31,8 @@ class PlatformFactory {
         self.distance = distance
         coinFactory = CoinFactory()
         foodFactory = FoodFactory()
-        collection = Set<Platform>()
+        platforms = Set<Platform>()
+        items = Set<Item>()
         self.parent = parent
         
         data = [
@@ -45,11 +47,22 @@ class PlatformFactory {
         let type = randomType()
         lastPlatformType = type
         
-        let x = CGFloat.random(in: -width...width)
-        let y = highestY + CGFloat.random(in: distance)
-        let pos = CGPoint(x: x, y: y)
-        let platform = construct(type: type, position: pos)
-        highestY = type == .dirt ? pos.y + 150: pos.y
+        let position = CGPoint(x: CGFloat.random(in: -width...width),
+                               y: highestY + CGFloat.random(in: distance))
+        let platform = construct(type: type, position: position)
+        highestY = type == .dirt ? position.y + 150: position.y
+        
+        let coin = hasItem(chance: 0.5) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
+        if let c = coin {
+            platform.add(item: c)
+            items.insert(c)
+        }
+        
+        let food = hasItem(chance: 0.2) ? foodFactory.getRandomFood() : nil
+        if let f = food {
+            platform.add(item: f)
+            items.insert(f)
+        }
         
         switch type {
         case .dirt:
@@ -60,62 +73,50 @@ class PlatformFactory {
             platform.moveByX(width: width)
         }
         
-        let coin = hasItem(chance: 0.5) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
-        if let c = coin {
-            platform.add(item: c)
-        }
-        
-        let food = hasItem(chance: 0.2) ? foodFactory.random() : nil
-        if let f = food {
-            platform.add(item: f)
-        }
-        
-        parent.addChild(platform.node)
-        collection.insert(platform)
+        parent.addChild(platform.sprite)
+        platforms.insert(platform)
     }
     
     func remove(minY: CGFloat) {
-        collection.forEach { (platform) in
-            var top = platform.node.frame.maxY
-            if let item = platform.node.children.first(where: { (child) -> Bool in
+        platforms.forEach { (platform) in
+            var top = platform.sprite.frame.maxY
+            if let item = platform.sprite.children.first(where: { (child) -> Bool in
                 return child.name!.contains("item")
             }) {
                 top += item.frame.maxY - 30
             }
             
             if top < minY {
-                platform.node.removeFromParent()
-                collection.remove(platform)
+                platform.sprite.removeFromParent()
+                platforms.remove(platform)
             }
         }
     }
     
-    func find(item: SKNode) -> Item? {
-        for platform in collection {
-            if platform.hasItems() {
-                if let res = platform.items.first(where: { (i) -> Bool in
-                    i.node == item
-                }) {
-                    return res
-                }
-            }
-        }
-        return nil
+    func find(item node: SKNode) -> Item {
+        return items.first(where: { (i) -> Bool in
+            i.sprite == node
+        })!
+    }
+    
+    func remove(item: Item, from platform: Platform) {
+        items.remove(item)
+        platform.remove(item: item)
     }
     
     func find(platform: SKNode) -> Platform {
-        return collection.first(where: { (p) -> Bool in
-            p.node == platform
+        return platforms.first(where: { (p) -> Bool in
+            p.sprite == platform
         })!
     }
     
     func lowestY() -> CGFloat? {
         var minY: CGFloat? = nil
-        if let first = collection.first {
-            minY = first.node.position.y
-            collection.forEach { (platform) in
-                if platform.node.position.y < minY! {
-                    minY = platform.node.position.y
+        if let first = platforms.first {
+            minY = first.sprite.position.y
+            platforms.forEach { (platform) in
+                if platform.sprite.position.y < minY! {
+                    minY = platform.sprite.position.y
                 }
             }
         }
@@ -134,7 +135,7 @@ class PlatformFactory {
     
     private func construct(type: PlatformType, position: CGPoint) -> Platform {
         let platform = Platform(data[type]!)
-        platform.node.position = position
+        platform.sprite.position = position
         return platform
     }
     
