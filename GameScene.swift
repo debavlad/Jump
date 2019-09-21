@@ -45,11 +45,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 switch type {
                 case .platform, .UI, .world:
                     self.platformAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: audioName, withExtension: "wav")!)
-                    self.platformAudio.prepareToPlay()
+//                    self.platformAudio.prepareToPlay()
                     player = self.platformAudio
                 case .coin:
                     player = self.coinAudio
                 case .food:
+                    self.foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food" + String(Int.random(in: 1...2)), withExtension: "wav")!)
                     player = self.foodAudio
                 }
             } catch {
@@ -60,6 +61,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 player.volume = 0.6
             }
             
+            player.prepareToPlay()
             player.play()
         }
     }
@@ -67,7 +69,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         do {
             coinAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "coin-pickup", withExtension: "wav")!)
-            foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food-pickup", withExtension: "wav")!)
+            foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food1", withExtension: "wav")!)
             coinAudio.prepareToPlay()
             foodAudio.prepareToPlay()
             
@@ -358,10 +360,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sliderTouch = nil
             manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelated()
         }
-//        else if triggeredBtn != nil {
-//            triggeredBtn.state(pushed: false)
-//            triggeredBtn = nil
-//        }
+        else if triggeredBtn != nil {
+            triggeredBtn.state(pushed: false)
+            triggeredBtn = nil
+        }
     }
     
     

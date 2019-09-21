@@ -17,7 +17,7 @@ class Tip {
         label = SKLabelNode(fontNamed: "Coder's Crux")
         label.text = text
         label.fontColor = .black
-        label.fontSize = 50
+        label.fontSize = 60
         label.zPosition = 2
         
         // Gathering parts into one node
@@ -29,7 +29,7 @@ class Tip {
         sprite = SKSpriteNode()
         let scale: CGFloat = 6.5
         for part in [left, mid, bottom, right] {
-            part.size.height *= scale
+            part.size.height *= scale * 1.2
             part.size.width *= scale
             sprite.addChild(part)
         }

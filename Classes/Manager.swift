@@ -229,6 +229,22 @@ class Manager {
         menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -450))
         menuBtn.sprite.alpha = 0
         cam.addChild(menuBtn.sprite)
+        
+//        let topIcon = SKSpriteNode(imageNamed: "wood0").pixelated()
+//        topIcon.size = CGSize(width: 72, height: 81)
+//        topIcon.position.y = height - 100
+//        topIcon.zPosition = 21
+//        cam.addChild(topIcon)
+//        
+//        let topLabel = SKLabelNode(fontNamed: "Coder's Crux")
+//        topLabel.text = "12"
+//        topLabel.fontSize = 112
+//        topLabel.fontColor = .darkGray
+//        topLabel.position = CGPoint(x: 0, y: -topLabel.frame.height/2 + 4)
+//        topIcon.addChild(topLabel)
+//        
+//        topIcon.position.x = -topLabel.frame.width/2
+//        topLabel.position.x = topIcon.frame.maxX + topLabel.frame.width + 25
     }
     
     func set(score: Int) {
