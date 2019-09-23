@@ -127,6 +127,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func didBegin(_ contact: SKPhysicsContact) {
         if player.isAlive {
+            print("Hello, world!")
             let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if col == Collision.playerFood || col == Collision.playerCoin {
                 if let node = extract(node: "item", from: contact) {
