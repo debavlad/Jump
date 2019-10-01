@@ -28,7 +28,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var started = false, stopped = false, ended = false
     private var bounds: Bounds!
     
-    var platformAudio = AVAudioPlayer(), coinAudio = AVAudioPlayer(), foodAudio = AVAudioPlayer()
+//    var platformAudio = AVAudioPlayer(), coinAudio = AVAudioPlayer(), foodAudio = AVAudioPlayer()
     
     enum AudioPlayerType {
         case UI
@@ -39,49 +39,49 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func playSound(type: AudioPlayerType, audioName: String = "") {
-        DispatchQueue.global(qos: .background).async {
-            var player: AVAudioPlayer!
-            do {
-                switch type {
-                case .platform, .UI, .world:
-                    self.platformAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: audioName, withExtension: "wav")!)
-//                    self.platformAudio.prepareToPlay()
-                    player = self.platformAudio
-                case .coin:
-                    player = self.coinAudio
-                case .food:
-                    self.foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food" + String(Int.random(in: 1...2)), withExtension: "wav")!)
-                    player = self.foodAudio
-                }
-            } catch {
-                print(error.localizedDescription)
-            }
-            
-            if type == .UI {
-                player.volume = 0.6
-            }
-            
-            player.prepareToPlay()
-            player.play()
-        }
+//        DispatchQueue.global(qos: .background).async {
+//            var player: AVAudioPlayer!
+//            do {
+//                switch type {
+//                case .platform, .UI, .world:
+//                    self.platformAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: audioName, withExtension: "wav")!)
+////                    self.platformAudio.prepareToPlay()
+//                    player = self.platformAudio
+//                case .coin:
+//                    player = self.coinAudio
+//                case .food:
+//                    self.foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food" + String(Int.random(in: 1...2)), withExtension: "wav")!)
+//                    player = self.foodAudio
+//                }
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//
+//            if type == .UI {
+//                player.volume = 0.6
+//            }
+//
+//            player.prepareToPlay()
+//            player.play()
+//        }
     }
     
     override func didMove(to view: SKView) {
-        do {
-            coinAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "coin-pickup", withExtension: "wav")!)
-            foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food1", withExtension: "wav")!)
-            coinAudio.prepareToPlay()
-            foodAudio.prepareToPlay()
-            
-            let session = AVAudioSession()
-            do {
-                try session.setCategory(.playback)
-            } catch {
-                print(error.localizedDescription)
-            }
-        } catch {
-            print(error.localizedDescription)
-        }
+//        do {
+//            coinAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "coin-pickup", withExtension: "wav")!)
+//            foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food1", withExtension: "wav")!)
+//            coinAudio.prepareToPlay()
+//            foodAudio.prepareToPlay()
+//
+//            let session = AVAudioSession()
+//            do {
+//                try session.setCategory(.playback)
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//        } catch {
+//            print(error.localizedDescription)
+//        }
         
         fade = SKSpriteNode(color: .black, size: frame.size)
         fade.alpha = GameScene.restarted ? 1 : 0

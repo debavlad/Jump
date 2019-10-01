@@ -52,13 +52,13 @@ class PlatformFactory {
         let platform = construct(type: type, position: position)
         highestY = type == .dirt ? position.y + 150: position.y
         
-        let coin = hasItem(chance: 0.5) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
+        let coin = hasItem(chance: 0.2) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
         if let c = coin {
             platform.add(item: c)
             items.insert(c)
         }
         
-        let food = hasItem(chance: 0.2) ? foodFactory.getRandomFood() : nil
+        let food = hasItem(chance: 0.15) ? foodFactory.getRandomFood() : nil
         if let f = food {
             platform.add(item: f)
             items.insert(f)

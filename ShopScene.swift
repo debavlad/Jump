@@ -17,7 +17,7 @@ struct Skin {
 }
 
 class ShopScene: SKScene {
-    var player1 = AVAudioPlayer(), player2 = AVAudioPlayer()
+//    var player1 = AVAudioPlayer(), player2 = AVAudioPlayer()
     
     private var fade, bg, leftArrow, rightArrow, skinSprite: SKSpriteNode!
     private var skinTitle: SKLabelNode!
@@ -30,23 +30,23 @@ class ShopScene: SKScene {
     private var curIndex: Int!
     
     override func didMove(to view: SKView) {
-        do {
-            player1 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "push-down", withExtension: "wav")!)
-            player2 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "push-down", withExtension: "wav")!)
-            player1.volume = 0.2
-            player2.volume = 0.2
-            player1.prepareToPlay()
-            player2.prepareToPlay()
-            let session = AVAudioSession()
-            do {
-                try session.setCategory(.playback)
-            } catch {
-                print(error.localizedDescription)
-            }
-            
-        } catch {
-            print(error.localizedDescription)
-        }
+//        do {
+//            player1 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "push-down", withExtension: "wav")!)
+//            player2 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "push-down", withExtension: "wav")!)
+//            player1.volume = 0.2
+//            player2.volume = 0.2
+//            player1.prepareToPlay()
+//            player2.prepareToPlay()
+//            let session = AVAudioSession()
+//            do {
+//                try session.setCategory(.playback)
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//
+//        } catch {
+//            print(error.localizedDescription)
+//        }
         setScene()
     }
     
@@ -134,11 +134,11 @@ class ShopScene: SKScene {
     }
     
     func playSound() {
-        if !player1.isPlaying {
-            player1.play()
-        } else {
-            player2.play()
-        }
+//        if !player1.isPlaying {
+//            player1.play()
+//        } else {
+//            player2.play()
+//        }
     }
     
     func loadSkin(skin: Skin) {
