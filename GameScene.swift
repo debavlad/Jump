@@ -291,14 +291,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 cloudFactory.speedUp()
                 manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore)
                 run(push)
-                manager.hide(nodes: sliderTip.sprite)
+                manager.hide(nodes: sliderTip.sprite, manager.w, manager.b, manager.g)
                 doorTip.sprite.alpha = 0
                 
             } else if node == manager.door {
                 playSound(type: .world, audioName: "door-open")
                 
                 manager.door.run(manager.doorAnim)
-                manager.hide(nodes: manager.line)
+                manager.hide(nodes: manager.line, manager.w, manager.b, manager.g)
                 
                 let scale = SKAction.scale(to: 0.025, duration: 1)
                 scale.timingMode = SKActionTimingMode.easeInEaseOut
@@ -379,6 +379,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         let act = SKAction.run {
             GameScene.restarted = true
+            
+            let defaults = UserDefaults.standard
+            var wq : Int = defaults.value(forKey: "wooden") as? Int ?? 0
+            wq += Int(self.manager.wLabel.text!)!
+            defaults.set(wq, forKey: "wooden")
+            var bq : Int = defaults.value(forKey: "bronze") as? Int ?? 0
+            bq += Int(self.manager.bLabel.text!)!
+            defaults.set(bq, forKey: "bronze")
+            var gq : Int = defaults.value(forKey: "golden") as? Int ?? 0
+            gq += Int(self.manager.gLabel.text!)!
+            defaults.set(gq, forKey: "golden")
+            
             let scene = GameScene(size: self.frame.size)
             scene.scaleMode = SKSceneScaleMode.aspectFill
             self.view!.presentScene(scene)
@@ -413,6 +425,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.manager.hide(nodes: self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
             self.ended = true
         }
+        
         run(SKAction.sequence([wait, action]))
     }
     

@@ -16,8 +16,8 @@ class Manager {
     
     private var width, height: CGFloat
     private(set) var menuBtn: Button!
-    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel: SKLabelNode!
-    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon: SKSpriteNode!
+    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel, wl, bl, gl: SKLabelNode!
+    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon, w, b, g: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
     
@@ -225,6 +225,50 @@ class Manager {
         gLabel.fontSize = 140
         gLabel.position = CGPoint(x: 0, y: -gLabel.frame.height/2 + 4)
         gIcon.addChild(gLabel)
+        
+        w = SKSpriteNode(imageNamed: "wood0").pixelated()
+        w.size = CGSize(width: 81, height: 90)
+        w.position.y = height - 100
+        w.position.x = -width + 100
+        cam.addChild(w)
+        
+        let defaults = UserDefaults.standard
+        
+        wl = SKLabelNode(fontNamed: "Coder's Crux")
+        wl.text = String(defaults.value(forKey: "wooden") as! Int)
+        wl.fontSize = 120
+        wl.position.x = w.frame.width/2 + wl.frame.width/2 + 25
+        wl.position.y = -wl.frame.height/2 + 2
+        wl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+        w.addChild(wl)
+        
+        b = SKSpriteNode(imageNamed: "bronze0").pixelated()
+        b.size = CGSize(width: 81, height: 90)
+        b.position.y = w.frame.minY - 70
+        b.position.x = -width + 100
+        cam.addChild(b)
+        
+        bl = SKLabelNode(fontNamed: "Coder's Crux")
+        bl.text = String(defaults.value(forKey: "bronze") as! Int)
+        bl.fontSize = 120
+        bl.position.x = b.frame.width/2 + bl.frame.width/2 + 25
+        bl.position.y = -bl.frame.height/2 + 2
+        bl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+        b.addChild(bl)
+        
+        g = SKSpriteNode(imageNamed: "golden0").pixelated()
+        g.size = CGSize(width: 81, height: 90)
+        g.position.y = b.frame.minY - 70
+        g.position.x = -width + 100
+        cam.addChild(g)
+        
+        gl = SKLabelNode(fontNamed: "Coder's Crux")
+        gl.text = String(defaults.value(forKey: "golden") as! Int)
+        gl.fontSize = 120
+        gl.position.x = g.frame.width/2 + gl.frame.width/2 + 25
+        gl.position.y = -gl.frame.height/2 + 2
+        gl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+        g.addChild(gl)
         
         menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -450))
         menuBtn.sprite.alpha = 0
