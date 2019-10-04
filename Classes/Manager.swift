@@ -270,7 +270,7 @@ class Manager {
         gl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         g.addChild(gl)
         
-        menuBtn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -450))
+        menuBtn = Button(text: "BACK TO MENU", color: .Blue, position: CGPoint(x: 0, y: -450))
         menuBtn.sprite.alpha = 0
         cam.addChild(menuBtn.sprite)
         

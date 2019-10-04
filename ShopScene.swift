@@ -11,19 +11,23 @@ import GameplayKit
 import AVFoundation
 
 struct Skin {
-    var title: String
+    var title, name: String
     var texture: SKTexture
-    var name: String
+    var owned, set: Bool
+    var price: Int
+    var cointype: CoinType
 }
 
 class ShopScene: SKScene {
 //    var player1 = AVAudioPlayer(), player2 = AVAudioPlayer()
+    let defaults = UserDefaults.standard
+    var w, b, g: Int!
     
     private var fade, bg, leftArrow, rightArrow, skinSprite: SKSpriteNode!
     private var skinTitle: SKLabelNode!
     private var triggeredNode: SKNode!
     private var pages: [SKSpriteNode] = []
-    private var btn: Button!
+    private var btn, btn2: Button!
     private var cam: Camera!
     let height = UIScreen.main.bounds.height
     
@@ -31,6 +35,10 @@ class ShopScene: SKScene {
     private var curIndex: Int!
     
     override func didMove(to view: SKView) {
+        w = defaults.value(forKey: "wooden") as? Int
+        print(w)
+        b = defaults.value(forKey: "bronze") as? Int
+        g = defaults.value(forKey: "golden") as? Int
 //        do {
 //            player1 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "push-down", withExtension: "wav")!)
 //            player2 = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "push-down", withExtension: "wav")!)
@@ -96,10 +104,16 @@ class ShopScene: SKScene {
         addChild(fade)
         
         skins = [
-            Skin(title: "Farmer", texture: SKTexture(imageNamed: "farmer-sit0").pixelated(), name: "farmer"),
-            Skin(title: "Zombie", texture: SKTexture(imageNamed: "zombie-sit0").pixelated(), name: "zombie"),
-            Skin(title: "Businessman", texture: SKTexture(imageNamed: "bman-sit0").pixelated(), name: "bman")
+            Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").pixelated(), owned: true, set: true, price: 0, cointype: .wood),
+            Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").pixelated(), owned: false, set: false, price: 90, cointype: .wood),
+            Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").pixelated(), owned: false, set: false, price: 40, cointype: .bronze)
         ]
+        
+        btn = Button(text: "BACK TO MENU", color: .Gray, position: CGPoint(x: 0, y: -height + 150))
+        cam.node.addChild(btn.sprite)
+        
+        btn2 = Button(price: 90, type: .wood, y: btn.sprite.position.y + 180)
+        cam.node.addChild(btn2.sprite)
         
         let pageCounter = SKNode()
         pageCounter.position = CGPoint(x: -50, y: 30 + 140 + bg.position.y)
@@ -125,11 +139,6 @@ class ShopScene: SKScene {
         let fadeOut = SKAction.fadeOut(withDuration: 0.3)
         fadeOut.timingMode = SKActionTimingMode.easeOut
         fade.run(fadeOut)
-        
-        btn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -height + 150))
-        let btn2 = Button(text: "BUY", position: CGPoint(x: 0, y: btn.sprite.position.y + 180))
-        cam.node.addChild(btn.sprite)
-        cam.node.addChild(btn2.sprite)
     }
     
     enum ButtonPlayer {
@@ -149,6 +158,14 @@ class ShopScene: SKScene {
         self.skinSprite.texture = skin.texture
         self.skinTitle.text = skin.title
         GameScene.skinName = skin.name
+        btn2.setPrice(amount: skin.price, type: skin.cointype)
+        if (skin.cointype == .wood && skin.price > w) ||
+            (skin.cointype == .bronze && skin.price > b) ||
+            (skin.cointype == .golden && skin.price > g) {
+            btn2.setColor(color: .Gray)
+        } else {
+            btn2.setColor(color: .Green)
+        }
         
         for i in 0..<pages.count {
             if i == curIndex {
@@ -175,7 +192,11 @@ class ShopScene: SKScene {
         let touch = touches.first!
         let node = atPoint(touch.location(in: self))
         
-        if node == btn.sprite || node == btn.label {
+        if node == btn2.sprite || node == btn2.label {
+            btn2.state(pushed: true)
+            triggeredNode = btn2.sprite
+        }
+        else if node == btn.sprite || node == btn.label {
             playSound()
             btn.state(pushed: true)
             triggeredNode = btn.sprite
@@ -236,6 +257,8 @@ class ShopScene: SKScene {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if triggeredNode == btn.sprite {
             btn.state(pushed: false)
+        } else if triggeredNode == btn2.sprite {
+            btn2.state(pushed: false)
         } else if triggeredNode == rightArrow {
             rightArrow.yScale = 7
             curIndex += 1
