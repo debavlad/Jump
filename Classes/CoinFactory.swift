@@ -13,15 +13,28 @@ class CoinFactory {
     private var animations = [String : SKAction]()
     
     init() {
-        var wooden = [SKTexture](), golden = [SKTexture](), bronze = [SKTexture]()
+        setAnimations()
+    }
+    
+    func setAnimations() {
+        var textures = [SKTexture]()
         for i in 0...7 {
-            wooden.append(SKTexture(imageNamed: "wood\(i)").px())
-            bronze.append(SKTexture(imageNamed: "bronze\(i)").px())
-            golden.append(SKTexture(imageNamed: "golden\(i)").px())
+            textures.append(SKTexture(imageNamed: "wood\(i)").px())
         }
-        animations["wood"] = SKAction.animate(with: wooden, timePerFrame: 0.1)
-        animations["bronze"] = SKAction.animate(with: bronze, timePerFrame: 0.1)
-        animations["golden"] = SKAction.animate(with: golden, timePerFrame: 0.1)
+        animations["wood"] = SKAction.animate(with: textures, timePerFrame: 0.1)
+        textures.removeAll(keepingCapacity: true)
+        
+        for i in 0...7 {
+            textures.append(SKTexture(imageNamed: "bronze\(i)").px())
+        }
+        animations["bronze"] = SKAction.animate(with: textures, timePerFrame: 0.1)
+        textures.removeAll(keepingCapacity: true)
+        
+        for i in 0...7 {
+            textures.append(SKTexture(imageNamed: "golden\(i)").px())
+        }
+        animations["golden"] = SKAction.animate(with: textures, timePerFrame: 0.1)
+        textures.removeAll()
     }
     
     func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
@@ -38,16 +51,16 @@ class CoinFactory {
         return create(of: .wood)
     }
     
-    private func create(of material: Currency) -> Coin {
-        let sprite = SKSpriteNode(imageNamed: "\(material.description)0")
+    private func create(of currency: Currency) -> Coin {
+        let sprite = SKSpriteNode(imageNamed: "\(currency.description)0")
             .setCoinSettings()
             .px()
-        sprite.name = material.description + "item"
+        sprite.name = currency.description + "item"
         
-        let anim = animations[material.description]!
+        let anim = animations[currency.description]!
         sprite.run(SKAction.repeatForever(anim))
         
-        return Coin(node: sprite, material: material)
+        return Coin(node: sprite, currency: currency)
     }
 }
 

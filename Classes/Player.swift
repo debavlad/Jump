@@ -114,40 +114,35 @@ class Player {
         sprite.physicsBody?.contactTestBitMask = Categories.coin | Categories.food | Categories.platform
         sprite.physicsBody?.allowsRotation = false
         sprite.physicsBody?.friction = 0
-        if GameScene.restarted {
-            sprite.physicsBody?.restitution = 0.4
-        } else {
-            sprite.physicsBody?.restitution = 0
-        }
+        sprite.physicsBody?.restitution = GameScene.restarted ? 0.4 : 0
         sprite.physicsBody?.linearDamping = 0
         sprite.physicsBody?.angularDamping = 0
     }
     
     private func setAnimations() {
-        var jumpTextures = [SKTexture](),
-            fallTextures = [SKTexture](),
-            landTextures = [SKTexture](),
-            sitTextures = [SKTexture]()
-        
+        var textures = [SKTexture]()
         for i in 0...3 {
-            jumpTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
+            textures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
         }
+        jumpAnim = SKAction.animate(with: textures, timePerFrame: 0.11)
+        textures.removeAll(keepingCapacity: true)
         
         for i in 4...5 {
-            fallTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
+            textures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
         }
+        fallAnim = SKAction.animate(with: textures, timePerFrame: 0.11)
+        textures.removeAll(keepingCapacity: true)
         
         for i in 6...8 {
-            landTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
+            textures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
         }
+        landAnim = SKAction.animate(with: textures, timePerFrame: 0.06)
+        textures.removeAll(keepingCapacity: true)
         
         for i in 0...7 {
-            sitTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-sit\(i)").px())
+            textures.append(SKTexture(imageNamed: "\(GameScene.skinName)-sit\(i)").px())
         }
-        
-        jumpAnim = SKAction.animate(with: jumpTextures, timePerFrame: 0.11)
-        fallAnim = SKAction.animate(with: fallTextures, timePerFrame: 0.11)
-        landAnim = SKAction.animate(with: landTextures, timePerFrame: 0.06)
-        sitAnim = SKAction.animate(with: sitTextures, timePerFrame: 0.15)
+        sitAnim = SKAction.animate(with: textures, timePerFrame: 0.15)
+        textures.removeAll()
     }
 }

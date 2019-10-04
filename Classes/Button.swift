@@ -27,7 +27,6 @@ enum BtnColor: CustomStringConvertible {
             return "yellow"
         }
     }
-    
     var rgb: UIColor {
         switch self {
         case .gray:
@@ -47,7 +46,6 @@ class Button {
     var color: BtnColor
     let sprite: SKSpriteNode
     private(set) var label: SKLabelNode
-    private var isPushed: Bool = false
     
     init(text: String, color: BtnColor, position: CGPoint) {
         self.color = color
@@ -94,13 +92,12 @@ class Button {
         sprite.addChild(label)
     }
     
-    func setPrice(amount: Int, type: Currency) {
-        label.text = "\(amount)"
-        label.position.x = 0
-        let icon = label.children.first! as! SKSpriteNode
-        icon.texture = SKTexture(imageNamed: "\(type.description)0")
-        icon.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height/2)
-        label.position.x += 10 + icon.frame.width/2
+    func setPrice(amount: Int, currency: Currency) {
+        setText(text: "\(amount)")
+        let coin = label.children.first! as! SKSpriteNode
+        coin.texture = SKTexture(imageNamed: "\(currency.description)0")
+        coin.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height / 2)
+        label.position.x += 10 + coin.frame.width/2
     }
     
     func setColor(color: BtnColor) {
@@ -113,39 +110,14 @@ class Button {
         label.text = text
         label.position.x = 0
     }
-//    init(text: String, position: CGPoint) {
-//        sprite = SKSpriteNode(imageNamed: "long-btn").pixelated()
-//        sprite.size = CGSize(width: 575, height: 150)
-//        sprite.position = position
-//        sprite.zPosition = 21
-//
-//        label = SKLabelNode(fontNamed: "Coder's Crux")
-//        label.fontColor = UIColor(red: 127/255, green: 161/255, blue: 172/255, alpha: 1)
-//        label.fontSize = 85
-//        label.zPosition = 1
-//        label.position.y = -8
-//        label.text = text
-//
-//        sprite.addChild(label)
-//    }
-    
-//    func state(pushed: Bool) {
-//        if pushed {
-//            sprite.texture = SKTexture(imageNamed: "\(name)2").pixelated()
-//            label.position.y = -20
-//        } else {
-//            sprite.texture = SKTexture(imageNamed: "\(name)1").pixelated()
-//            label.position.y = -8
-//        }
-//    }
-    
-    func push() {
-        sprite.texture = SKTexture(imageNamed: "\(name)2").px()
-        label.position.y = -20
-    }
     
     func release() {
         sprite.texture = SKTexture(imageNamed: "\(name)1").px()
         label.position.y = -8
+    }
+    
+    func push() {
+        sprite.texture = SKTexture(imageNamed: "\(name)2").px()
+        label.position.y = -20
     }
 }

@@ -12,11 +12,9 @@ import SpriteKit
 class Item: Hashable {
     let sprite: SKSpriteNode
     var wasTouched = false
-    let type: String
     
-    init(sprite: SKSpriteNode, type: String) {
+    init(sprite: SKSpriteNode) {
         self.sprite = sprite
-        self.type = type
     }
     
     func fall() {

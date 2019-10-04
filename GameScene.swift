@@ -168,7 +168,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                             switch item {
                             case is Coin:
                                 pick(item: item, platform: platform)
-                                manager.plusCoin(coin: (item as! Coin).material)
+                                manager.plusCoin(coin: (item as! Coin).currency)
                             case is Food:
                                 player.heal(by: (item as! Food).energy)
                                 pick(item: item, platform: platform)

@@ -183,7 +183,7 @@ class ShopScene: SKScene {
             actBtn.setColor(color: skin.set ? .blue : .green)
             actBtn.label.children.first!.isHidden = true
         } else {
-            actBtn.setPrice(amount: skin.price, type: skin.currency)
+            actBtn.setPrice(amount: skin.price, currency: skin.currency)
             actBtn.setColor(color: hasEnoughMoney(for: skin) ? .yellow : .gray)
             actBtn.label.children.first!.isHidden = false
         }

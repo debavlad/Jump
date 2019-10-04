@@ -13,7 +13,7 @@ class Food: Item {
     private(set) var energy: Int!
     
     init(sprite: SKSpriteNode, energy: Int) {
-        super.init(sprite: sprite, type: "food")
+        super.init(sprite: sprite)
         self.energy = energy
     }
 }

@@ -10,10 +10,10 @@ import Foundation
 import SpriteKit
 
 class Coin: Item {
-    var material: Currency
+    var currency: Currency
     
-    init(node: SKSpriteNode, material: Currency) {
-        self.material = material
-        super.init(sprite: node, type: "coin")
+    init(node: SKSpriteNode, currency: Currency) {
+        self.currency = currency
+        super.init(sprite: node)
     }
 }
