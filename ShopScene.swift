@@ -105,8 +105,8 @@ class ShopScene: SKScene {
         
         skins = [
             Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").pixelated(), owned: true, set: true, price: 0, cointype: .wood),
-            Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").pixelated(), owned: false, set: false, price: 90, cointype: .wood),
-            Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").pixelated(), owned: false, set: false, price: 40, cointype: .bronze)
+            Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").pixelated(), owned: false, set: false, price: 40, cointype: .wood),
+            Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").pixelated(), owned: false, set: false, price: 20, cointype: .bronze)
         ]
         
         btn = Button(text: "BACK TO MENU", color: .Gray, position: CGPoint(x: 0, y: -height + 150))
@@ -159,12 +159,27 @@ class ShopScene: SKScene {
         self.skinTitle.text = skin.title
         GameScene.skinName = skin.name
         btn2.setPrice(amount: skin.price, type: skin.cointype)
+        
         if (skin.cointype == .wood && skin.price > w) ||
             (skin.cointype == .bronze && skin.price > b) ||
             (skin.cointype == .golden && skin.price > g) {
             btn2.setColor(color: .Gray)
+            btn2.label.children.first!.isHidden = false
         } else {
+            btn2.setColor(color: .Yellow)
+            btn2.label.children.first!.isHidden = false
+        }
+        
+        
+        
+        if skin.owned && skin.set {
+            btn2.setText(text: "CURRENT SKIN")
+            btn2.setColor(color: .Blue)
+            btn2.label.children.first!.isHidden = true
+        } else if skin.owned {
+            btn2.setText(text: "SET SKIN")
             btn2.setColor(color: .Green)
+            btn2.label.children.first!.isHidden = true
         }
         
         for i in 0..<pages.count {
@@ -259,6 +274,20 @@ class ShopScene: SKScene {
             btn.state(pushed: false)
         } else if triggeredNode == btn2.sprite {
             btn2.state(pushed: false)
+            switch (btn2.color) {
+            case .Yellow:
+                print("y")
+                if skins[curIndex].cointype == .wood && skins[curIndex].price <= w ||
+                   skins[curIndex].cointype == .bronze && skins[curIndex].price <= b ||
+                   skins[curIndex].cointype == .golden && skins[curIndex].price <= g {
+//                    btn2.setText(text: "SET SKIN")
+//                    btn2.setColor(color: .Green)
+//                    btn2.label.children.first!.isHidden = true
+                    skins[curIndex].owned = true
+                }
+            default:
+                break
+            }
         } else if triggeredNode == rightArrow {
             rightArrow.yScale = 7
             curIndex += 1
@@ -266,12 +295,12 @@ class ShopScene: SKScene {
             leftArrow.yScale = 7
             curIndex -= 1
         }
-        
+
         loadSkin(skin: skins[curIndex])
         triggeredNode = nil
     }
     
     override func update(_ currentTime: TimeInterval) {
-//        cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 2)
+        cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 2)
     }
 }

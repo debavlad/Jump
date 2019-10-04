@@ -44,11 +44,13 @@ enum BtnColor: CustomStringConvertible {
 
 class Button {
     var name: String
+    var color: BtnColor
     let sprite: SKSpriteNode
     private(set) var label: SKLabelNode
     private var isPushed: Bool = false
     
     init(text: String, color: BtnColor, position: CGPoint) {
+        self.color = color
         name = "\(color.description)-btn"
         sprite = SKSpriteNode(imageNamed: "\(name)1").pixelated()
         sprite.size = CGSize(width: 575, height: 150)
@@ -66,6 +68,7 @@ class Button {
     }
     
     init(price: Int, type: CoinType, y: CGFloat) {
+        self.color = BtnColor.Yellow
         name = "\(BtnColor.Green.description)-btn"
         sprite = SKSpriteNode(imageNamed: "\(name)1").pixelated()
         sprite.size = CGSize(width: 575, height: 150)
@@ -104,6 +107,11 @@ class Button {
         name = "\(color.description)-btn"
         sprite.texture = SKTexture(imageNamed: "\(name)1").pixelated()
         label.fontColor = color.rgb
+    }
+    
+    func setText(text: String) {
+        label.text = text
+        label.position.x = 0
     }
 //    init(text: String, position: CGPoint) {
 //        sprite = SKSpriteNode(imageNamed: "long-btn").pixelated()
