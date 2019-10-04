@@ -25,6 +25,7 @@ class ShopScene: SKScene {
     private var pages: [SKSpriteNode] = []
     private var btn: Button!
     private var cam: Camera!
+    let height = UIScreen.main.bounds.height
     
     private var skins: [Skin]!
     private var curIndex: Int!
@@ -57,6 +58,7 @@ class ShopScene: SKScene {
     private func setScene() {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         bg = SKSpriteNode(imageNamed: "shop-bg").pixelated()
+        bg.position.y = 110
         bg.size = frame.size
         addChild(bg)
         
@@ -67,25 +69,25 @@ class ShopScene: SKScene {
         skinSprite.zPosition = 2
         skinSprite.setScale(3)
         skinSprite.xScale = -3
-        skinSprite.position = CGPoint(x: 0, y: -230 + 138)
+        skinSprite.position = CGPoint(x: 0, y: -230 + 140 + bg.position.y)
         addChild(skinSprite)
         
         leftArrow = SKSpriteNode(imageNamed: "disabled-arrow").pixelated()
         leftArrow.zPosition = 2
-        leftArrow.position = CGPoint(x: -250, y: -300 + 138)
+        leftArrow.position = CGPoint(x: -250, y: skinSprite.position.y)
         leftArrow.yScale = 7
         leftArrow.xScale = -7
         cam.node.addChild(leftArrow)
         
         rightArrow = SKSpriteNode(imageNamed: "arrow").pixelated()
         rightArrow.zPosition = 2
-        rightArrow.position = CGPoint(x: 250, y: -300 + 138)
+        rightArrow.position = CGPoint(x: 250, y: skinSprite.position.y)
         rightArrow.setScale(7)
         cam.node.addChild(rightArrow)
         
         skinTitle = SKLabelNode(fontNamed: "Coder's Crux")
         skinTitle.fontSize = 70
-        skinTitle.position.y = 60 + 138
+        skinTitle.position.y = 60 + 140 + bg.position.y
         skinTitle.zPosition = 2
         addChild(skinTitle)
         
@@ -100,7 +102,7 @@ class ShopScene: SKScene {
         ]
         
         let pageCounter = SKNode()
-        pageCounter.position = CGPoint(x: -50, y: 30 + 138)
+        pageCounter.position = CGPoint(x: -50, y: 30 + 140 + bg.position.y)
         pageCounter.zPosition = 2
         for i in 0..<skins.count {
             let page = SKSpriteNode(imageNamed: "inactive-page").pixelated()
@@ -124,8 +126,10 @@ class ShopScene: SKScene {
         fadeOut.timingMode = SKActionTimingMode.easeOut
         fade.run(fadeOut)
         
-        btn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -480))
+        btn = Button(text: "BACK TO MENU", position: CGPoint(x: 0, y: -height + 150))
+        let btn2 = Button(text: "BUY", position: CGPoint(x: 0, y: btn.sprite.position.y + 180))
         cam.node.addChild(btn.sprite)
+        cam.node.addChild(btn2.sprite)
     }
     
     enum ButtonPlayer {
@@ -245,6 +249,6 @@ class ShopScene: SKScene {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 2)
+//        cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 2)
     }
 }
