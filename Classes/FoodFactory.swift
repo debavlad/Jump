@@ -32,7 +32,7 @@ class FoodFactory {
         let sprite = SKSpriteNode(imageNamed: type.description)
             .setFoodSettings()
             .randomize()
-            .pixelated()
+            .px()
         sprite.name = type.description + "item"
         
         return Food(sprite: sprite, energy: energies[type]!)

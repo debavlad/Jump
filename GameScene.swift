@@ -278,7 +278,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 sliderTouch = touch
                 playSound(type: .UI, audioName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
-                manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
+                manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
                 
                 let push = SKAction.run {
                     self.player.push(power: 170)
@@ -323,7 +323,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 sliderTouch = touch
                 playSound(type: .UI, audioName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
-                manager.slider.texture = SKTexture(imageNamed: "slider-1").pixelated()
+                manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
             } else if node == manager.pauseBtn {
                 sliderTouch = nil
                 playSound(type: .UI, audioName: "push-down")
@@ -332,7 +332,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         else if ended {
             if node == manager.menuBtn.sprite || node == manager.menuBtn.label {
-                manager.menuBtn.state(pushed: true)
+                manager.menuBtn.push()
+//                manager.menuBtn.state(pushed: true)
                 playSound(type: .UI, audioName: "push-down")
                 triggeredBtn = manager.menuBtn
                 restart()
@@ -359,10 +360,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let st = sliderTouch, touches.contains(st) {
             sliderTouch = nil
-            manager.slider.texture = SKTexture(imageNamed: "slider-0").pixelated()
+            manager.slider.texture = SKTexture(imageNamed: "slider-0").px()
         }
         else if triggeredBtn != nil {
-            triggeredBtn.state(pushed: false)
+            triggeredBtn.release()
+//            triggeredBtn.state(pushed: false)
             triggeredBtn = nil
         }
     }

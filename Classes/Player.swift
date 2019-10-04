@@ -130,19 +130,19 @@ class Player {
             sitTextures = [SKTexture]()
         
         for i in 0...3 {
-            jumpTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
+            jumpTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
         }
         
         for i in 4...5 {
-            fallTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
+            fallTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
         }
         
         for i in 6...8 {
-            landTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").pixelated())
+            landTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
         }
         
         for i in 0...7 {
-            sitTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-sit\(i)").pixelated())
+            sitTextures.append(SKTexture(imageNamed: "\(GameScene.skinName)-sit\(i)").px())
         }
         
         jumpAnim = SKAction.animate(with: jumpTextures, timePerFrame: 0.11)

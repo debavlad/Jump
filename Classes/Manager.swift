@@ -53,24 +53,24 @@ class Manager {
     private func setScene(world: SKNode) {
         let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         
-        let sky = SKSpriteNode(imageNamed: "sky").pixelated()
+        let sky = SKSpriteNode(imageNamed: "sky").px()
         sky.size = scene.frame.size
         sky.zPosition = -10
         cam.addChild(sky)
         
-        let house = SKSpriteNode(imageNamed: "house").pixelated()
+        let house = SKSpriteNode(imageNamed: "house").px()
         house.size = CGSize(width: 543, height: 632)
         house.position = CGPoint(x: 200, y: -47)
         house.zPosition = 1
         world.addChild(house)
         
-        door = SKSpriteNode(imageNamed: "door0").pixelated()
+        door = SKSpriteNode(imageNamed: "door0").px()
         door.size = CGSize(width: 112, height: 134)
         door.position = CGPoint(x: -119, y: -220)
         door.zPosition = 2
         house.addChild(door)
         
-        let smoke = SKSpriteNode(imageNamed: "smoke0").pixelated()
+        let smoke = SKSpriteNode(imageNamed: "smoke0").px()
         smoke.size = CGSize(width: 119, height: 97)
         house.addChild(smoke)
         smoke.zPosition = -1
@@ -85,24 +85,24 @@ class Manager {
         bench.physicsBody?.isDynamic = false
         world.addChild(bench)
         
-        let ground = SKSpriteNode(imageNamed: "ground").pixelated()
+        let ground = SKSpriteNode(imageNamed: "ground").px()
         ground.size = CGSize(width: 826, height: 518)
         ground.position = CGPoint(x: 30, y: -530)
         world.addChild(ground)
         
         
-        let player = SKSpriteNode(imageNamed: "\(GameScene.skinName)-sit0").pixelated()
+        let player = SKSpriteNode(imageNamed: "\(GameScene.skinName)-sit0").px()
         player.name = "Character"
         player.size = CGSize(width: 132, height: 140)
         player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
         player.zPosition = 10
         
-        hpBorder = SKSpriteNode(imageNamed: "hp-border").pixelated()
+        hpBorder = SKSpriteNode(imageNamed: "hp-border").px()
         hpBorder.size = CGSize(width: 84, height: 11)
         hpBorder.position = CGPoint(x: 0, y: player.frame.height/2 + 20)
         hpBorder.alpha = 0
         
-        hpStripe = SKSpriteNode(imageNamed: "hp-green").pixelated()
+        hpStripe = SKSpriteNode(imageNamed: "hp-green").px()
         hpStripe.size = CGSize(width: hpBorder.frame.width - 4, height: hpBorder.frame.height - 4)
         hpStripe.anchorPoint = CGPoint(x: 0, y: 0.5)
         hpStripe.position.x = hpBorder.frame.minX + 2
@@ -112,13 +112,13 @@ class Manager {
         player.addChild(hpBorder)
         world.addChild(player)
         
-        line = SKSpriteNode(imageNamed: "slider-line").pixelated()
+        line = SKSpriteNode(imageNamed: "slider-line").px()
         line.size = CGSize(width: 610, height: 28)
         line.position.y = -height + 90
         line.zPosition = 20
         line.alpha = 0
         
-        slider = SKSpriteNode(imageNamed: "slider-0").pixelated()
+        slider = SKSpriteNode(imageNamed: "slider-0").px()
         slider.size = CGSize(width: 54, height: 54)
         slider.position.y = 4
         slider.zPosition = 21
@@ -126,7 +126,7 @@ class Manager {
         line.addChild(slider)
         cam.addChild(line)
         
-        pauseBtn = SKSpriteNode(imageNamed: "pause").pixelated()
+        pauseBtn = SKSpriteNode(imageNamed: "pause").px()
         pauseBtn.size = CGSize(width: 106, height: 106)
         pauseBtn.position.y = height - 100
         pauseBtn.position.x = width - 100
@@ -187,7 +187,7 @@ class Manager {
         gameScore.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         cam.addChild(gameScore)
         
-        wIcon = SKSpriteNode(imageNamed: "wood0").pixelated()
+        wIcon = SKSpriteNode(imageNamed: "wood0").px()
         wIcon.size = CGSize(width: 90, height: 99)
         wIcon.position.y = 130
         wIcon.zPosition = 21
@@ -200,7 +200,7 @@ class Manager {
         wLabel.position = CGPoint(x: 0, y: -wLabel.frame.height/2 + 4)
         wIcon.addChild(wLabel)
         
-        bIcon = SKSpriteNode(imageNamed: "bronze0").pixelated()
+        bIcon = SKSpriteNode(imageNamed: "bronze0").px()
         bIcon.size = CGSize(width: 90, height: 99)
         bIcon.position.y = -20
         bIcon.zPosition = 21
@@ -213,7 +213,7 @@ class Manager {
         bLabel.position = CGPoint(x: 0, y: -bLabel.frame.height/2 + 4)
         bIcon.addChild(bLabel)
         
-        gIcon = SKSpriteNode(imageNamed: "golden0").pixelated()
+        gIcon = SKSpriteNode(imageNamed: "golden0").px()
         gIcon.size = CGSize(width: 90, height: 99)
         gIcon.position.y = -170
         gIcon.zPosition = 21
@@ -226,7 +226,7 @@ class Manager {
         gLabel.position = CGPoint(x: 0, y: -gLabel.frame.height/2 + 4)
         gIcon.addChild(gLabel)
         
-        w = SKSpriteNode(imageNamed: "wood0").pixelated()
+        w = SKSpriteNode(imageNamed: "wood0").px()
         w.size = CGSize(width: 72, height: 81)
         w.position.y = height - 100
         w.position.x = -width + 100
@@ -242,7 +242,7 @@ class Manager {
         wl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         w.addChild(wl)
         
-        b = SKSpriteNode(imageNamed: "bronze0").pixelated()
+        b = SKSpriteNode(imageNamed: "bronze0").px()
         b.size = CGSize(width: 72, height: 81)
         b.position.y = w.frame.minY - 70
         b.position.x = -width + 100
@@ -256,7 +256,7 @@ class Manager {
         bl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         b.addChild(bl)
         
-        g = SKSpriteNode(imageNamed: "golden0").pixelated()
+        g = SKSpriteNode(imageNamed: "golden0").px()
         g.size = CGSize(width: 72, height: 81)
         g.position.y = b.frame.minY - 70
         g.position.x = -width + 100
@@ -270,7 +270,7 @@ class Manager {
         gl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         g.addChild(gl)
         
-        menuBtn = Button(text: "BACK TO MENU", color: .Blue, position: CGPoint(x: 0, y: -450))
+        menuBtn = Button(text: "BACK TO MENU", color: .blue, position: CGPoint(x: 0, y: -450))
         menuBtn.sprite.alpha = 0
         cam.addChild(menuBtn.sprite)
         
@@ -299,7 +299,7 @@ class Manager {
         mScore.position = CGPoint(x: gameOver.position.x - ptsScore.frame.width/2, y: gameOver.position.y - 100)
     }
     
-    func plusCoin(coin: CoinType) {
+    func plusCoin(coin: Currency) {
         switch coin {
         case .wood:
             let curr = Int(wLabel.text!)!
@@ -316,19 +316,19 @@ class Manager {
     private func setAnimations() {
         var smokeTextures: [SKTexture] = []
         for i in 0...3 {
-            smokeTextures.append(SKTexture(imageNamed: "smoke\(i)").pixelated())
+            smokeTextures.append(SKTexture(imageNamed: "smoke\(i)").px())
         }
         smokeAnim = SKAction.animate(with: smokeTextures, timePerFrame: 0.12)
         
         var doorTextures: [SKTexture] = []
         for i in 1...6 {
-            doorTextures.append(SKTexture(imageNamed: "door\(i)").pixelated())
+            doorTextures.append(SKTexture(imageNamed: "door\(i)").px())
         }
         doorAnim = SKAction.animate(with: doorTextures, timePerFrame: 0.08)
         doorAnim.timingMode = SKActionTimingMode.easeOut
         
-        pauseTexture = SKTexture(imageNamed: "pause").pixelated()
-        playTexture = SKTexture(imageNamed: "continue").pixelated()
+        pauseTexture = SKTexture(imageNamed: "pause").px()
+        playTexture = SKTexture(imageNamed: "continue").px()
     }
     
     func addEmitter(to parent: SKNode, filename: String, position: CGPoint) {
@@ -444,7 +444,7 @@ struct Bounds {
 }
 
 extension SKNode {
-    func pixelated() -> SKSpriteNode {
+    func px() -> SKSpriteNode {
         let node = self as! SKSpriteNode
         node.texture?.filteringMode = .nearest
         return node
@@ -452,7 +452,7 @@ extension SKNode {
 }
 
 extension SKTexture {
-    func pixelated() -> SKTexture {
+    func px() -> SKTexture {
         self.filteringMode = .nearest
         return self
     }

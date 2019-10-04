@@ -15,9 +15,9 @@ class CoinFactory {
     init() {
         var wooden = [SKTexture](), golden = [SKTexture](), bronze = [SKTexture]()
         for i in 0...7 {
-            wooden.append(SKTexture(imageNamed: "wood\(i)").pixelated())
-            bronze.append(SKTexture(imageNamed: "bronze\(i)").pixelated())
-            golden.append(SKTexture(imageNamed: "golden\(i)").pixelated())
+            wooden.append(SKTexture(imageNamed: "wood\(i)").px())
+            bronze.append(SKTexture(imageNamed: "bronze\(i)").px())
+            golden.append(SKTexture(imageNamed: "golden\(i)").px())
         }
         animations["wood"] = SKAction.animate(with: wooden, timePerFrame: 0.1)
         animations["bronze"] = SKAction.animate(with: bronze, timePerFrame: 0.1)
@@ -25,7 +25,7 @@ class CoinFactory {
     }
     
     func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
-        let chances = [CoinType.wood : wooden, CoinType.bronze : bronze, CoinType.golden : golden]
+        let chances = [Currency.wood : wooden, Currency.bronze : bronze, Currency.golden : golden]
         
         for c in chances {
             let random = Double.random(in: 0...wooden + bronze + golden)
@@ -38,10 +38,10 @@ class CoinFactory {
         return create(of: .wood)
     }
     
-    private func create(of material: CoinType) -> Coin {
+    private func create(of material: Currency) -> Coin {
         let sprite = SKSpriteNode(imageNamed: "\(material.description)0")
             .setCoinSettings()
-            .pixelated()
+            .px()
         sprite.name = material.description + "item"
         
         let anim = animations[material.description]!
@@ -51,7 +51,7 @@ class CoinFactory {
     }
 }
 
-enum CoinType : CustomStringConvertible {
+enum Currency : CustomStringConvertible {
     case wood
     case bronze
     case golden

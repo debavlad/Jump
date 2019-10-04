@@ -21,10 +21,10 @@ class Tip {
         label.zPosition = 2
         
         // Gathering parts into one node
-        let left = SKSpriteNode(imageNamed: "msg-left").pixelated()
-        let mid = SKSpriteNode(imageNamed: "msg-mid").pixelated()
-        let bottom = SKSpriteNode(imageNamed: "msg-btm").pixelated()
-        let right = SKSpriteNode(imageNamed: "msg-right").pixelated()
+        let left = SKSpriteNode(imageNamed: "msg-left").px()
+        let mid = SKSpriteNode(imageNamed: "msg-mid").px()
+        let bottom = SKSpriteNode(imageNamed: "msg-btm").px()
+        let right = SKSpriteNode(imageNamed: "msg-right").px()
         
         sprite = SKSpriteNode()
         let scale: CGFloat = 6.5

@@ -140,7 +140,7 @@ private class Clouds {
     private func construct(z: CGFloat, scale: CGFloat, alpha: CGFloat) -> SKSpriteNode {
         let i = Int.random(in: 0...3)
         let imgName = "cloud-\(i)"
-        let cloud = SKSpriteNode(imageNamed: imgName).pixelated()
+        let cloud = SKSpriteNode(imageNamed: imgName).px()
         
         cloud.zPosition = z
         cloud.setScale(scale)
