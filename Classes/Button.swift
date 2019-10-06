@@ -92,6 +92,12 @@ class Button {
         sprite.addChild(label)
     }
     
+    func set(text: String, color: BtnColor, hideCoin: Bool) {
+        setText(text: text)
+        setColor(color: color)
+        label.children.first!.isHidden = hideCoin
+    }
+    
     func setPrice(amount: Int, currency: Currency) {
         setText(text: "\(amount)")
         let coin = label.children.first! as! SKSpriteNode

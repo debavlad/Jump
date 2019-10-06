@@ -18,7 +18,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var cloudFactory: CloudFactory!
     private var platformFactory: PlatformFactory!
     private var sliderTip, doorTip: Tip!
-    static var restarted = false, skinName = "farmer"
+    static var restarted = false
+//    static var skinName = "farmer"
+    
+    static var ownedSkins = Set<Skin>()
+    static var currentSkin = ShopScene.skins.randomElement()
     
     private var world: SKNode!
     private var fade: SKSpriteNode!
@@ -198,7 +202,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        cam.shake(amplitude: 1, amount: 5, step: 0, duration: 2)
+        cam.shake(amplitude: 1, amount: 5, step: 0, duration: 1.5)
         
         if !stopped {
             movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.25)

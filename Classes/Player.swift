@@ -122,25 +122,25 @@ class Player {
     private func setAnimations() {
         var textures = [SKTexture]()
         for i in 0...3 {
-            textures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
+            textures.append(SKTexture(imageNamed: "\(GameScene.currentSkin!.name)-jump\(i)").px())
         }
         jumpAnim = SKAction.animate(with: textures, timePerFrame: 0.11)
         textures.removeAll(keepingCapacity: true)
         
         for i in 4...5 {
-            textures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
+            textures.append(SKTexture(imageNamed: "\(GameScene.currentSkin!.name)-jump\(i)").px())
         }
         fallAnim = SKAction.animate(with: textures, timePerFrame: 0.11)
         textures.removeAll(keepingCapacity: true)
         
         for i in 6...8 {
-            textures.append(SKTexture(imageNamed: "\(GameScene.skinName)-jump\(i)").px())
+            textures.append(SKTexture(imageNamed: "\(GameScene.currentSkin!.name)-jump\(i)").px())
         }
         landAnim = SKAction.animate(with: textures, timePerFrame: 0.06)
         textures.removeAll(keepingCapacity: true)
         
         for i in 0...7 {
-            textures.append(SKTexture(imageNamed: "\(GameScene.skinName)-sit\(i)").px())
+            textures.append(SKTexture(imageNamed: "\(GameScene.currentSkin!.name)-sit\(i)").px())
         }
         sitAnim = SKAction.animate(with: textures, timePerFrame: 0.15)
         textures.removeAll()
