@@ -13,7 +13,6 @@ import AVFoundation
 struct Skin : Hashable {
     var title, name: String
     var texture: SKTexture
-    var owned, set: Bool
     var price: Int
     var currency: Currency
     
@@ -42,9 +41,9 @@ class ShopScene: SKScene {
     private var cam: Camera!
     
     static var skins = [
-        Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").px(), owned: true, set: true, price: 0, currency: .wood),
-        Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").px(), owned: false, set: false, price: 40, currency: .wood),
-        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), owned: false, set: false, price: 20, currency: .bronze)
+        Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 80, currency: .wood),
+        Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 60, currency: .bronze),
+        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 20, currency: .golden)
     ]
     
     private var pages: [SKSpriteNode]!
@@ -175,7 +174,14 @@ class ShopScene: SKScene {
             backBtn.release()
         } else if triggeredNode == actBtn.sprite {
             actBtn.release()
-            ShopScene.skins[index].owned = actBtn.color == .yellow && hasEnoughMoney(for: ShopScene.skins[index])
+            if !GameScene.ownedSkins.contains(ShopScene.skins[index]) {
+                if actBtn.color == .yellow && hasEnoughMoney(for: ShopScene.skins[index]) && !GameScene.ownedSkins.contains(ShopScene.skins[index]) {
+                    GameScene.ownedSkins.insert(ShopScene.skins[index])
+                }
+//                ShopScene.skins[index].owned = actBtn.color == .yellow && hasEnoughMoney(for: ShopScene.skins[index])
+            } else {
+                GameScene.currentSkin = ShopScene.skins[index]
+            }
         } else if triggeredNode == rightArrow {
             index += 1
             rightArrow.yScale = 7
@@ -220,7 +226,7 @@ class ShopScene: SKScene {
         if GameScene.currentSkin == skin {
             actBtn.set(text: "CURRENT SKIN", color: .blue, hideCoin: true)
         } else {
-            if skin.owned {
+            if GameScene.ownedSkins.contains(skin) {
                 actBtn.set(text: "SET SKIN", color: .green, hideCoin: true)
             } else {
                 actBtn.setPrice(amount: skin.price, currency: skin.currency)

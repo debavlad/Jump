@@ -21,8 +21,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     static var restarted = false
 //    static var skinName = "farmer"
     
-    static var ownedSkins = Set<Skin>()
     static var currentSkin = ShopScene.skins.randomElement()
+    static var ownedSkins = Set<Skin>([currentSkin!])
     
     private var world: SKNode!
     private var fade: SKSpriteNode!
