@@ -324,7 +324,7 @@ class Manager {
         for i in 1...6 {
             doorTextures.append(SKTexture(imageNamed: "door\(i)").px())
         }
-        doorAnim = SKAction.animate(with: doorTextures, timePerFrame: 0.08)
+        doorAnim = SKAction.animate(with: doorTextures, timePerFrame: 0.07)
         doorAnim.timingMode = SKActionTimingMode.easeOut
         
         pauseTexture = SKTexture(imageNamed: "pause").px()

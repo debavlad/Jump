@@ -16,9 +16,9 @@ class Platform: Hashable {
     
     init(_ data: (textureName: String, power: Int, damage: Int)) {
         sprite = SKSpriteNode(imageNamed: data.textureName).px()
-        sprite.size = CGSize(width: 130, height: 50)
+        sprite.size = CGSize(width: 127.5, height: 49)
         sprite.name = String(data.textureName)
-        sprite.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 85, height: 1), center: CGPoint(x: 0, y: 20))
+        sprite.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 83.5, height: 1), center: CGPoint(x: 0, y: 20))
         sprite.physicsBody?.restitution = CGFloat(0.2)
         sprite.physicsBody?.friction = 0
         sprite.physicsBody?.mass = 10

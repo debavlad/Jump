@@ -232,8 +232,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if player.currentAnim != player.fallAnim {
                     player.run(animation: player.fallAnim)
                 }
-                if player.sprite.physicsBody!.velocity.dy < -2000 {
-                    player.sprite.physicsBody!.velocity.dy = -2000
+                if player.sprite.physicsBody!.velocity.dy < -2100 {
+                    player.sprite.physicsBody!.velocity.dy = -2100
                 }
             }
             
