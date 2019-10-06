@@ -96,6 +96,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         cam = Camera(scene: self)
         cam.node.addChild(fade)
+        cam.node.position.y = -60
         
         world = SKNode()
         manager = Manager(scene: self, world: world)
