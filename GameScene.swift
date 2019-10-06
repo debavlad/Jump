@@ -121,7 +121,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cam.node.setScale(0.75)
         
         if GameScene.restarted {
-            fade.run(SKAction.fadeOut(withDuration: 0.4))
+            let a = SKAction.fadeOut(withDuration: 0.4)
+            a.timingMode = .easeOut
+            fade.run(a)
         }
     }
     
@@ -300,14 +302,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 manager.door.run(manager.doorAnim)
                 manager.hide(nodes: manager.line, manager.w, manager.b, manager.g)
                 
-                let scale = SKAction.scale(to: 0.025, duration: 1)
+                let scale = SKAction.scale(to: 0.025, duration: 0.8)
                 scale.timingMode = SKActionTimingMode.easeInEaseOut
-                let move = SKAction.moveBy(x: 200, y: -300, duration: 1)
+                let move = SKAction.moveBy(x: 200, y: -300, duration: 0.8)
                 move.timingMode = SKActionTimingMode.easeIn
                 
-                let wait = SKAction.wait(forDuration: 0.5)
+                let wait = SKAction.wait(forDuration: 0.4)
                 let fade = SKAction.run {
-                    self.fade.run(SKAction.fadeIn(withDuration: 0.5))
+                    let a = SKAction.fadeIn(withDuration: 0.4)
+                    a.timingMode = .easeIn
+                    self.fade.run(a)
                 }
                 let act = SKAction.run {
                     let scene = ShopScene(size: self.frame.size)
@@ -371,13 +375,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     private func restart() {
-        let wait = SKAction.wait(forDuration: 0.6)
+        let wait = SKAction.wait(forDuration: 0.5)
         let physics = SKAction.run {
             self.player.sprite.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
             self.physicsWorld.gravity = CGVector(dx: 0, dy: -18)
             self.physicsWorld.speed = 1
             self.world.isPaused = false
-            self.fade.run(SKAction.fadeIn(withDuration: 0.6))
+            let a = SKAction.fadeIn(withDuration: 0.5)
+            a.timingMode = .easeIn
+            self.fade.run(a)
         }
         let act = SKAction.run {
             GameScene.restarted = true

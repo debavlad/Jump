@@ -103,6 +103,7 @@ class Button {
     func setColor(color: BtnColor) {
         name = "\(color.description)-btn"
         sprite.texture = SKTexture(imageNamed: "\(name)1").px()
+        self.color = color
         label.fontColor = color.rgb
     }
     

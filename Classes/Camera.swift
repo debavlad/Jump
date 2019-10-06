@@ -33,7 +33,7 @@ class Camera {
         node.name = "Cam"
         scene.camera = node
         scene.addChild(node)
-        easing = 0.07
+        easing = 0.072
     }
     
     // def (1.5, 5, 0, 2)   
