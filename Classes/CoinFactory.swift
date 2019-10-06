@@ -83,10 +83,10 @@ enum Currency : CustomStringConvertible {
 
 extension SKSpriteNode {
     func setCoinSettings() -> SKSpriteNode {
-        size = CGSize(width: 60, height: 66)
+        size = CGSize(width: 54, height: 59.4)
         zPosition = 1
         let x = CGFloat.random(in: -20...20)
-        position = CGPoint(x: x, y: 57)
+        position = CGPoint(x: x, y: 53)
         physicsBody = SKPhysicsBody(circleOfRadius: 35)
         physicsBody?.isDynamic = false
         physicsBody?.categoryBitMask = Categories.coin

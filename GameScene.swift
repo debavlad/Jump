@@ -145,7 +145,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if player.isFalling() && col == Collision.playerPlatform {
                 // Play animation and create trail line
                 player.run(animation: player.landAnim)
-                trail.create(in: world, scale: 32.5)
+                trail.create(in: world, scale: 30.0)
                 manager.addEmitter(to: world, filename: "DustParticles", position: contact.contactPoint)
                 
                 // Define platform obj
@@ -289,7 +289,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let push = SKAction.run {
                     self.player.push(power: 170)
                     self.cam.shake(amplitude: 50, amount: 6, step: 6, duration: 0.055)
-                    let scale = SKAction.scale(to: 1.0, duration: 1)
+                    let scale = SKAction.scale(to: 0.95, duration: 1)
                     scale.timingMode = SKActionTimingMode.easeIn
                     self.cam.node.run(scale)
                 }
@@ -460,7 +460,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         platformFactory.remove(item: item, from: platform)
-        cam.shake(amplitude: 20, amount: 2, step: 6, duration: 0.08)
+//        cam.shake(amplitude: 20, amount: 2, step: 6, duration: 0.08)
+        cam.boom()
     }
     
     private func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {

@@ -99,7 +99,7 @@ class Manager {
         
         hpBorder = SKSpriteNode(imageNamed: "hp-border").px()
         hpBorder.size = CGSize(width: 84, height: 11)
-        hpBorder.position = CGPoint(x: 0, y: player.frame.height/2 + 20)
+        hpBorder.position = CGPoint(x: 0, y: player.frame.height/2 + 10)
         hpBorder.alpha = 0
         
         hpStripe = SKSpriteNode(imageNamed: "hp-green").px()

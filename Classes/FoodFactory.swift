@@ -79,7 +79,7 @@ extension SKSpriteNode {
     }
     
     func setFoodSettings() -> SKSpriteNode {
-        setScale(6)
+        setScale(5.4)
         
         physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
         physicsBody?.affectedByGravity = true

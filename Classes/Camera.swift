@@ -59,4 +59,27 @@ class Camera {
         let seq = SKAction.sequence(actions)
         node.run(seq)
     }
+    
+    // cam.shake(amplitude: 20, amount: 2, step: 6, duration: 0.08)
+    func boom() {
+        var amp = 20
+        var actions: [SKAction] = []
+        for _ in 1...2 {
+            let tmp = Bool.random()
+            let i = CGFloat.random(in: 15...20)
+            let x: CGFloat = tmp ? i : -i
+            let j = CGFloat.random(in: 15...20)
+            let y: CGFloat = -j
+            
+            let action = SKAction.moveBy(x: x, y: y, duration: 0.075)
+            action.timingMode = .easeOut
+            actions.append(action)
+            actions.append(action.reversed())
+            
+            amp -= 6
+        }
+        
+        let seq = SKAction.sequence(actions)
+        node.run(seq)
+    }
 }
