@@ -19,10 +19,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var platformFactory: PlatformFactory!
     private var sliderTip, doorTip: Tip!
     static var restarted = false
-//    static var skinName = "farmer"
     
-    static var currentSkin = ShopScene.skins.randomElement()
-    static var ownedSkins = Set<Skin>([currentSkin!])
+    static var skinIndex: Int!
+    static var ownedSkins: [Int]!
     
     private var world: SKNode!
     private var fade: SKSpriteNode!
@@ -70,7 +69,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        }
     }
     
+    static func saveData() {
+        let defaults = UserDefaults.standard
+        defaults.set(GameScene.ownedSkins, forKey: "ownedSkins")
+        defaults.set(GameScene.skinIndex, forKey: "skinIndex")
+    }
+    
+    func loadData() {
+        let defaults = UserDefaults.standard
+        GameScene.ownedSkins = defaults.value(forKey: "ownedSkins") as? [Int] ?? [0]
+        GameScene.skinIndex = defaults.value(forKey: "skinIndex") as? Int ?? 0
+    }
+    
     override func didMove(to view: SKView) {
+        loadData()
+//        saveData()
 //        do {
 //            coinAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "coin-pickup", withExtension: "wav")!)
 //            foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food1", withExtension: "wav")!)

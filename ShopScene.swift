@@ -41,9 +41,9 @@ class ShopScene: SKScene {
     private var cam: Camera!
     
     static var skins = [
-        Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 80, currency: .wood),
-        Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 60, currency: .bronze),
-        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 20, currency: .golden)
+        Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 0, currency: .wood),
+        Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 30, currency: .wood),
+        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 60, currency: .bronze)
     ]
     
     private var pages: [SKSpriteNode]!
@@ -51,15 +51,17 @@ class ShopScene: SKScene {
     private var index: Int!
     
     override func didMove(to view: SKView) {
-        wooden = defaults.value(forKey: "wooden") as? Int
-        bronze = defaults.value(forKey: "bronze") as? Int
-        golden = defaults.value(forKey: "golden") as? Int
+        wooden = defaults.value(forKey: "wooden") as? Int ?? 0
+        bronze = defaults.value(forKey: "bronze") as? Int ?? 0
+        golden = defaults.value(forKey: "golden") as? Int ?? 0
         
         pages = []
         setScene()
     }
     
     func setScene() {
+        let skinName = ShopScene.skins[GameScene.skinIndex].name
+        
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         let bg = SKSpriteNode(imageNamed: "shop-bg").px()
         bg.position.y = 110
@@ -69,7 +71,7 @@ class ShopScene: SKScene {
         cam = Camera(scene: self)
         cam.node.setScale(0.7)
         
-        skinSprite = SKSpriteNode(imageNamed: "\(GameScene.currentSkin!.name)-jump0").px()
+        skinSprite = SKSpriteNode(imageNamed: "\(skinName)-jump0").px()
         skinSprite.position = CGPoint(x: 0, y: bg.position.y - 90)
         skinSprite.zPosition = 2
         skinSprite.xScale = -3
@@ -124,10 +126,11 @@ class ShopScene: SKScene {
         addChild(pageCounter)
         
         for i in 0..<ShopScene.skins.count {
-            if ShopScene.skins[i].name == GameScene.currentSkin!.name {
+            if ShopScene.skins[i].name == skinName {
                 index = i
-                loadSkin(skin: ShopScene.skins[i])
-                loadButtonData(for: ShopScene.skins[index])
+                showSkin(skin: ShopScene.skins[i])
+//                loadButtonData(for: ShopScene.skins[index])
+                setButtonData(for: index)
                 break
             }
         }
@@ -174,14 +177,15 @@ class ShopScene: SKScene {
             backBtn.release()
         } else if triggeredNode == actBtn.sprite {
             actBtn.release()
-            if !GameScene.ownedSkins.contains(ShopScene.skins[index]) {
-                if actBtn.color == .yellow && hasEnoughMoney(for: ShopScene.skins[index]) && !GameScene.ownedSkins.contains(ShopScene.skins[index]) {
-                    GameScene.ownedSkins.insert(ShopScene.skins[index])
+            if !GameScene.ownedSkins.contains(index) {
+                if actBtn.color == .yellow && hasEnoughMoney(for: ShopScene.skins[index]) && !GameScene.ownedSkins.contains(index) {
+//                    GameScene.ownedSkins.append(index)
+                    buySkin(at: index)
                 }
-//                ShopScene.skins[index].owned = actBtn.color == .yellow && hasEnoughMoney(for: ShopScene.skins[index])
             } else {
-                GameScene.currentSkin = ShopScene.skins[index]
+                GameScene.skinIndex = index
             }
+            GameScene.saveData()
         } else if triggeredNode == rightArrow {
             index += 1
             rightArrow.yScale = 7
@@ -190,29 +194,35 @@ class ShopScene: SKScene {
             leftArrow.yScale = 7
         }
 
-        loadSkin(skin: ShopScene.skins[index])
-        loadButtonData(for: ShopScene.skins[index])
+        showSkin(skin: ShopScene.skins[index])
+        setButtonData(for: index)
         triggeredNode = nil
+    }
+    
+    func buySkin(at index: Int) {
+        let skin = ShopScene.skins[index]
+        switch (skin.currency) {
+        case .wood:
+            wooden -= skin.price
+            defaults.set(wooden, forKey: "wooden")
+        case .bronze:
+            bronze -= skin.price
+            defaults.set(bronze, forKey: "bronze")
+        case .golden:
+            golden -= skin.price
+            defaults.set(golden, forKey: "golden")
+        }
+        
+        GameScene.ownedSkins.append(index)
     }
     
     override func update(_ currentTime: TimeInterval) {
         cam.shake(amplitude: 0.8, amount: 5, step: 0, duration: 2)
     }
     
-    func loadSkin(skin: Skin) {
+    func showSkin(skin: Skin) {
         self.skinSprite.texture = skin.texture
         self.skinTitle.text = skin.title
-//        GameScene.currentSkin = skin
-        
-//        if skin.owned {
-//            actBtn.setText(text: skin.set ? "CURRENT SKIN" : "SET SKIN")
-//            actBtn.setColor(color: skin.set ? .blue : .green)
-//            actBtn.label.children.first!.isHidden = true
-//        } else {
-//            actBtn.setPrice(amount: skin.price, currency: skin.currency)
-//            actBtn.setColor(color: hasEnoughMoney(for: skin) ? .yellow : .gray)
-//            actBtn.label.children.first!.isHidden = false
-//        }
         
         for i in 0..<pages.count {
             pages[i].texture = SKTexture(imageNamed: i == index ? "current-page" : "inactive-page").px()
@@ -222,13 +232,14 @@ class ShopScene: SKScene {
         rightArrow.texture = SKTexture(imageNamed: index == ShopScene.skins.count - 1 ? "disabled-arrow" : "arrow").px()
     }
     
-    func loadButtonData(for skin: Skin) {
-        if GameScene.currentSkin == skin {
+    func setButtonData(for index: Int) {
+        if GameScene.skinIndex == index {
             actBtn.set(text: "CURRENT SKIN", color: .blue, hideCoin: true)
         } else {
-            if GameScene.ownedSkins.contains(skin) {
+            if GameScene.ownedSkins.contains(index) {
                 actBtn.set(text: "SET SKIN", color: .green, hideCoin: true)
             } else {
+                let skin = ShopScene.skins[index]
                 actBtn.setPrice(amount: skin.price, currency: skin.currency)
                 actBtn.setColor(color: hasEnoughMoney(for: skin) ? .yellow : .gray)
                 actBtn.label.children.first!.isHidden = false
