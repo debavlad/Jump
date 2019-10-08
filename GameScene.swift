@@ -309,7 +309,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 let scale = SKAction.scale(to: 0.025, duration: 0.8)
                 scale.timingMode = SKActionTimingMode.easeInEaseOut
-                let move = SKAction.moveBy(x: 200, y: -300, duration: 0.8)
+                
+                let doorPos = CGPoint(x: manager.house.position.x + manager.door.frame.maxX, y: manager.house.position.y + manager.door.position.y)
+                let move = SKAction.move(to: doorPos, duration: 0.8)
                 move.timingMode = SKActionTimingMode.easeIn
                 
                 let wait = SKAction.wait(forDuration: 0.4)

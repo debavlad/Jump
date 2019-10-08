@@ -17,7 +17,7 @@ class Manager {
     private var width, height: CGFloat
     private(set) var menuBtn: Button!
     private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel, wl, bl, gl: SKLabelNode!
-    private(set) var door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon, w, b, g: SKSpriteNode!
+    private(set) var house, door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon, w, b, g: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
     
@@ -58,7 +58,7 @@ class Manager {
         sky.zPosition = -10
         cam.addChild(sky)
         
-        let house = SKSpriteNode(imageNamed: "house").px()
+        house = SKSpriteNode(imageNamed: "house").px()
         house.size = CGSize(width: 543, height: 632)
         house.position = CGPoint(x: 200, y: -47)
         house.zPosition = 1
@@ -235,7 +235,7 @@ class Manager {
         let defaults = UserDefaults.standard
         
         wl = SKLabelNode(fontNamed: "Coder's Crux")
-        wl.text = String(defaults.value(forKey: "wooden") as! Int)
+        wl.text = String((defaults.value(forKey: "wooden") ?? 0) as! Int)
         wl.fontSize = 110
         wl.position.x = w.frame.width/2 + wl.frame.width/2 + 25
         wl.position.y = -wl.frame.height/2 + 2
@@ -249,7 +249,7 @@ class Manager {
         cam.addChild(b)
         
         bl = SKLabelNode(fontNamed: "Coder's Crux")
-        bl.text = String(defaults.value(forKey: "bronze") as! Int)
+        bl.text = String((defaults.value(forKey: "bronze") ?? 0) as! Int)
         bl.fontSize = 110
         bl.position.x = b.frame.width/2 + bl.frame.width/2 + 25
         bl.position.y = -bl.frame.height/2 + 2
@@ -263,7 +263,7 @@ class Manager {
         cam.addChild(g)
         
         gl = SKLabelNode(fontNamed: "Coder's Crux")
-        gl.text = String(defaults.value(forKey: "golden") as! Int)
+        gl.text = String((defaults.value(forKey: "golden") ?? 0) as! Int) 
         gl.fontSize = 110
         gl.position.x = g.frame.width/2 + gl.frame.width/2 + 25
         gl.position.y = -gl.frame.height/2 + 2
