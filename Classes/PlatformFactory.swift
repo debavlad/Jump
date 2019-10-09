@@ -23,11 +23,14 @@ class Stage {
         case 1:
             availablePlatforms.append(.wood)
             availableCoins.append(.bronze)
+            PlatformFactory.maxJumpQuantity = 8
         case 2:
             availablePlatforms.append(.stone)
+            PlatformFactory.maxJumpQuantity = 10
         case 3:
             availablePlatforms.append(.sand)
             availableCoins.append(.golden)
+            PlatformFactory.maxJumpQuantity = 12
         default:
             break
         }
@@ -42,6 +45,8 @@ class PlatformFactory {
     private let data: [PlatformType : (texture: SKTexture, power: Int, damage: Int)]
     private var lastPlatformType = PlatformType.dirt
     private let parent: SKNode!
+    private var jumpCounter = 0
+    static var maxJumpQuantity = 6
     
     private(set) var stage: Stage
     private let coinFactory: CoinFactory
@@ -80,16 +85,18 @@ class PlatformFactory {
         highestY = type == .dirt ? position.y + 150: position.y
         
         let coin = hasItem(0.2) ? coinFactory.random(stage.availableCoins) : nil
-//        let coin = hasItem(chance: 0.2) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
         if let c = coin {
             platform.addItem(c)
             items.insert(c)
         }
         
-        let food = hasItem(0.15) ? foodFactory.getRandomFood() : nil
+        let food = jumpCounter >= PlatformFactory.maxJumpQuantity ? foodFactory.getRandomFood() : nil
         if let f = food {
             platform.addItem(f)
             items.insert(f)
+            jumpCounter = 0
+        } else {
+            jumpCounter += 1
         }
         
         switch type {
@@ -159,7 +166,6 @@ class PlatformFactory {
     private func randomType() -> PlatformType {
         let random = Int.random(in: 0..<stage.availablePlatforms.count)
         return stage.availablePlatforms[random]
-//        return PlatformType(rawValue: random)!
     }
     
     private func construct(_ type: PlatformType, _ position: CGPoint) -> Platform {

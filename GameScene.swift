@@ -28,20 +28,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var movement, offset, minY: CGFloat!
     private var sliderTouch: UITouch?
     private var triggeredBtn: Button!
-    private var started = false, stopped = false, ended = false
+    private var (started, stopped, ended) = (false, false, false)
     private var bounds: Bounds!
     
 //    var platformAudio = AVAudioPlayer(), coinAudio = AVAudioPlayer(), foodAudio = AVAudioPlayer()
     
-    enum AudioPlayerType {
-        case UI
-        case world
-        case platform
-        case coin
-        case food
-    }
+//    enum AudioPlayerType {
+//        case UI
+//        case world
+//        case platform
+//        case coin
+//        case food
+//    }
     
-    func playSound(type: AudioPlayerType, audioName: String = "") {
+//    func playSound(type: AudioPlayerType, audioName: String = "") {
 //        DispatchQueue.global(qos: .background).async {
 //            var player: AVAudioPlayer!
 //            do {
@@ -67,19 +67,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //            player.prepareToPlay()
 //            player.play()
 //        }
-    }
-    
-    static func saveData() {
-        let defaults = UserDefaults.standard
-        defaults.set(GameScene.ownedSkins, forKey: "ownedSkins")
-        defaults.set(GameScene.skinIndex, forKey: "skinIndex")
-    }
-    
-    func loadData() {
-        let defaults = UserDefaults.standard
-        GameScene.ownedSkins = defaults.value(forKey: "ownedSkins") as? [Int] ?? [0]
-        GameScene.skinIndex = defaults.value(forKey: "skinIndex") as? Int ?? 0
-    }
+//    }
     
     override func didMove(to view: SKView) {
         loadData()
@@ -151,7 +139,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if player.isAlive {
             let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if col == Collision.playerFood || col == Collision.playerCoin {
-                if let node = extract(node: "item", from: contact) {
+                if let node = extractNode("item", contact) {
                     let item = platformFactory.findItem(node)
                     item.wasTouched = true
                 }
@@ -164,12 +152,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 manager.addEmitter(world, "DustParticles", contact.contactPoint)
                 
                 // Define platform obj
-                let node = extract(node: "platform", from: contact)!
+                let node = extractNode("platform", contact)!
                 let platform = platformFactory.findPlatform(node)
                 
                 
-                let audioName = "\(platform.type)-footstep"
-                playSound(type: .platform, audioName: audioName)
+                //let audioName = "\(platform.type)-footstep"
+                //playSound(type: .platform, audioName: audioName)
                 
                 // Pick items up
                 if platform.hasItems() {
@@ -177,12 +165,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         if item.wasTouched {
                             switch item {
                             case is Coin:
-                                pick(item: item, platform: platform)
+                                pickItem(item, platform)
                                 manager.addCoin((item as! Coin).currency)
                             case is Food:
                                 player.editHp((item as! Food).energy)
-//                                player.heal(by: (item as! Food).energy)
-                                pick(item: item, platform: platform)
+                                pickItem(item, platform)
                             default:
                                 return
                             }
@@ -192,15 +179,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 // Harm and push
                 player.editHp(-platform.damage)
-//                player.harm(by: platform.damage)
                 if player.isAlive {
                     player.push(power: platform.power)
                 } else {
                     player.push(power: 70)
-                    finish(wait: 0.7)
+                    finish(0.7)
                 }
                 
-//                if platform.sprite.name!.contains("sand") {
                 if platform.type == .sand {
                     platform.fall(contact.contactPoint.x)
                 }
@@ -212,7 +197,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cam.shake(1, 5, 0, 1.5)
         
         if !stopped {
-            movement = lerp(start: player.sprite.position.x, end: manager.slider.position.x, percent: 0.25)
+            movement = lerp(player.sprite.position.x, manager.slider.position.x, 0.25)
             player.sprite.position.x = movement
             
             // Define death point
@@ -227,13 +212,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             // Set score
             let score = Int(player.sprite.position.y/100)
-//            if player.y/100 > 0 && player.y/100 > CGFloat(player.score) {
-//                manager.set(score: Int(player.y/100))
-//                player.set(score: Int(player.y/100))
-//            }
             if score > 0 && score > Int(player.score) {
                 manager.setScore(score)
-//                player.setScore(score: score)
                 player.setScore(score)
                 if score%100 == 0 {
                     platformFactory.stage.upgrade(score/100)
@@ -242,11 +222,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if started {
-            cam.node.position.y = lerp(start: cam.node.position.y, end: player.sprite.position.y, percent: cam.easing)
+            cam.node.position.y = lerp(cam.node.position.y, player.sprite.position.y, cam.easing)
             
             if player.isFalling() {
                 if player.currentAnim != player.fallAnim {
-//                    player.run(animation: player.fallAnim)
                     player.runAnimation(player.fallAnim)
                 }
                 if player.sprite.physicsBody!.velocity.dy < -2100 {
@@ -262,7 +241,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 platformFactory.remove(bounds.minY)
                 
                 if player.sprite.position.y < minY {
-                    finish(wait: 0)
+                    finish(0)
                 }
             }
         } else if !started && !ended {
@@ -270,7 +249,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if ended {
-            cam.node.position.x = lerp(start: cam.node.position.x, end: player.sprite.position.x, percent: cam.easing/3)
+            cam.node.position.x = lerp(cam.node.position.x, player.sprite.position.x, cam.easing/3)
         }
         
         if !world.isPaused {
@@ -284,14 +263,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.removeEmitters(cam.node.frame.minY - frame.height/2)
     }
     
-    func getBounds() -> Bounds {
-        bounds.minX = -frame.size.width/2 + cam.node.position.x
-        bounds.minY = cam.node.frame.minY - frame.height/2
-        bounds.maxX = frame.size.width/2 + cam.node.position.x
-        bounds.maxY = cam.node.frame.maxY + frame.height/2
-        return bounds
-    }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first!
         let node = atPoint(touch.location(in: self))
@@ -299,7 +270,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if !started {
             if node == manager.slider {
                 sliderTouch = touch
-                playSound(type: .UI, audioName: "push-down")
+                //playSound(type: .UI, audioName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
                 
@@ -318,7 +289,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 doorTip.sprite.alpha = 0
                 
             } else if node == manager.door {
-                playSound(type: .world, audioName: "door-open")
+                //playSound(type: .world, audioName: "door-open")
                 
                 manager.door.run(manager.doorAnim)
                 manager.hide(manager.line, manager.w, manager.b, manager.g)
@@ -348,20 +319,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         else if started && !ended {
             if node == manager.slider {
                 sliderTouch = touch
-                playSound(type: .UI, audioName: "push-down")
+                //playSound(type: .UI, audioName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
             } else if node == manager.pauseBtn {
                 sliderTouch = nil
-                playSound(type: .UI, audioName: "push-down")
+                //playSound(type: .UI, audioName: "push-down")
                 stopped ? gameState(paused: false) : gameState(paused: true)
             }
         }
         else if ended {
             if node == manager.menuBtn.sprite || node == manager.menuBtn.label {
                 manager.menuBtn.push()
-//                manager.menuBtn.state(pushed: true)
-                playSound(type: .UI, audioName: "push-down")
+                //playSound(type: .UI, audioName: "push-down")
                 triggeredBtn = manager.menuBtn
                 restart()
             } else if node == manager.advBtn.sprite || node == manager.advBtn.label {
@@ -394,11 +364,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         else if triggeredBtn != nil {
             triggeredBtn.release()
-//            triggeredBtn.state(pushed: false)
             triggeredBtn = nil
         }
     }
     
+    
+    func loadData() {
+        let defaults = UserDefaults.standard
+        GameScene.ownedSkins = defaults.value(forKey: "ownedSkins") as? [Int] ?? [0]
+        GameScene.skinIndex = defaults.value(forKey: "skinIndex") as? Int ?? 0
+    }
+    
+    static func saveData() {
+        let defaults = UserDefaults.standard
+        defaults.set(GameScene.ownedSkins, forKey: "ownedSkins")
+        defaults.set(GameScene.skinIndex, forKey: "skinIndex")
+    }
     
     private func restart() {
         let wait = SKAction.wait(forDuration: 0.5)
@@ -433,12 +414,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         run(SKAction.sequence([SKAction.group([wait, physics]), act ]))
     }
     
-    private func finish(wait: TimeInterval) {
+    func getBounds() -> Bounds {
+        bounds.minX = -frame.size.width/2 + cam.node.position.x
+        bounds.minY = cam.node.frame.minY - frame.height/2
+        bounds.maxX = frame.size.width/2 + cam.node.position.x
+        bounds.maxY = cam.node.frame.maxY + frame.height/2
+        return bounds
+    }
+    
+    private func finish(_ wait: TimeInterval) {
         let wait = SKAction.wait(forDuration: wait)
         let action = SKAction.run {
             self.sliderTouch = nil
             self.manager.switchUI()
-            self.playSound(type: .world, audioName: "hurt")
+            //self.playSound(type: .world, audioName: "hurt")
             
             let scale = SKAction.scale(to: 0.3, duration: 1)
             scale.timingMode = SKActionTimingMode.easeIn
@@ -463,7 +452,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         run(SKAction.sequence([wait, action]))
     }
     
-    private func pick(item: Item, platform: Platform) {
+    private func pickItem(_ item: Item, _ platform: Platform) {
         // breaditem; goldenitem
         var name = item.sprite.name!.dropLast(4)
         // bread; golden
@@ -476,21 +465,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.addEmitter(world, String(name), pos)
         if item is Coin {
             manager.addLabel(world, platform.sprite.position)
-            playSound(type: .coin)
+            //playSound(type: .coin)
         } else if item is Food {
-            playSound(type: .food)
+            //playSound(type: .food)
         }
         
         platformFactory.removeItem(item, from: platform)
-//        cam.shake(amplitude: 20, amount: 2, step: 6, duration: 0.08)
         cam.earthquake()
     }
     
-    private func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {
+    private func lerp(_ start: CGFloat, _ end: CGFloat, _ percent: CGFloat) -> CGFloat {
         return start + percent * (end - start)
     }
     
-    private func extract(node: String, from contact: SKPhysicsContact) -> SKNode? {
+    private func extractNode(_ node: String, _ contact: SKPhysicsContact) -> SKNode? {
         return contact.bodyA.node!.name!.contains(node) ? contact.bodyA.node : contact.bodyB.node
     }
     

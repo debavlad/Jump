@@ -59,6 +59,7 @@ private class Clouds {
             return distance <= 500
         }
     }
+    private var textures: [SKTexture]
     
     init(_ distance: CGFloat, _ highestY: CGFloat) {
         self.distance = distance
@@ -68,6 +69,13 @@ private class Clouds {
         self.width = UIScreen.main.bounds.width
         self.height = UIScreen.main.bounds.height + 50
         self.set = Set<SKSpriteNode>()
+        
+        textures = [
+            SKTexture(imageNamed: "cloud-0").px(),
+            SKTexture(imageNamed: "cloud-1").px(),
+            SKTexture(imageNamed: "cloud-2").px(),
+            SKTexture(imageNamed: "cloud-3").px()
+        ]
     }
     
     
@@ -140,9 +148,8 @@ private class Clouds {
     }
     
     private func construct(_ z: CGFloat, _ scale: CGFloat, _ alpha: CGFloat) -> SKSpriteNode {
-        let i = Int.random(in: 0...3)
-        let imgName = "cloud-\(i)"
-        let cloud = SKSpriteNode(imageNamed: imgName).px()
+        let i = Int.random(in: 0..<textures.count)
+        let cloud = SKSpriteNode(texture: textures[i])
         
         cloud.zPosition = z
         cloud.setScale(scale)
