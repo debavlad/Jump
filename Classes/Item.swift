@@ -9,11 +9,29 @@
 import Foundation
 import SpriteKit
 
+class Coin: Item {
+    private(set) var currency: Currency
+    
+    init(_ sprite: SKSpriteNode, _ currency: Currency) {
+        self.currency = currency
+        super.init(sprite)
+    }
+}
+
+class Food: Item {
+    private(set) var energy: Int
+    
+    init(_ sprite: SKSpriteNode, _ energy: Int) {
+        self.energy = energy
+        super.init(sprite)
+    }
+}
+
 class Item: Hashable {
     let sprite: SKSpriteNode
     var wasTouched = false
     
-    init(sprite: SKSpriteNode) {
+    init(_ sprite: SKSpriteNode) {
         self.sprite = sprite
     }
     

@@ -107,35 +107,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0, dy: -23)
         
-        cam = Camera(scene: self)
+        cam = Camera(self)
         cam.node.addChild(fade)
         cam.node.position.y = -60
         
         world = SKNode()
-        manager = Manager(scene: self, world: world)
-        manager.show(nodes: manager.line)
+        manager = Manager(self, world)
+        manager.show(manager.line)
         
         player = Player(world.childNode(withName: "Character")!)
         player.turn(left: true)
         
-        sliderTip = Tip(text: "START GAME", position: CGPoint(x: 35, y: 70))
+        sliderTip = Tip("START GAME", CGPoint(x: 35, y: 70))
         manager.slider.addChild(sliderTip.sprite)
         
-        doorTip = Tip(text: "CHANGE SKIN", position: CGPoint(x: -50, y: 100))
-        doorTip.flip(scale: 0.75)
+        doorTip = Tip("CHANGE SKIN", CGPoint(x: -50, y: 100))
+        doorTip.flip(0.75)
         manager.door.addChild(doorTip.sprite)
         
         addChild(world)
-        trail = Trail(target: player.sprite)
+//        trail = Trail(target: player.sprite)
+        trail = Trail(player.sprite)
         trail.create(in: world)
+//        trail.create(in: world)
         
-        platformFactory = PlatformFactory(parent: world, startY: frame.height/2, distance: 125...200)
-        cloudFactory = CloudFactory(frame: frame, world: world)
+        platformFactory = PlatformFactory(world, frame.height/2, 125...200)
+        cloudFactory = CloudFactory(frame, world)
         bounds = Bounds()
-        minY = player.y
+        minY = player.sprite.position.y
         
-        manager.slider.position.x = player.x
-        movement = player.x
+        manager.slider.position.x = player.sprite.position.x
+        movement = player.sprite.position.x
         cam.node.setScale(0.75)
         
         if GameScene.restarted {
@@ -147,38 +149,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func didBegin(_ contact: SKPhysicsContact) {
         if player.isAlive {
-            print("Hello, world!")
             let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
             if col == Collision.playerFood || col == Collision.playerCoin {
                 if let node = extract(node: "item", from: contact) {
-                    let item = platformFactory.find(item: node)
+                    let item = platformFactory.findItem(node)
                     item.wasTouched = true
                 }
             }
             
             if player.isFalling() && col == Collision.playerPlatform {
                 // Play animation and create trail line
-                player.run(animation: player.landAnim)
-                trail.create(in: world, scale: 30.0)
-                manager.addEmitter(to: world, filename: "DustParticles", position: contact.contactPoint)
+                player.runAnimation(player.landAnim)
+                trail.create(in: world, 30.0)
+                manager.addEmitter(world, "DustParticles", contact.contactPoint)
                 
                 // Define platform obj
                 let node = extract(node: "platform", from: contact)!
-                let platform = platformFactory.find(platform: node)
+                let platform = platformFactory.findPlatform(node)
                 
-                var audioName: String!
-                switch platform.damage {
-                case 3:
-                    audioName = "dirt-footstep"
-                case 4:
-                    audioName = "sand-footstep"
-                case 5:
-                    audioName = "wood-footstep"
-                case 6:
-                    audioName = "stone-footstep"
-                default:
-                    break
-                }
+                
+                let audioName = "\(platform.type)-footstep"
                 playSound(type: .platform, audioName: audioName)
                 
                 // Pick items up
@@ -188,9 +178,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                             switch item {
                             case is Coin:
                                 pick(item: item, platform: platform)
-                                manager.plusCoin(coin: (item as! Coin).currency)
+                                manager.addCoin((item as! Coin).currency)
                             case is Food:
-                                player.heal(by: (item as! Food).energy)
+                                player.editHp((item as! Food).energy)
+//                                player.heal(by: (item as! Food).energy)
                                 pick(item: item, platform: platform)
                             default:
                                 return
@@ -200,7 +191,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
                 
                 // Harm and push
-                player.harm(by: platform.damage)
+                player.editHp(-platform.damage)
+//                player.harm(by: platform.damage)
                 if player.isAlive {
                     player.push(power: platform.power)
                 } else {
@@ -208,22 +200,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     finish(wait: 0.7)
                 }
                 
-                if platform.sprite.name!.contains("sand") {
-                    platform.fall(contactX: contact.contactPoint.x)
+//                if platform.sprite.name!.contains("sand") {
+                if platform.type == .sand {
+                    platform.fall(contact.contactPoint.x)
                 }
             }
         }
     }
     
     override func update(_ currentTime: TimeInterval) {
-        cam.shake(amplitude: 1, amount: 5, step: 0, duration: 1.5)
+        cam.shake(1, 5, 0, 1.5)
         
         if !stopped {
-            movement = lerp(start: player.x, end: manager.slider.position.x, percent: 0.25)
-            player.x = movement
+            movement = lerp(start: player.sprite.position.x, end: manager.slider.position.x, percent: 0.25)
+            player.sprite.position.x = movement
             
             // Define death point
-            if let lowestY = platformFactory.lowestY(), player.y > lowestY {
+            if let lowestY = platformFactory.lowestY(), player.sprite.position.y > lowestY {
                 minY = lowestY
             }
             
@@ -233,26 +226,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             // Set score
-            let score = Int(player.y/100)
+            let score = Int(player.sprite.position.y/100)
 //            if player.y/100 > 0 && player.y/100 > CGFloat(player.score) {
 //                manager.set(score: Int(player.y/100))
 //                player.set(score: Int(player.y/100))
 //            }
             if score > 0 && score > Int(player.score) {
-                manager.set(score: score)
-                player.set(score: score)
+                manager.setScore(score)
+//                player.setScore(score: score)
+                player.setScore(score)
                 if score%100 == 0 {
-                    platformFactory.stage.upgrade(to: score/100)
+                    platformFactory.stage.upgrade(score/100)
                 }
             }
         }
         
         if started {
-            cam.y = lerp(start: cam.y, end: player.y, percent: cam.easing)
+            cam.node.position.y = lerp(start: cam.node.position.y, end: player.sprite.position.y, percent: cam.easing)
             
             if player.isFalling() {
                 if player.currentAnim != player.fallAnim {
-                    player.run(animation: player.fallAnim)
+//                    player.run(animation: player.fallAnim)
+                    player.runAnimation(player.fallAnim)
                 }
                 if player.sprite.physicsBody!.velocity.dy < -2100 {
                     player.sprite.physicsBody!.velocity.dy = -2100
@@ -261,39 +256,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             if !ended {
                 _ = getBounds()
-                if platformFactory.can(playerY: player.y) {
+                if platformFactory.canBuild(player.sprite.position.y) {
                     platformFactory.create()
                 }
-                platformFactory.remove(minY: bounds.minY)
+                platformFactory.remove(bounds.minY)
                 
-                if player.y < minY {
+                if player.sprite.position.y < minY {
                     finish(wait: 0)
                 }
             }
         } else if !started && !ended {
-            started = player.y > 0
+            started = player.sprite.position.y > 0
         }
         
         if ended {
-            cam.x = lerp(start: cam.x, end: player.x, percent: cam.easing/3)
+            cam.node.position.x = lerp(start: cam.node.position.x, end: player.sprite.position.x, percent: cam.easing/3)
         }
         
         if !world.isPaused {
-            cloudFactory.create(playerY: player.y, started: started)
+            cloudFactory.create(player.sprite.position.y, started)
             cloudFactory.bounds = getBounds()
             cloudFactory.remove()
             cloudFactory.move()
         }
         
-        manager.removeLabels(minY: cam.minY - frame.height/2)
-        manager.removeEmitters(minY: cam.minY - frame.height/2)
+        manager.removeLabels(cam.node.frame.minY - frame.height/2)
+        manager.removeEmitters(cam.node.frame.minY - frame.height/2)
     }
     
     func getBounds() -> Bounds {
-        bounds.minX = -frame.size.width/2 + cam.x
-        bounds.minY = cam.minY - frame.height/2
-        bounds.maxX = frame.size.width/2 + cam.x
-        bounds.maxY = cam.maxY + frame.height/2
+        bounds.minX = -frame.size.width/2 + cam.node.position.x
+        bounds.minY = cam.node.frame.minY - frame.height/2
+        bounds.maxX = frame.size.width/2 + cam.node.position.x
+        bounds.maxY = cam.node.frame.maxY + frame.height/2
         return bounds
     }
     
@@ -310,23 +305,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 let push = SKAction.run {
                     self.player.push(power: 170)
-                    self.cam.shake(amplitude: 50, amount: 6, step: 6, duration: 0.055)
+                    self.cam.shake(50, 6, 6, 0.055)
                     let scale = SKAction.scale(to: 0.95, duration: 1)
                     scale.timingMode = SKActionTimingMode.easeIn
                     self.cam.node.run(scale)
                 }
                 player.sprite.removeAllActions()
                 cloudFactory.speedUp()
-                manager.show(nodes: manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore)
+                manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore)
                 run(push)
-                manager.hide(nodes: sliderTip.sprite, manager.w, manager.b, manager.g)
+                manager.hide(sliderTip.sprite, manager.w, manager.b, manager.g)
                 doorTip.sprite.alpha = 0
                 
             } else if node == manager.door {
                 playSound(type: .world, audioName: "door-open")
                 
                 manager.door.run(manager.doorAnim)
-                manager.hide(nodes: manager.line, manager.w, manager.b, manager.g)
+                manager.hide(manager.line, manager.w, manager.b, manager.g)
                 
                 let scale = SKAction.scale(to: 0.025, duration: 0.8)
                 scale.timingMode = SKActionTimingMode.easeInEaseOut
@@ -383,7 +378,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             if touchX > -halfLine && touchX < halfLine {
                 manager.slider.position.x = touchX + offset
-                if player.x < manager.slider.position.x {
+                if player.sprite.position.x < manager.slider.position.x {
                     player.turn(left: false)
                 } else {
                     player.turn(left: true)
@@ -449,7 +444,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             scale.timingMode = SKActionTimingMode.easeIn
             scale.speed = 3
             
-            let angle: CGFloat = self.player.x > 0 ? -0.3 : 0.3
+            let angle: CGFloat = self.player.sprite.position.x > 0 ? -0.3 : 0.3
             let rotate = SKAction.rotate(toAngle: angle, duration: 1)
             rotate.timingMode = SKActionTimingMode.easeInEaseOut
             rotate.speed = 0.6
@@ -461,7 +456,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             let scaleStop = SKAction.sequence([scale, stop])
             self.cam.node.run(SKAction.group([scaleStop, rotate]))
-            self.manager.hide(nodes: self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
+            self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
             self.ended = true
         }
         
@@ -478,17 +473,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // BreadParticles; GoldenParticles
         
         let pos = CGPoint(x: platform.sprite.position.x + item.sprite.position.x, y: platform.sprite.position.y + item.sprite.position.y)
-        manager.addEmitter(to: world, filename: String(name), position: pos)
+        manager.addEmitter(world, String(name), pos)
         if item is Coin {
-            manager.addLabel(to: world, position: platform.sprite.position)
+            manager.addLabel(world, platform.sprite.position)
             playSound(type: .coin)
         } else if item is Food {
             playSound(type: .food)
         }
         
-        platformFactory.remove(item: item, from: platform)
+        platformFactory.removeItem(item, from: platform)
 //        cam.shake(amplitude: 20, amount: 2, step: 6, duration: 0.08)
-        cam.boom()
+        cam.earthquake()
     }
     
     private func lerp(start: CGFloat, end: CGFloat, percent: CGFloat) -> CGFloat {

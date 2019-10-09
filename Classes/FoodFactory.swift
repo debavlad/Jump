@@ -23,19 +23,19 @@ class FoodFactory {
     func getRandomFood() -> Food {
         let random = Int.random(in: 0..<energies.count)
         let type = FoodType(rawValue: random)
-        let food = create(type: type!)
+        let food = create(type!)
         
         return food
     }
     
-    private func create(type: FoodType) -> Food {
+    private func create(_ type: FoodType) -> Food {
         let sprite = SKSpriteNode(imageNamed: type.description)
-            .setFoodSettings()
+            .applyFoodSettings()
             .randomize()
             .px()
         sprite.name = type.description + "item"
         
-        return Food(sprite: sprite, energy: energies[type]!)
+        return Food(sprite, energies[type]!)
     }
 }
 
@@ -78,7 +78,7 @@ extension SKSpriteNode {
         return self
     }
     
-    func setFoodSettings() -> SKSpriteNode {
+    func applyFoodSettings() -> SKSpriteNode {
         setScale(5.4)
         
         physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))

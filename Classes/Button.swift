@@ -46,8 +46,13 @@ class Button {
     var color: BtnColor
     let sprite: SKSpriteNode
     private(set) var label: SKLabelNode
+    var icon: SKNode? {
+        get {
+            return label.children.first
+        }
+    }
     
-    init(text: String, color: BtnColor, position: CGPoint) {
+    init(_ text: String, _ color: BtnColor, _ position: CGPoint) {
         self.color = color
         name = "\(color.description)-btn"
         sprite = SKSpriteNode(imageNamed: "\(name)1").px()
@@ -65,55 +70,50 @@ class Button {
         sprite.addChild(label)
     }
     
-    init(price: Int, type: Currency, y: CGFloat) {
+    init(_ price: Int, _ type: Currency, _ y: CGFloat) {
         self.color = BtnColor.yellow
         name = "\(BtnColor.green.description)-btn"
         sprite = SKSpriteNode(imageNamed: "\(name)1").px()
         sprite.size = CGSize(width: 575, height: 150)
         sprite.position.y = y
         sprite.zPosition = 21
-        
+
         let icon = SKSpriteNode(imageNamed: "\(type.description)0").px()
         icon.size = CGSize(width: 52, height: 61)
         icon.anchorPoint = CGPoint(x: 1, y: 0.5)
-        
+
         label = SKLabelNode(fontNamed: "Coder's Crux")
         label.fontColor = BtnColor.green.rgb
         label.fontSize = 93
         label.zPosition = 1
         label.position.y = -10
         label.text = "\(price)"
-        
+
         icon.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height/2)
         label.addChild(icon)
-        
+
         label.position.x += 10 + icon.frame.width/2
-        
+
         sprite.addChild(label)
     }
     
-    func set(text: String, color: BtnColor, hideCoin: Bool) {
-        setText(text: text)
-        setColor(color: color)
-        label.children.first!.isHidden = hideCoin
-    }
-    
-    func setPrice(amount: Int, currency: Currency) {
-        setText(text: "\(amount)")
-        let coin = label.children.first! as! SKSpriteNode
+    func setPrice(_ amount: Int, _ currency: Currency) {
+        setText("\(amount)")
+        let coin = icon as! SKSpriteNode
         coin.texture = SKTexture(imageNamed: "\(currency.description)0")
         coin.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height / 2)
+        coin.isHidden = false
         label.position.x += 10 + coin.frame.width/2
     }
     
-    func setColor(color: BtnColor) {
+    func setColor(_ color: BtnColor) {
         name = "\(color.description)-btn"
         sprite.texture = SKTexture(imageNamed: "\(name)1").px()
         self.color = color
         label.fontColor = color.rgb
     }
     
-    func setText(text: String) {
+    func setText(_ text: String) {
         label.text = text
         label.position.x = 0
     }

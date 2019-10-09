@@ -13,10 +13,6 @@ class CoinFactory {
     private var animations = [String : SKAction]()
     
     init() {
-        setAnimations()
-    }
-    
-    func setAnimations() {
         var textures = [SKTexture]()
         for i in 0...7 {
             textures.append(SKTexture(imageNamed: "wood\(i)").px())
@@ -37,35 +33,20 @@ class CoinFactory {
         textures.removeAll()
     }
     
-//    func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
-//        let chances = [Currency.wood : wooden, Currency.bronze : bronze, Currency.golden : golden]
-//
-//        for c in chances {
-//            let random = Double.random(in: 0...wooden + bronze + golden)
-//            if random < c.value {
-//                return create(of: c.key)
-//            }
-//        }
-//
-//        // return the worst platform if we didn't get anything in loop somehow
-//        return create(of: .wood)
-//    }
-    
-    func random(availableCoins: [Currency]) -> Coin {
+    func random(_ availableCoins: [Currency]) -> Coin {
         let random = Int.random(in: 0..<availableCoins.count)
-        return create(of: availableCoins[random])
+        return create(availableCoins[random])
     }
     
-    private func create(of currency: Currency) -> Coin {
-        let sprite = SKSpriteNode(imageNamed: "\(currency.description)0")
-            .setCoinSettings()
-            .px()
+    private func create(_ currency: Currency) -> Coin {
+        let sprite = SKSpriteNode()
+              .applyCoinSettings()
+              .px()
         sprite.name = currency.description + "item"
-        
         let anim = animations[currency.description]!
         sprite.run(SKAction.repeatForever(anim))
         
-        return Coin(node: sprite, currency: currency)
+        return Coin(sprite, currency)
     }
 }
 
@@ -87,7 +68,7 @@ enum Currency : CustomStringConvertible {
 }
 
 extension SKSpriteNode {
-    func setCoinSettings() -> SKSpriteNode {
+    func applyCoinSettings() -> SKSpriteNode {
         size = CGSize(width: 54, height: 59.4)
         zPosition = 1
         let x = CGFloat.random(in: -20...20)

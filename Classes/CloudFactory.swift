@@ -15,37 +15,38 @@ class CloudFactory {
     private var bg, fg: Clouds!
     var bounds: Bounds!
     
-    init(frame: CGRect, world: SKNode) {
+    init(_ frame: CGRect, _ world: SKNode) {
         bg = Clouds(250, -frame.height)
         fg = Clouds(1200, -frame.height/1.25)
         self.parent = world
     }
     
-    func create(playerY: CGFloat, started: Bool) {
-        if bg.can(playerY: playerY, started: started) {
+    
+    func create(_ playerY: CGFloat, _ started: Bool) {
+        if bg.canBuild(playerY, started) {
             let cloud = bg.create()
             parent.addChild(cloud)
         }
         
-        if fg.can(playerY: playerY, started: started) {
+        if fg.canBuild(playerY, started) {
             let cloud = fg.create()
             parent.addChild(cloud)
         }
     }
     
     func move() {
-        bg.move(bounds: bounds)
-        fg.move(bounds: bounds)
+        bg.move(bounds)
+        fg.move(bounds)
     }
     
     func remove() {
-        bg.remove(bounds: bounds)
-        fg.remove(bounds: bounds)
+        bg.remove(bounds)
+        fg.remove(bounds)
     }
     
     func speedUp() {
-        bg.speedUp()
-        fg.speedUp()
+        bg.faster()
+        fg.faster()
     }
 }
 
@@ -69,7 +70,8 @@ private class Clouds {
         self.set = Set<SKSpriteNode>()
     }
     
-    fileprivate func can(playerY: CGFloat, started: Bool) -> Bool {
+    
+    fileprivate func canBuild(_ playerY: CGFloat, _ started: Bool) -> Bool {
         if started {
             return highestY + distance < playerY + height
         } else {
@@ -77,7 +79,7 @@ private class Clouds {
         }
     }
     
-    func move(bounds: Bounds) {
+    func move(_ bounds: Bounds) {
         for cloud in set {
             if cloud.frame.maxY > bounds.minY {
                 cloud.position.x += speed
@@ -85,11 +87,11 @@ private class Clouds {
         }
     }
     
-    func speedUp() {
+    func faster() {
         speed *= 2.5
     }
     
-    func remove(bounds: Bounds) {
+    func remove(_ bounds: Bounds) {
         set.forEach { (cloud) in
             if cloud.frame.maxY < bounds.minY - height*2 {
                 cloud.removeFromParent()
@@ -100,7 +102,7 @@ private class Clouds {
                 return n.position.y == cloud.position.y
             }).count <= 1 {
                 let pos = CGPoint(x: bounds.minX, y: cloud.position.y)
-                let new = create(position: pos)
+                let new = create(pos)
                 cloud.parent?.addChild(new)
                 set.insert(new)
             }
@@ -112,15 +114,15 @@ private class Clouds {
         }
     }
     
-    func create(position: CGPoint? = nil) -> SKSpriteNode {
+    func create(_ position: CGPoint? = nil) -> SKSpriteNode {
         let cloud: SKSpriteNode!
         
         if background {
             let scale = CGFloat.random(in: 12...16)
-            cloud = construct(z: -5, scale: scale, alpha: 1)
+            cloud = construct(-5, scale, 1)
         } else {
             let scale = CGFloat.random(in: 22...28)
-            cloud = construct(z: 15, scale: scale, alpha: 0.5)
+            cloud = construct(15, scale, 0.5)
         }
         
         if let pos = position {
@@ -137,7 +139,7 @@ private class Clouds {
         return cloud
     }
     
-    private func construct(z: CGFloat, scale: CGFloat, alpha: CGFloat) -> SKSpriteNode {
+    private func construct(_ z: CGFloat, _ scale: CGFloat, _ alpha: CGFloat) -> SKSpriteNode {
         let i = Int.random(in: 0...3)
         let imgName = "cloud-\(i)"
         let cloud = SKSpriteNode(imageNamed: imgName).px()

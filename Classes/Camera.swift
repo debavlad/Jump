@@ -10,25 +10,10 @@ import Foundation
 import SpriteKit
 
 class Camera {
-    let node: SKCameraNode!
+    let node: SKCameraNode
+    var easing: CGFloat
     
-    var x: CGFloat {
-        set { node.position.x = newValue }
-        get { return node.position.x }
-    }
-    var y: CGFloat {
-        set { node.position.y = newValue }
-        get { return node.position.y }
-    }
-    var minY: CGFloat {
-        get { return node.frame.minY }
-    }
-    var maxY: CGFloat {
-        get { return node.frame.maxY }
-    }
-    var easing: CGFloat!
-    
-    init(scene: SKScene) {
+    init(_ scene: SKScene) {
         node = SKCameraNode()
         node.name = "Cam"
         scene.camera = node
@@ -36,10 +21,7 @@ class Camera {
         easing = 0.072
     }
     
-    // def (1.5, 5, 0, 2)   
-    // for item (10, 2, 4, 0.08)
-    // for start (40, 6, 6, 0.04)
-    func shake(amplitude: CGFloat, amount: Int, step: CGFloat, duration: CGFloat) {
+    func shake(_ amplitude: CGFloat, _ amount: Int, _ step: CGFloat, _ duration: CGFloat) {
         var amp = amplitude
         var actions: [SKAction] = []
         for _ in 1...amount {
@@ -60,8 +42,7 @@ class Camera {
         node.run(seq)
     }
     
-    // cam.shake(amplitude: 20, amount: 2, step: 6, duration: 0.08)
-    func boom() {
+    func earthquake() {
         var amp = 20
         var actions: [SKAction] = []
         for _ in 1...2 {

@@ -10,15 +10,8 @@ import Foundation
 import SpriteKit
 
 class Player {
-    var x: CGFloat {
-        set { sprite.position.x = newValue }
-        get { return sprite.position.x }
-    }
-    var y: CGFloat {
-        get { return sprite.position.y }
-    }
     let sprite: SKSpriteNode
-    private var health: Int = 100
+    private var health = 100
     private(set) var isAlive = true
     private(set) var score = 0
     
@@ -39,34 +32,11 @@ class Player {
         hpLine = hpBorder.children.first! as? SKSpriteNode
         maxLineWidth = hpLine.size.width
         
-        setPhysics()
-        setAnimations()
-        node.run(SKAction.repeatForever(sitAnim))
-    }
-    
-    func run(animation: SKAction) {
-        sprite.run(animation)
-        currentAnim = animation
-    }
-    
-    func set(score: Int) {
-        self.score = score
-    }
-    
-    func isFalling() -> Bool {
-        return sprite.physicsBody!.velocity.dy < 0
-    }
-    
-    func harm(by amount: Int) {
-        set(hp: health - amount)
-    }
-    
-    func heal(by amount: Int) {
-        set(hp: health + amount)
+        setNodes()
     }
     
     func push(power: Int) {
-        sprite.run(jumpAnim)
+        runAnimation(jumpAnim)
         sprite.physicsBody!.velocity = CGVector()
         sprite.physicsBody!.applyImpulse(CGVector(dx: 0, dy: power))
     }
@@ -81,33 +51,45 @@ class Player {
         }
     }
     
+    func setScore(_ val: Int) {
+        score = val
+    }
     
-    private func set(hp: Int) {
-        if hp <= 0 {
-            self.health = 0
+    func editHp(_ val: Int) {
+        let amount = health + val
+        
+        if amount <= 0 {
+            health = 0
             isAlive = false
             hpLine.size.width = 0
-        } else if hp >= 100 {
-            self.health = 100
+        } else if amount >= 100 {
+            health = 100
             hpLine.size.width = maxLineWidth
         } else {
-            self.health = hp
-            hpLine.size.width = maxLineWidth / 100 * CGFloat(hp)
-            setLineColor()
+            health = amount
+            hpLine.size.width = maxLineWidth/100 * CGFloat(amount)
+            // Setting line color
+            if amount <= 25 {
+                hpLine.texture = red
+            } else if amount <= 50 {
+                hpLine.texture = yellow
+            } else if amount <= 100 {
+                hpLine.texture = green
+            }
         }
     }
     
-    private func setLineColor() {
-        if health <= 25 {
-            hpLine.texture = red
-        } else if health <= 50 {
-            hpLine.texture = yellow
-        } else if health <= 100 {
-            hpLine.texture = green
-        }
+    func isFalling() -> Bool {
+        return sprite.physicsBody!.velocity.dy < 0
     }
     
-    private func setPhysics() {
+    func runAnimation(_ anim: SKAction) {
+        sprite.run(anim)
+        currentAnim = anim
+    }
+    
+    private func setNodes() {
+        // Physics
         sprite.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
         sprite.physicsBody?.collisionBitMask = Categories.ground
         sprite.physicsBody?.categoryBitMask = Categories.player
@@ -117,11 +99,9 @@ class Player {
         sprite.physicsBody?.restitution = GameScene.restarted ? 0.4 : 0
         sprite.physicsBody?.linearDamping = 0
         sprite.physicsBody?.angularDamping = 0
-    }
-    
-    private func setAnimations() {
-        let skinName = "\(ShopScene.skins[GameScene.skinIndex].name)"
         
+        // Animations
+        let skinName = "\(ShopScene.skins[GameScene.skinIndex].name)"
         var textures = [SKTexture]()
         for i in 0...3 {
             textures.append(SKTexture(imageNamed: "\(skinName)-jump\(i)").px())
@@ -146,5 +126,7 @@ class Player {
         }
         sitAnim = SKAction.animate(with: textures, timePerFrame: 0.15)
         textures.removeAll()
+        
+        sprite.run(SKAction.repeatForever(sitAnim))
     }
 }

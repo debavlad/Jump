@@ -11,13 +11,16 @@ import SpriteKit
 
 class Platform: Hashable {
     let sprite: SKSpriteNode!
+    let type: PlatformType
     private(set) var items: Set<Item>!
     private(set) var power, damage: Int
     
-    init(_ data: (textureName: String, power: Int, damage: Int)) {
-        sprite = SKSpriteNode(imageNamed: data.textureName).px()
+    
+    init(_ type: PlatformType, _ data: (texture: SKTexture, power: Int, damage: Int)) {
+        self.type = type
+        sprite = SKSpriteNode(texture: data.texture)
         sprite.size = CGSize(width: 117, height: 45)
-        sprite.name = String(data.textureName)
+        sprite.name = "platform"
         sprite.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 83.5, height: 1), center: CGPoint(x: 0, y: 20))
         sprite.physicsBody?.restitution = CGFloat(0.2)
         sprite.physicsBody?.friction = 0
@@ -32,9 +35,17 @@ class Platform: Hashable {
         self.damage = data.damage
         self.power = data.power
     }
-
     
-    func add(item: Item) {
+    static func == (lhs: Platform, rhs: Platform) -> Bool {
+        return lhs.sprite.hashValue == rhs.sprite.hashValue
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(sprite)
+    }
+    
+    
+    func addItem(_ item: Item) {
         if items == nil {
             items = Set<Item>()
         }
@@ -42,12 +53,16 @@ class Platform: Hashable {
         sprite.addChild(item.sprite)
     }
     
-    func remove(item: Item) {
+    func removeItem(_ item: Item) {
         items.remove(item)
         item.sprite.removeFromParent()
     }
     
-    func moveByX(width: CGFloat) {
+    func hasItems() -> Bool {
+        return items != nil && items.count > 0
+    }
+    
+    func moveByX(_ width: CGFloat) {
         let right = SKAction.move(to: CGPoint(x: width, y: sprite.position.y), duration: 2)
         right.timingMode = SKActionTimingMode.easeInEaseOut
         let left = SKAction.move(to: CGPoint(x: -width, y: sprite.position.y), duration: 2)
@@ -57,7 +72,7 @@ class Platform: Hashable {
         sprite.run(SKAction.repeatForever(seq))
     }
     
-    func moveByY(height: CGFloat) {
+    func moveByY(_ height: CGFloat) {
         let minY = sprite.position.y, highest = sprite.position.y + height
         
         let up = SKAction.move(to: CGPoint(x: sprite.position.x, y: highest), duration: 1.5)
@@ -69,7 +84,7 @@ class Platform: Hashable {
         sprite.run(SKAction.repeatForever(seq))
     }
     
-    func fall(contactX: CGFloat) {
+    func fall(_ contactX: CGFloat) {
         sprite.zPosition = -1
         sprite.physicsBody?.collisionBitMask = 0
         sprite.physicsBody?.contactTestBitMask = 0
@@ -84,17 +99,5 @@ class Platform: Hashable {
                 item.sprite.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -20))
             }
         }
-    }
-    
-    func hasItems() -> Bool {
-        return items != nil && items.count > 0
-    }
-    
-    static func == (lhs: Platform, rhs: Platform) -> Bool {
-        return lhs.sprite.hashValue == rhs.sprite.hashValue
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(sprite)
     }
 }

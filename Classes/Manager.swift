@@ -21,18 +21,19 @@ class Manager {
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
     
-    init(scene: SKScene, world: SKNode) {
+    init(_ scene: SKScene, _ world: SKNode) {
         self.scene = scene
         width = UIScreen.main.bounds.width
         height = UIScreen.main.bounds.height
         labels = Set<SKLabelNode>()
         particles = Set<SKEmitterNode>()
         setAnimations()
-        setScene(world: world)
+        setScene(world)
     }
     
+    
     func switchUI() {
-        hide(nodes: line, hpBorder, pauseBtn)
+        hide(line, hpBorder, pauseBtn)
         
         // Centering coins' stats
         for (icon, lbl) in [(wIcon, wLabel), (bIcon, bLabel), (gIcon, gLabel)] {
@@ -40,18 +41,18 @@ class Manager {
             lbl!.position.x = icon!.frame.maxX + lbl!.frame.width + 30
         }
         
-        fade(node: advBtn.sprite, to: 1.0, duration: 2, false)
-        fade(node: menuBtn.sprite, to: 1.0, duration: 2, false)
-        fade(node: wIcon, to: 1.0, duration: 2, false)
-        fade(node: bIcon, to: 1.0, duration: 2, false)
-        fade(node: gIcon, to: 1.0, duration: 2, false)
-        fade(node: gameOver, to: 1.0, duration: 2, true)
-        fade(node: mScore, to: 1.0, duration: 2, false)
-        fade(node: darken, to: 0.6, duration: 1, false)
-        fade(node: red, to: 0.4, duration: 0.6, false)
+        fade(advBtn.sprite, 1.0, 2, false)
+        fade(menuBtn.sprite, 1.0, 2, false)
+        fade(wIcon, 1.0, 2, false)
+        fade(bIcon, 1.0, 2, false)
+        fade(gIcon, 1.0, 2, false)
+        fade(gameOver, 1.0, 2, true)
+        fade(mScore, 1.0, 2, false)
+        fade(darken, 0.6, 1, false)
+        fade(red, 0.4, 0.6, false)
     }
     
-    private func setScene(world: SKNode) {
+    private func setScene(_ world: SKNode) {
         let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         
         let sky = SKSpriteNode(imageNamed: "sky").px()
@@ -92,7 +93,6 @@ class Manager {
         world.addChild(ground)
         
         
-//        let player = SKSpriteNode(imageNamed: "\(GameScene.currentSkin!.name)-sit0").px()
         let player = SKSpriteNode(imageNamed: "\(ShopScene.skins[GameScene.skinIndex].name)-sit0").px()
         player.name = "Character"
         player.size = CGSize(width: 132, height: 140)
@@ -189,7 +189,7 @@ class Manager {
         gameScore.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         cam.addChild(gameScore)
         
-        var icons = SKNode()
+        let icons = SKNode()
         
         wIcon = SKSpriteNode(imageNamed: "wood0").px()
         wIcon.size = CGSize(width: 90, height: 99)
@@ -279,16 +279,16 @@ class Manager {
         gl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         g.addChild(gl)
         
-        menuBtn = Button(text: "BACK TO MENU", color: .gray, position: CGPoint(x: 0, y: -500))
+        menuBtn = Button("BACK TO MENU", .gray, CGPoint(x: 0, y: -500))
         menuBtn.sprite.alpha = 0
         cam.addChild(menuBtn.sprite)
         
-        advBtn = Button(text: "CONTINUE", color: .blue, position: CGPoint(x: 0, y: menuBtn.sprite.frame.maxY + 100))
+        advBtn = Button("CONTINUE", .blue, CGPoint(x: 0, y: menuBtn.sprite.frame.maxY + 100))
         advBtn.sprite.alpha = 0
         cam.addChild(advBtn.sprite)
     }
     
-    func set(score: Int) {
+    func setScore(_ score: Int) {
         gameScore.text = String(score)
         gameScore.position = CGPoint(x: -width + gameScore.frame.width/2 + 60, y: height - gameScore.frame.height/2 - 100)
         ptsScore.text = "\(score)"
@@ -296,17 +296,17 @@ class Manager {
         mScore.position = CGPoint(x: gameOver.position.x - ptsScore.frame.width/2, y: gameOver.position.y - 100)
     }
     
-    func plusCoin(coin: Currency) {
-        switch coin {
+    func addCoin(_ currency: Currency) {
+        switch currency {
         case .wood:
-            let curr = Int(wLabel.text!)!
-            wLabel.text = String(curr + 1)
+            let amount = Int(wLabel.text!)!
+            wLabel.text = String(amount + 1)
         case .bronze:
-            let curr = Int(bLabel.text!)!
-            bLabel.text = String(curr + 1)
+            let amount = Int(bLabel.text!)!
+            bLabel.text = String(amount + 1)
         case .golden:
-            let curr = Int(gLabel.text!)!
-            gLabel.text = String(curr + 1)
+            let amount = Int(gLabel.text!)!
+            gLabel.text = String(amount + 1)
         }
     }
     
@@ -328,7 +328,7 @@ class Manager {
         playTexture = SKTexture(imageNamed: "continue").px()
     }
     
-    func addEmitter(to parent: SKNode, filename: String, position: CGPoint) {
+    func addEmitter(_ parent: SKNode, _ filename: String, _ position: CGPoint) {
         let emitter = SKEmitterNode(fileNamed: filename)!
         emitter.name = String()
         emitter.position = position
@@ -351,7 +351,7 @@ class Manager {
         scene.run(seq)
     }
     
-    func addLabel(to parent: SKNode, position: CGPoint) {
+    func addLabel(_ parent: SKNode, _ position: CGPoint) {
         let label = SKLabelNode(text: "+1")
         label.name = String()
         label.fontName = "DisposableDroidBB"
@@ -372,7 +372,7 @@ class Manager {
         label.physicsBody?.applyAngularImpulse(rotate)
     }
     
-    func removeEmitters(minY: CGFloat) {
+    func removeEmitters(_ minY: CGFloat) {
         if particles.count > 1 {
             particles.filter({ (node) -> Bool in
                 return node.frame.maxY < minY
@@ -383,7 +383,7 @@ class Manager {
         }
     }
     
-    func removeLabels(minY: CGFloat) {
+    func removeLabels(_ minY: CGFloat) {
         if labels.count > 0 {
             labels.filter({ (node) -> Bool in
                 return node.frame.maxY < minY
@@ -395,7 +395,7 @@ class Manager {
     }
     
     
-    private func fade(node: SKNode, to value: CGFloat, duration: TimeInterval, _ shadow: Bool) {
+    private func fade(_ node: SKNode, _ value: CGFloat, _ duration: TimeInterval, _ shadow: Bool) {
         let fade = SKAction.fadeAlpha(to: value, duration: duration)
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4
@@ -415,7 +415,7 @@ class Manager {
         node.run(fade)
     }
     
-    func show(nodes: SKNode...) {
+    func show(_ nodes: SKNode...) {
         let fade = SKAction.fadeAlpha(to: 1.0, duration: 2)
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4
@@ -425,7 +425,7 @@ class Manager {
         }
     }
     
-    func hide(nodes: SKNode...) {
+    func hide(_ nodes: SKNode...) {
         let fade = SKAction.fadeAlpha(to: 0, duration: 0.6)
         fade.timingMode = SKActionTimingMode.easeOut
         fade.speed = 4

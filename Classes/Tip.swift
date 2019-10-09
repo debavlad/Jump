@@ -10,10 +10,10 @@ import Foundation
 import SpriteKit
 
 class Tip {
-    let sprite: SKSpriteNode!
-    let label: SKLabelNode!
+    let sprite: SKSpriteNode
+    let label: SKLabelNode
     
-    init(text: String, position: CGPoint, flipped: Bool = false) {
+    init(_ text: String, _ position: CGPoint, _ flipped: Bool = false) {
         label = SKLabelNode(fontNamed: "Coder's Crux")
         label.text = text
         label.fontColor = .black
@@ -49,12 +49,12 @@ class Tip {
         
         // Customizing
         if flipped {
-            flip(scale: scale)
+            flip(scale)
         }
         beginMovement()
     }
     
-    func flip(scale: CGFloat) {
+    func flip(_ scale: CGFloat) {
         sprite.xScale = -scale
         sprite.yScale = scale
         label.xScale = -1
