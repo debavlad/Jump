@@ -37,18 +37,23 @@ class CoinFactory {
         textures.removeAll()
     }
     
-    func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
-        let chances = [Currency.wood : wooden, Currency.bronze : bronze, Currency.golden : golden]
-        
-        for c in chances {
-            let random = Double.random(in: 0...wooden + bronze + golden)
-            if random < c.value {
-                return create(of: c.key)
-            }
-        }
-        
-        // return the worst platform if we didn't get anything in loop somehow
-        return create(of: .wood)
+//    func random(wooden: Double, bronze: Double, golden: Double) -> Coin {
+//        let chances = [Currency.wood : wooden, Currency.bronze : bronze, Currency.golden : golden]
+//
+//        for c in chances {
+//            let random = Double.random(in: 0...wooden + bronze + golden)
+//            if random < c.value {
+//                return create(of: c.key)
+//            }
+//        }
+//
+//        // return the worst platform if we didn't get anything in loop somehow
+//        return create(of: .wood)
+//    }
+    
+    func random(availableCoins: [Currency]) -> Coin {
+        let random = Int.random(in: 0..<availableCoins.count)
+        return create(of: availableCoins[random])
     }
     
     private func create(of currency: Currency) -> Coin {

@@ -233,9 +233,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             // Set score
-            if player.y/100 > 0 && player.y/100 > CGFloat(player.score) {
-                manager.set(score: Int(player.y/100))
-                player.set(score: Int(player.y/100))
+            let score = Int(player.y/100)
+//            if player.y/100 > 0 && player.y/100 > CGFloat(player.score) {
+//                manager.set(score: Int(player.y/100))
+//                player.set(score: Int(player.y/100))
+//            }
+            if score > 0 && score > Int(player.score) {
+                manager.set(score: score)
+                player.set(score: score)
+                if score%100 == 0 {
+                    platformFactory.stage.upgrade(to: score/100)
+                }
             }
         }
         
@@ -361,6 +369,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 playSound(type: .UI, audioName: "push-down")
                 triggeredBtn = manager.menuBtn
                 restart()
+            } else if node == manager.advBtn.sprite || node == manager.advBtn.label {
+                manager.advBtn.push()
+                triggeredBtn = manager.advBtn
             }
         }
     }

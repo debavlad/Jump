@@ -9,6 +9,32 @@
 import Foundation
 import SpriteKit
 
+class Stage {
+    var availablePlatforms: [PlatformType]
+    var availableCoins: [Currency]
+    
+    init() {
+        availablePlatforms = [.sand]
+        availableCoins = [.wood]
+    }
+    
+    func upgrade(to stage: Int) {
+        print("upgraded to \(stage)")
+        switch (stage) {
+        case 1:
+            availablePlatforms.append(.wood)
+            availableCoins.append(.bronze)
+        case 2:
+            availablePlatforms.append(.stone)
+        case 3:
+            availablePlatforms.append(.sand)
+            availableCoins.append(.golden)
+        default:
+            break
+        }
+    }
+}
+
 class PlatformFactory {
     var highestY: CGFloat
     let distance: ClosedRange<CGFloat>!
@@ -18,6 +44,7 @@ class PlatformFactory {
     private var lastPlatformType = PlatformType.dirt
     private let parent: SKNode!
     
+    var stage: Stage
     private let coinFactory: CoinFactory!
     private let foodFactory: FoodFactory!
     private let width, height: CGFloat
@@ -29,6 +56,7 @@ class PlatformFactory {
         
         self.highestY = startY
         self.distance = distance
+        stage = Stage()
         coinFactory = CoinFactory()
         foodFactory = FoodFactory()
         platforms = Set<Platform>()
@@ -52,7 +80,8 @@ class PlatformFactory {
         let platform = construct(type: type, position: position)
         highestY = type == .dirt ? position.y + 150: position.y
         
-        let coin = hasItem(chance: 0.2) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
+        let coin = hasItem(chance: 0.2) ? coinFactory.random(availableCoins: stage.availableCoins) : nil
+//        let coin = hasItem(chance: 0.2) ? coinFactory.random(wooden: 0.6, bronze: 0.2, golden: 0.1) : nil
         if let c = coin {
             platform.add(item: c)
             items.insert(c)
@@ -129,8 +158,9 @@ class PlatformFactory {
     }
     
     private func randomType() -> PlatformType {
-        let random = Int.random(in: 0...3)
-        return PlatformType(rawValue: random)!
+        let random = Int.random(in: 0..<stage.availablePlatforms.count)
+        return stage.availablePlatforms[random]
+//        return PlatformType(rawValue: random)!
     }
     
     private func construct(type: PlatformType, position: CGPoint) -> Platform {

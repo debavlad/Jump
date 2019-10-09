@@ -15,7 +15,7 @@ class Manager {
     private var particles: Set<SKEmitterNode>!
     
     private var width, height: CGFloat
-    private(set) var menuBtn: Button!
+    private(set) var menuBtn, advBtn: Button!
     private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel, wl, bl, gl: SKLabelNode!
     private(set) var house, door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon, w, b, g: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
@@ -40,6 +40,7 @@ class Manager {
             lbl!.position.x = icon!.frame.maxX + lbl!.frame.width + 30
         }
         
+        fade(node: advBtn.sprite, to: 1.0, duration: 2, false)
         fade(node: menuBtn.sprite, to: 1.0, duration: 2, false)
         fade(node: wIcon, to: 1.0, duration: 2, false)
         fade(node: bIcon, to: 1.0, duration: 2, false)
@@ -154,7 +155,7 @@ class Manager {
         gameOver = SKLabelNode(fontNamed: "FFFForward")
         gameOver.fontSize = 80
         gameOver.text = "Game over!"
-        gameOver.position.y = 400
+        gameOver.position.y = 460
         gameOver.zPosition = 21
         gameOver.alpha = 0
         cam.addChild(gameOver)
@@ -188,12 +189,14 @@ class Manager {
         gameScore.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         cam.addChild(gameScore)
         
+        var icons = SKNode()
+        
         wIcon = SKSpriteNode(imageNamed: "wood0").px()
         wIcon.size = CGSize(width: 90, height: 99)
-        wIcon.position.y = 130
+        wIcon.position.y = 180 // +50
         wIcon.zPosition = 21
         wIcon.alpha = 0
-        cam.addChild(wIcon)
+        icons.addChild(wIcon)
 
         wLabel = SKLabelNode(fontNamed: "Coder's Crux")
         wLabel.text = "0"
@@ -203,10 +206,10 @@ class Manager {
         
         bIcon = SKSpriteNode(imageNamed: "bronze0").px()
         bIcon.size = CGSize(width: 90, height: 99)
-        bIcon.position.y = -20
+        bIcon.position.y = 30
         bIcon.zPosition = 21
         bIcon.alpha = 0
-        cam.addChild(bIcon)
+        icons.addChild(bIcon)
         
         bLabel = SKLabelNode(fontNamed: "Coder's Crux")
         bLabel.text = "0"
@@ -216,16 +219,21 @@ class Manager {
         
         gIcon = SKSpriteNode(imageNamed: "golden0").px()
         gIcon.size = CGSize(width: 90, height: 99)
-        gIcon.position.y = -170
+        gIcon.position.y = -120
         gIcon.zPosition = 21
         gIcon.alpha = 0
-        cam.addChild(gIcon)
+        icons.addChild(gIcon)
         
         gLabel = SKLabelNode(fontNamed: "Coder's Crux")
         gLabel.text = "0"
         gLabel.fontSize = 140
         gLabel.position = CGPoint(x: 0, y: -gLabel.frame.height/2 + 4)
         gIcon.addChild(gLabel)
+        
+        icons.position.y = 30
+        cam.addChild(icons)
+        
+        
         
         w = SKSpriteNode(imageNamed: "wood0").px()
         w.size = CGSize(width: 72, height: 81)
@@ -271,25 +279,13 @@ class Manager {
         gl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         g.addChild(gl)
         
-        menuBtn = Button(text: "BACK TO MENU", color: .blue, position: CGPoint(x: 0, y: -450))
+        menuBtn = Button(text: "BACK TO MENU", color: .gray, position: CGPoint(x: 0, y: -500))
         menuBtn.sprite.alpha = 0
         cam.addChild(menuBtn.sprite)
         
-//        let topIcon = SKSpriteNode(imageNamed: "wood0").pixelated()
-//        topIcon.size = CGSize(width: 72, height: 81)
-//        topIcon.position.y = height - 100
-//        topIcon.zPosition = 21
-//        cam.addChild(topIcon)
-//        
-//        let topLabel = SKLabelNode(fontNamed: "Coder's Crux")
-//        topLabel.text = "12"
-//        topLabel.fontSize = 112
-//        topLabel.fontColor = .darkGray
-//        topLabel.position = CGPoint(x: 0, y: -topLabel.frame.height/2 + 4)
-//        topIcon.addChild(topLabel)
-//        
-//        topIcon.position.x = -topLabel.frame.width/2
-//        topLabel.position.x = topIcon.frame.maxX + topLabel.frame.width + 25
+        advBtn = Button(text: "CONTINUE", color: .blue, position: CGPoint(x: 0, y: menuBtn.sprite.frame.maxY + 100))
+        advBtn.sprite.alpha = 0
+        cam.addChild(advBtn.sprite)
     }
     
     func set(score: Int) {
