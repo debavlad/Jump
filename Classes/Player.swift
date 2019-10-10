@@ -11,7 +11,7 @@ import SpriteKit
 
 class Player {
     let sprite: SKSpriteNode
-    private var health = 100
+    private var health, maxHp: Int!
     private(set) var isAlive = true
     private(set) var score = 0
     
@@ -62,12 +62,12 @@ class Player {
             health = 0
             isAlive = false
             hpLine.size.width = 0
-        } else if amount >= 100 {
-            health = 100
+        } else if amount >= maxHp {
+            health = maxHp
             hpLine.size.width = maxLineWidth
         } else {
             health = amount
-            hpLine.size.width = maxLineWidth/100 * CGFloat(amount)
+            hpLine.size.width = maxLineWidth/CGFloat(maxHp) * CGFloat(amount)
             // Setting line color
             if amount <= 25 {
                 hpLine.texture = red
@@ -102,6 +102,14 @@ class Player {
         
         // Animations
         let skinName = "\(ShopScene.skins[GameScene.skinIndex].name)"
+        if skinName == "zombie" {
+            maxHp = 150
+            health = 150
+        } else {
+            maxHp = 100
+            health = 100
+        }
+        
         var textures = [SKTexture]()
         for i in 0...3 {
             textures.append(SKTexture(imageNamed: "\(skinName)-jump\(i)").px())

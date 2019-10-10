@@ -84,6 +84,16 @@ class PlatformFactory {
         let platform = construct(type, position)
         highestY = type == .dirt ? position.y + 150: position.y
         
+        let rock = SKSpriteNode(imageNamed: "rock").px()
+        let scale = CGFloat.random(in: 6...9)
+        rock.setScale(scale)
+        rock.position = platform.sprite.position
+        rock.physicsBody = SKPhysicsBody(circleOfRadius: 8)
+        rock.zPosition = 20
+        rock.physicsBody!.categoryBitMask = Categories.rock
+        rock.physicsBody!.collisionBitMask = 0
+        parent.addChild(rock)
+        
         let coin = hasItem(0.2) ? coinFactory.random(stage.availableCoins) : nil
         if let c = coin {
             platform.addItem(c)

@@ -22,6 +22,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     static var skinIndex: Int!
     static var ownedSkins: [Int]!
+    var ptsOffset = 0
     
     private var world: SKNode!
     private var fade: SKSpriteNode!
@@ -93,7 +94,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fade.zPosition = 25
         
         physicsWorld.contactDelegate = self
-        physicsWorld.gravity = CGVector(dx: 0, dy: -23)
+        physicsWorld.gravity = CGVector(dx: 0, dy: -23.5)
         
         cam = Camera(self)
         cam.node.addChild(fade)
@@ -148,6 +149,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 player.runAnimation(player.landAnim)
                 trail.create(in: world, 30.0)
                 manager.addEmitter(world, "DustParticles", contact.contactPoint)
+                cam.shake(20, 1, 0, 0.1)
                 
                 // Define platform obj
                 let node = extractNode("platform", contact)!
@@ -159,6 +161,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 // Pick items up
                 if platform.hasItems() {
+//                    cam.shake(30, 1, 0, 0.08)
                     for item in platform.items {
                         if item.wasTouched {
                             switch item {
@@ -166,19 +169,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                 pickItem(item, platform)
                                 manager.addCoin((item as! Coin).currency)
                             case is Food:
-                                player.editHp((item as! Food).energy)
+                                var energy: CGFloat = CGFloat((item as! Food).energy)
+                                print("before \(energy)")
+                                if ShopScene.skins[GameScene.skinIndex].name == "farmer" {
+                                    energy *= 1.25
+                                }
+//                                player.editHp((item as! Food).energy)
+                                print("after \(energy)")
+                                player.editHp(Int(energy))
                                 pickItem(item, platform)
                             default:
                                 return
                             }
                         }
                     }
+                } else {
+//                    cam.shake(20, 1, 0, 0.1)
                 }
                 
                 // Harm and push
                 player.editHp(-platform.damage)
                 if player.isAlive {
-                    player.push(power: platform.power)
+                    let power: CGFloat = ShopScene.skins[GameScene.skinIndex].name == "ninja" ? CGFloat(platform.power) * 1.125 : CGFloat(platform.power)
+                    player.push(power: Int(power))
                 } else {
                     player.push(power: 70)
                     finish(0.7)
@@ -209,7 +222,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             // Set score
-            let score = Int(player.sprite.position.y/100)
+            let score = Int(player.sprite.position.y/100) + ptsOffset
             if score > 0 && score > Int(player.score) {
                 manager.setScore(score)
                 player.setScore(score)
@@ -271,6 +284,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 //playSound(type: .UI, audioName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
+                ptsOffset = ShopScene.skins[GameScene.skinIndex].name == "bman" ? 100 : 0
                 
                 let push = SKAction.run {
                     self.player.push(power: 170)
@@ -371,6 +385,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let defaults = UserDefaults.standard
         GameScene.ownedSkins = defaults.value(forKey: "ownedSkins") as? [Int] ?? [0]
         GameScene.skinIndex = defaults.value(forKey: "skinIndex") as? Int ?? 0
+        
+        GameScene.ownedSkins.append(2)
     }
     
     static func saveData() {
@@ -427,7 +443,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.manager.switchUI()
             //self.playSound(type: .world, audioName: "hurt")
             
-            let scale = SKAction.scale(to: 0.3, duration: 0.8)
+            let scale = SKAction.scale(to: 0.25, duration: 1)
             scale.timingMode = SKActionTimingMode.easeIn
             scale.speed = 3
             
