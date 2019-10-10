@@ -43,7 +43,8 @@ class ShopScene: SKScene {
         Skin(title: "Pauper", name: "pauper", texture: SKTexture(imageNamed: "pauper-sit0").px(), price: 0, currency: .wood),
         Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 100, currency: .wood),
         Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze),
-        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden)
+        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden),
+        Skin(title: "Ninja", name: "ninja", texture: SKTexture(imageNamed: "ninja-sit0").px(), price: 50, currency: .golden)
     ]
     private var pages: [SKSpriteNode]!
     private var index: Int!
