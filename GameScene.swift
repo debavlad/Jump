@@ -149,7 +149,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 player.runAnimation(player.landAnim)
                 trail.create(in: world, 30.0)
                 manager.addEmitter(world, "DustParticles", contact.contactPoint)
-                cam.shake(20, 1, 0, 0.1)
+//                cam.shake(20, 1, 0, 0.1)
                 
                 // Define platform obj
                 let node = extractNode("platform", contact)!
@@ -161,7 +161,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 // Pick items up
                 if platform.hasItems() {
-//                    cam.shake(30, 1, 0, 0.08)
+                    cam.shake(30, 1, 0, 0.1)
                     for item in platform.items {
                         if item.wasTouched {
                             switch item {
@@ -184,7 +184,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         }
                     }
                 } else {
-//                    cam.shake(20, 1, 0, 0.1)
+                    cam.shake(20, 1, 0, 0.1)
                 }
                 
                 // Harm and push
@@ -485,7 +485,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         platformFactory.removeItem(item, from: platform)
-        cam.earthquake()
+//        cam.earthquake()
     }
     
     private func lerp(_ start: CGFloat, _ end: CGFloat, _ percent: CGFloat) -> CGFloat {
