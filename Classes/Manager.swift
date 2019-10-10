@@ -16,8 +16,8 @@ class Manager {
     
     private var width, height: CGFloat
     private(set) var menuBtn, advBtn: Button!
-    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel, wl, bl, gl: SKLabelNode!
-    private(set) var house, door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon, w, b, g: SKSpriteNode!
+    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel, wl, bl, gl, bottomStage, topStage: SKLabelNode!
+    private(set) var house, door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon, w, b, g, stageBorder, stageLine: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
     
@@ -33,7 +33,7 @@ class Manager {
     
     
     func switchUI() {
-        hide(line, hpBorder, pauseBtn)
+        hide(line, hpBorder, pauseBtn, stageBorder)
         
         // Centering coins' stats
         for (icon, lbl) in [(wIcon, wLabel), (bIcon, bLabel), (gIcon, gLabel)] {
@@ -98,6 +98,38 @@ class Manager {
         player.size = CGSize(width: 132, height: 140)
         player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
         player.zPosition = 10
+        
+        // STAGE STATUS BAR
+        stageBorder = SKSpriteNode(imageNamed: "stage-line").px()
+        stageBorder.size = CGSize(width: 16, height: 608)
+        stageBorder.position.x = -width + 80
+        stageBorder.zPosition = 20
+        stageBorder.alpha = 0
+        cam.addChild(stageBorder)
+        
+        stageLine = SKSpriteNode(imageNamed: "stage-fill").px()
+        stageLine.size.width = 8
+        stageLine.size.height = 0
+        stageLine.anchorPoint.y = 0
+        stageLine.position.y = -stageBorder.size.height/2
+        stageLine.zPosition = 20
+        stageBorder.addChild(stageLine)
+        
+        bottomStage = SKLabelNode(fontNamed: "Coder's Crux")
+        bottomStage.fontSize = 80
+        bottomStage.text = "0"
+        bottomStage.position.y = -stageBorder.frame.height/2 - bottomStage.frame.height - 15
+        bottomStage.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+        bottomStage.zPosition = 20
+        stageBorder.addChild(bottomStage)
+        
+        topStage = SKLabelNode(fontNamed: "Coder's Crux")
+        topStage.fontSize = 80
+        topStage.text = "1"
+        topStage.position.y = stageBorder.frame.height/2 + 15
+        topStage.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+        topStage.zPosition = 20
+        stageBorder.addChild(topStage)
         
         hpBorder = SKSpriteNode(imageNamed: "hp-border").px()
         hpBorder.size = CGSize(width: 84, height: 11)
@@ -288,12 +320,21 @@ class Manager {
         cam.addChild(advBtn.sprite)
     }
     
-    func setScore(_ score: Int) {
+    func setScore(_ score: Int, _ stage: Stage) {
         gameScore.text = String(score)
         gameScore.position = CGPoint(x: -width + gameScore.frame.width/2 + 60, y: height - gameScore.frame.height/2 - 100)
         ptsScore.text = "\(score)"
         ptsScore.position.x = lblScore.frame.maxX + ptsScore.frame.width/2 + 15
         mScore.position = CGPoint(x: gameOver.position.x - ptsScore.frame.width/2, y: gameOver.position.y - 100)
+        
+        if stage.current < 3 {
+            bottomStage.text = "\(stage.current)"
+            topStage.text = "\(stage.current + 1)"
+            let val: CGFloat = score < 100 ? CGFloat(score) : CGFloat(score - stage.current*100)
+            stageLine.size.height = stageBorder.size.height / 100 * val
+        } else {
+            hide(stageBorder)
+        }
     }
     
     func addCoin(_ currency: Currency) {

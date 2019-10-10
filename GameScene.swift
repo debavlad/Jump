@@ -170,12 +170,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                 manager.addCoin((item as! Coin).currency)
                             case is Food:
                                 var energy: CGFloat = CGFloat((item as! Food).energy)
-                                print("before \(energy)")
+//                                print("before \(energy)")
                                 if ShopScene.skins[GameScene.skinIndex].name == "farmer" {
                                     energy *= 1.25
                                 }
 //                                player.editHp((item as! Food).energy)
-                                print("after \(energy)")
+//                                print("after \(energy)")
                                 player.editHp(Int(energy))
                                 pickItem(item, platform)
                             default:
@@ -224,7 +224,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // Set score
             let score = Int(player.sprite.position.y/100) + ptsOffset
             if score > 0 && score > Int(player.score) {
-                manager.setScore(score)
+                manager.setScore(score, platformFactory.stage)
                 player.setScore(score)
                 if score%100 == 0 {
                     platformFactory.stage.upgrade(score/100)
@@ -295,7 +295,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
                 player.sprite.removeAllActions()
                 cloudFactory.speedUp()
-                manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore)
+                manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore, manager.stageBorder)
                 run(push)
                 manager.hide(sliderTip.sprite, manager.w, manager.b, manager.g)
                 doorTip.sprite.alpha = 0

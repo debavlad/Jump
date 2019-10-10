@@ -10,6 +10,7 @@ import Foundation
 import SpriteKit
 
 class Stage {
+    var current = 0
     var availablePlatforms: [PlatformType]
     var availableCoins: [Currency]
     
@@ -21,13 +22,16 @@ class Stage {
     func upgrade(_ stage: Int) {
         switch (stage) {
         case 1:
+            current = 1
             availablePlatforms.append(.wood)
             availableCoins.append(.bronze)
             PlatformFactory.maxJumpQuantity = 8
         case 2:
+            current = 2
             availablePlatforms.append(.stone)
             PlatformFactory.maxJumpQuantity = 10
         case 3:
+            current = 3
             availablePlatforms.append(.sand)
             availableCoins.append(.golden)
             PlatformFactory.maxJumpQuantity = 12
