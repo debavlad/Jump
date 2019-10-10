@@ -31,6 +31,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var triggeredBtn: Button!
     private var (started, stopped, ended) = (false, false, false)
     private var bounds: Bounds!
+    var doorOpens = false
     
 //    var platformAudio = AVAudioPlayer(), coinAudio = AVAudioPlayer(), foodAudio = AVAudioPlayer()
     
@@ -279,7 +280,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let node = atPoint(touch.location(in: self))
         
         if !started {
-            if node == manager.slider {
+            if node == manager.slider && !doorOpens {
                 sliderTouch = touch
                 //playSound(type: .UI, audioName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
@@ -301,6 +302,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 doorTip.sprite.alpha = 0
                 
             } else if node == manager.door {
+                doorOpens = true
                 //playSound(type: .world, audioName: "door-open")
                 
                 manager.door.run(manager.doorAnim)
