@@ -11,7 +11,7 @@ import GameplayKit
 import AVFoundation
 
 struct Skin : Hashable {
-    var title, name: String
+    var title, name, description: String
     var texture: SKTexture
     var price: Int
     var currency: Currency
@@ -34,17 +34,17 @@ class ShopScene: SKScene {
     var wooden, bronze, golden: Int!
     let height = UIScreen.main.bounds.height
     private var fade, leftArrow, rightArrow, skinSprite: SKSpriteNode!
-    private var title: SKLabelNode!
+    private var title, desc: SKLabelNode!
     private var backBtn, actBtn: Button!
     private var currentNode: SKNode!
     private var cam: Camera!
     
     static var skins = [
-        Skin(title: "Pauper", name: "pauper", texture: SKTexture(imageNamed: "pauper-sit0").px(), price: 0, currency: .wood),
-        Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 100, currency: .wood),
-        Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze),
-        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden),
-        Skin(title: "Ninja", name: "ninja", texture: SKTexture(imageNamed: "ninja-sit0").px(), price: 50, currency: .golden)
+        Skin(title: "Pauper", name: "pauper", description: "Default", texture: SKTexture(imageNamed: "pauper-sit0").px(), price: 0, currency: .wood),
+        Skin(title: "Zombie", name: "zombie", description: "Has 150 HP", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 100, currency: .wood),
+        Skin(title: "Farmer", name: "farmer", description: "Food x1.25", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze),
+        Skin(title: "Businessman", name: "bman", description: "Starts with 100", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden),
+        Skin(title: "Ninja", name: "ninja", description: "Jump pwr x1.25", texture: SKTexture(imageNamed: "ninja-sit0").px(), price: 50, currency: .golden)
     ]
     private var pages: [SKSpriteNode]!
     private var index: Int!
@@ -148,6 +148,9 @@ class ShopScene: SKScene {
             pages[i].texture = SKTexture(imageNamed: i == index ? "current-page" : "inactive-page").px()
         }
         
+        desc.text = skin.description
+//        desc.position.x = -desc.frame.width/2
+        
         leftArrow.texture = SKTexture(imageNamed: index == 0 ? "disabled-arrow" : "arrow").px()
         rightArrow.texture = SKTexture(imageNamed: index == ShopScene.skins.count - 1 ? "disabled-arrow" : "arrow").px()
     }
@@ -226,7 +229,7 @@ class ShopScene: SKScene {
         cam.node.addChild(rightArrow)
         
         title = SKLabelNode(fontNamed: "Coder's Crux")
-        title.position.y = bg.position.y + 200
+        title.position.y = bg.position.y + 205
         title.zPosition = 2
         title.fontSize = 70
         addChild(title)
@@ -243,7 +246,7 @@ class ShopScene: SKScene {
         
         let pageCounter = SKNode()
 //        pageCounter.position = CGPoint(x: -75, y: bg.position.y + 170)
-        pageCounter.position.y = bg.position.y + 170
+        pageCounter.position.y = title.position.y - 30
         pageCounter.zPosition = 2
         for i in 0..<ShopScene.skins.count {
             let page = SKSpriteNode(imageNamed: "inactive-page").px()
@@ -254,6 +257,13 @@ class ShopScene: SKScene {
         }
         pageCounter.position.x = CGFloat(-25) * CGFloat(ShopScene.skins.count - 1)
         addChild(pageCounter)
+        
+        desc = SKLabelNode(fontNamed: "Coder's Crux")
+        desc.position.y = pageCounter.position.y - 50
+        desc.zPosition = 2
+        desc.text = "Default"
+        desc.fontSize = 50
+        addChild(desc)
         
         for i in 0..<ShopScene.skins.count {
             if ShopScene.skins[i].name == skinName {
