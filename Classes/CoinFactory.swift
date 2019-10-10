@@ -72,7 +72,7 @@ extension SKSpriteNode {
         size = CGSize(width: 54, height: 59.4)
         zPosition = 1
         let x = CGFloat.random(in: -20...20)
-        position = CGPoint(x: x, y: 53)
+        position = CGPoint(x: x, y: 52)
         physicsBody = SKPhysicsBody(circleOfRadius: 35)
         physicsBody?.isDynamic = false
         physicsBody?.categoryBitMask = Categories.coin
