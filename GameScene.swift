@@ -127,7 +127,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cam.node.setScale(0.75)
         
         if GameScene.restarted {
-            let a = SKAction.fadeOut(withDuration: 0.4)
+            let a = SKAction.fadeOut(withDuration: 0.25)
             a.timingMode = .easeOut
             fade.run(a)
         }
@@ -292,11 +292,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 manager.door.run(manager.doorAnim)
                 manager.hide(manager.line, manager.w, manager.b, manager.g)
                 
-                let scale = SKAction.scale(to: 0.025, duration: 0.8)
+                let scale = SKAction.scale(to: 0.025, duration: 0.6)
                 scale.timingMode = SKActionTimingMode.easeInEaseOut
                 
                 let doorPos = CGPoint(x: manager.house.position.x + manager.door.frame.maxX, y: manager.house.position.y + manager.door.frame.minY)
-                let move = SKAction.move(to: doorPos, duration: 0.8)
+                let move = SKAction.move(to: doorPos, duration: 0.6)
                 move.timingMode = SKActionTimingMode.easeIn
                 
                 let wait = SKAction.wait(forDuration: 0.4)
@@ -380,13 +380,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func restart() {
-        let wait = SKAction.wait(forDuration: 0.5)
+        let wait = SKAction.wait(forDuration: 0.4)
         let physics = SKAction.run {
             self.player.sprite.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
             self.physicsWorld.gravity = CGVector(dx: 0, dy: -18)
             self.physicsWorld.speed = 1
             self.world.isPaused = false
-            let a = SKAction.fadeIn(withDuration: 0.5)
+            let a = SKAction.fadeIn(withDuration: 0.4)
             a.timingMode = .easeIn
             self.fade.run(a)
         }
@@ -427,7 +427,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.manager.switchUI()
             //self.playSound(type: .world, audioName: "hurt")
             
-            let scale = SKAction.scale(to: 0.3, duration: 1)
+            let scale = SKAction.scale(to: 0.3, duration: 0.8)
             scale.timingMode = SKActionTimingMode.easeIn
             scale.speed = 3
             

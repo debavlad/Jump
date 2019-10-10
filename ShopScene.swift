@@ -42,7 +42,7 @@ class ShopScene: SKScene {
     static var skins = [
         Skin(title: "Pauper", name: "pauper", description: "Default", texture: SKTexture(imageNamed: "pauper-sit0").px(), price: 0, currency: .wood),
         Skin(title: "Zombie", name: "zombie", description: "Has 150 HP", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 100, currency: .wood),
-        Skin(title: "Farmer", name: "farmer", description: "Food x1.25", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze),
+        Skin(title: "Farmer", name: "farmer", description: "Food nrg x1.25", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze),
         Skin(title: "Businessman", name: "bman", description: "Starts with 100", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden),
         Skin(title: "Ninja", name: "ninja", description: "Jump pwr x1.25", texture: SKTexture(imageNamed: "ninja-sit0").px(), price: 50, currency: .golden)
     ]
@@ -181,8 +181,8 @@ class ShopScene: SKScene {
     
     private func backToMain() {
         let waitFadeIn = SKAction.group([
-            SKAction.wait(forDuration: 0.4),
-            SKAction.run { self.fade.run(SKAction.fadeIn(withDuration: 0.4)) }
+            SKAction.wait(forDuration: 0.3),
+            SKAction.run { self.fade.run(SKAction.fadeIn(withDuration: 0.3)) }
         ])
         
         let startScene = SKAction.run {
@@ -274,7 +274,7 @@ class ShopScene: SKScene {
             }
         }
         
-        let fadeOut = SKAction.fadeOut(withDuration: 0.3)
+        let fadeOut = SKAction.fadeOut(withDuration: 0.25)
         fadeOut.timingMode = SKActionTimingMode.easeOut
         fade.run(fadeOut)
     }
