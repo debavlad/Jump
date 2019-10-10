@@ -40,9 +40,10 @@ class ShopScene: SKScene {
     private var cam: Camera!
     
     static var skins = [
-        Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 0, currency: .wood),
-        Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 30, currency: .wood),
-        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 60, currency: .bronze)
+        Skin(title: "Pauper", name: "pauper", texture: SKTexture(imageNamed: "pauper-sit0").px(), price: 0, currency: .wood),
+        Skin(title: "Zombie", name: "zombie", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 100, currency: .wood),
+        Skin(title: "Farmer", name: "farmer", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze),
+        Skin(title: "Businessman", name: "bman", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden)
     ]
     private var pages: [SKSpriteNode]!
     private var index: Int!
@@ -240,7 +241,8 @@ class ShopScene: SKScene {
         cam.node.addChild(actBtn.sprite)
         
         let pageCounter = SKNode()
-        pageCounter.position = CGPoint(x: -50, y: bg.position.y + 170)
+//        pageCounter.position = CGPoint(x: -75, y: bg.position.y + 170)
+        pageCounter.position.y = bg.position.y + 170
         pageCounter.zPosition = 2
         for i in 0..<ShopScene.skins.count {
             let page = SKSpriteNode(imageNamed: "inactive-page").px()
@@ -249,6 +251,7 @@ class ShopScene: SKScene {
             pages.insert(page, at: i)
             pageCounter.addChild(page)
         }
+        pageCounter.position.x = CGFloat(-25) * CGFloat(ShopScene.skins.count - 1)
         addChild(pageCounter)
         
         for i in 0..<ShopScene.skins.count {

@@ -106,7 +106,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player = Player(world.childNode(withName: "Character")!)
         player.turn(left: true)
         
-        sliderTip = Tip("START GAME", CGPoint(x: 35, y: 70))
+        sliderTip = Tip("HOLD TO PLAY", CGPoint(x: 35, y: 70))
         manager.slider.addChild(sliderTip.sprite)
         
         doorTip = Tip("CHANGE SKIN", CGPoint(x: -50, y: 100))
@@ -114,10 +114,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.door.addChild(doorTip.sprite)
         
         addChild(world)
-//        trail = Trail(target: player.sprite)
         trail = Trail(player.sprite)
         trail.create(in: world)
-//        trail.create(in: world)
         
         platformFactory = PlatformFactory(world, frame.height/2, 125...200)
         cloudFactory = CloudFactory(frame, world)
