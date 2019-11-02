@@ -9,8 +9,13 @@
 import SpriteKit
 import GameplayKit
 import AVFoundation
+import GoogleMobileAds
 
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
+    func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
+        print("ad displayed");
+    }
+    
     private var cam: Camera!
     private var manager: Manager!
     private var player: Player!
@@ -32,6 +37,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var (started, stopped, ended) = (false, false, false)
     private var bounds: Bounds!
     var doorOpens = false
+    
+    var viewController: UIViewController? {
+        get {
+            if let next = self.next {
+                return next.isKind(of: UIViewController.self) ? next as? UIViewController : nil
+            } else {
+                return nil
+            }
+        }
+    }
+    var rewardedAd: GADRewardedAd!
     
 //    var platformAudio = AVAudioPlayer(), coinAudio = AVAudioPlayer(), foodAudio = AVAudioPlayer()
     
@@ -71,8 +87,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        }
 //    }
     
+//    func loadAd() {
+//        let request = GADRequest();
+//        request.testDevices = [ "b4e79107e711a12cec41bd7ce2f77af7" ]
+//        rewardedAd.load(request, completionHandler: nil)
+//    }
+//
+//    func showAd() {
+//        if rewardedAd.isReady {
+//            rewardedAd.present(fromRootViewController: viewController!, delegate: self)
+//        }
+//    }
+    
     override func didMove(to view: SKView) {
         loadData()
+//        rewardedAd = GADRewardedAd.init(adUnitID: TEST_AD_ID)
+//        loadAd()
 //        saveData()
 //        do {
 //            coinAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "coin-pickup", withExtension: "wav")!)
@@ -351,6 +381,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else if node == manager.advBtn.sprite || node == manager.advBtn.label {
                 manager.advBtn.push()
                 triggeredBtn = manager.advBtn
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
+
             }
         }
     }

@@ -9,9 +9,16 @@
 import UIKit
 import SpriteKit
 import GameplayKit
+import GoogleMobileAds
 
-class GameViewController: UIViewController {
+class GameViewController: UIViewController, GADRewardedAdDelegate {
+    func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
+        print(1)
+    }
+    
 
+    var myAd = GADRewardedAd()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -23,6 +30,9 @@ class GameViewController: UIViewController {
                 scene.scaleMode = .aspectFill
                 // Present the scene
                 view.presentScene(scene)
+                
+                NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)
+                loadAd()
             }
             
             view.ignoresSiblingOrder = true
@@ -47,5 +57,18 @@ class GameViewController: UIViewController {
 
     override var prefersStatusBarHidden: Bool {
         return true
+    }
+    
+    func loadAd() {
+        myAd = GADRewardedAd.init(adUnitID: TEST_AD_ID)
+        let request = GADRequest()
+        request.testDevices = [ "b4e79107e711a12cec41bd7ce2f77af7" ]
+        myAd.load(request, completionHandler: nil)
+    }
+    
+    @objc func showAd() {
+        if myAd.isReady {
+            myAd.present(fromRootViewController: self, delegate: self)
+        }
     }
 }
