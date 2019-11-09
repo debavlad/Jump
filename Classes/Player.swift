@@ -22,6 +22,11 @@ class Player {
     private(set) var currentAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
     
     
+    func getAlive() {
+        isAlive = true
+        health = maxHp
+    }
+    
     init(_ node: SKNode) {
         self.sprite = node as! SKSpriteNode
         

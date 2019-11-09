@@ -16,6 +16,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         print("ad displayed");
     }
     
+    public static var adWatched = false
+    
     private var cam: Camera!
     private var manager: Manager!
     private var player: Player!
@@ -47,7 +49,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
             }
         }
     }
-    var rewardedAd: GADRewardedAd!
+//    var rewardedAd: GADRewardedAd!
+    
+    func continueGameplay() {
+        if GameScene.adWatched {
+            let action = SKAction.run {
+                self.manager.showUI()
+                self.player.getAlive()
+                self.ended = false
+                self.player.push(power: 200)
+                let move = SKAction.moveTo(x: 0, duration: 1)
+                self.cam.node.run(move)
+                self.minY = self.player.sprite.position.y - 100
+                
+                let scale = SKAction.scale(to: 0.95, duration: 1)
+                scale.timingMode = SKActionTimingMode.easeOut
+                
+                let rotate = SKAction.rotate(toAngle: 0, duration: 2)
+                rotate.timingMode = SKActionTimingMode.easeInEaseOut
+                
+                let go = SKAction.run {
+                    self.physicsWorld.speed = 1
+                    self.world.isPaused = false
+                }
+                
+                let scaleStop = SKAction.group([scale, go])
+                self.cam.node.run(SKAction.group([scaleStop, rotate]))
+                self.manager.show(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
+            }
+            run(action)
+//            GameScene.adWatched = false
+        }
+    }
+    
+    
     
 //    var platformAudio = AVAudioPlayer(), coinAudio = AVAudioPlayer(), foodAudio = AVAudioPlayer()
     
@@ -239,7 +274,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         cam.shake(1, 5, 0, 1.5)
         
         if !stopped {
-            movement = lerp(player.sprite.position.x, manager.slider.position.x, 0.25)
+            movement = lerp(player.sprite.position.x, manager.slider.position.x, 0.27)
             player.sprite.position.x = movement
             
             // Define death point
@@ -316,6 +351,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
                 ptsOffset = ShopScene.skins[GameScene.skinIndex].name == "bman" ? 100 : 0
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadAd"), object: nil)
                 
                 let push = SKAction.run {
                     self.player.push(power: 170)
@@ -382,7 +418,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 manager.advBtn.push()
                 triggeredBtn = manager.advBtn
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
-
+                continueGameplay()
             }
         }
     }
@@ -475,6 +511,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         let action = SKAction.run {
             self.sliderTouch = nil
             self.manager.switchUI()
+            self.platformFactory.clean()
             //self.playSound(type: .world, audioName: "hurt")
             
             let scale = SKAction.scale(to: 0.25, duration: 1)
@@ -495,6 +532,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
             self.cam.node.run(SKAction.group([scaleStop, rotate]))
             self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
             self.ended = true
+            print("Finish")
         }
         
         run(SKAction.sequence([wait, action]))

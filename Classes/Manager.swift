@@ -31,6 +31,18 @@ class Manager {
         setScene(world)
     }
     
+    func showUI() {
+        show(line, hpBorder, pauseBtn, stageBorder)
+        fade(advBtn.sprite, 0, 2, false)
+        fade(menuBtn.sprite, 0, 2, false)
+        fade(wIcon, 0, 2, false)
+        fade(bIcon, 0, 2, false)
+        fade(gIcon, 0, 2, false)
+        fade(gameOver, 0, 2, true)
+        fade(mScore, 0, 2, false)
+        fade(darken, 0, 1, false)
+        fade(red, 0, 0.6, false)
+    }
     
     func switchUI() {
         hide(line, hpBorder, pauseBtn, stageBorder)

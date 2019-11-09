@@ -25,16 +25,16 @@ class Stage {
             current = 1
             availablePlatforms.append(.wood)
             availableCoins.append(.bronze)
-            PlatformFactory.maxJumpQuantity = 8
+            PlatformFactory.maxJumpQuantity = 5
         case 2:
             current = 2
             availablePlatforms.append(.stone)
-            PlatformFactory.maxJumpQuantity = 10
+            PlatformFactory.maxJumpQuantity = 6
         case 3:
             current = 3
             availablePlatforms.append(.sand)
             availableCoins.append(.golden)
-            PlatformFactory.maxJumpQuantity = 12
+//            PlatformFactory.maxJumpQuantity = 6
         default:
             break
         }
@@ -50,7 +50,7 @@ class PlatformFactory {
     private var lastPlatformType = PlatformType.dirt
     private let parent: SKNode!
     private var jumpCounter = 0
-    static var maxJumpQuantity = 6
+    static var maxJumpQuantity = 4
     
     private(set) var stage: Stage
     private let coinFactory: CoinFactory
@@ -88,16 +88,6 @@ class PlatformFactory {
         let platform = construct(type, position)
         highestY = type == .dirt ? position.y + 150: position.y
         
-        let rock = SKSpriteNode(imageNamed: "rock").px()
-        let scale = CGFloat.random(in: 6...9)
-        rock.setScale(scale)
-        rock.position = platform.sprite.position
-        rock.physicsBody = SKPhysicsBody(circleOfRadius: 8)
-        rock.zPosition = 20
-        rock.physicsBody!.categoryBitMask = Categories.rock
-        rock.physicsBody!.collisionBitMask = 0
-        parent.addChild(rock)
-        
         let coin = hasItem(0.2) ? coinFactory.random(stage.availableCoins) : nil
         if let c = coin {
             platform.addItem(c)
@@ -124,6 +114,13 @@ class PlatformFactory {
         
         parent.addChild(platform.sprite)
         platforms.insert(platform)
+    }
+    
+    func clean() {
+        platforms.forEach { (p) in
+            p.sprite.removeFromParent()
+        }
+        platforms.removeAll()
     }
     
     func remove(_ minY: CGFloat) {

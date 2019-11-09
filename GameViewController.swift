@@ -13,7 +13,7 @@ import GoogleMobileAds
 
 class GameViewController: UIViewController, GADRewardedAdDelegate {
     func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
-        print(1)
+        GameScene.adWatched = true
     }
     
 
@@ -32,6 +32,7 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
                 view.presentScene(scene)
                 
                 NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)
+                NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.loadAd), name: NSNotification.Name(rawValue: "loadAd"), object: nil)
                 loadAd()
             }
             
@@ -59,16 +60,18 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
         return true
     }
     
-    func loadAd() {
+    @objc func loadAd() {
         myAd = GADRewardedAd.init(adUnitID: TEST_AD_ID)
         let request = GADRequest()
         request.testDevices = [ "b4e79107e711a12cec41bd7ce2f77af7" ]
         myAd.load(request, completionHandler: nil)
+        print("Load Ad")
     }
     
     @objc func showAd() {
         if myAd.isReady {
             myAd.present(fromRootViewController: self, delegate: self)
+            print("Show Ad")
         }
     }
 }
