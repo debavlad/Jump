@@ -13,7 +13,7 @@ import GoogleMobileAds
 
 class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
     func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
-        print("ad displayed");
+        //...
     }
     
     public static var adWatched = false
@@ -49,13 +49,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
             }
         }
     }
-//    var rewardedAd: GADRewardedAd!
     
     func continueGameplay() {
         if GameScene.adWatched {
             let action = SKAction.run {
-                self.manager.showUI()
-                self.player.getAlive()
+                self.manager.finishMenu(visible: false)
+//                self.player.getAlive()
                 self.ended = false
                 self.player.push(power: 200)
                 let move = SKAction.moveTo(x: 0, duration: 1)
@@ -122,23 +121,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
 //        }
 //    }
     
-//    func loadAd() {
-//        let request = GADRequest();
-//        request.testDevices = [ "b4e79107e711a12cec41bd7ce2f77af7" ]
-//        rewardedAd.load(request, completionHandler: nil)
-//    }
-//
-//    func showAd() {
-//        if rewardedAd.isReady {
-//            rewardedAd.present(fromRootViewController: viewController!, delegate: self)
-//        }
-//    }
-    
     override func didMove(to view: SKView) {
         loadData()
-//        rewardedAd = GADRewardedAd.init(adUnitID: TEST_AD_ID)
-//        loadAd()
-//        saveData()
 //        do {
 //            coinAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "coin-pickup", withExtension: "wav")!)
 //            foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food1", withExtension: "wav")!)
@@ -214,8 +198,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 // Play animation and create trail line
                 player.runAnimation(player.landAnim)
                 trail.create(in: world, 30.0)
-                manager.addEmitter(world, "DustParticles", contact.contactPoint)
-//                cam.shake(20, 1, 0, 0.1)
+                manager.createEmitter(world, "DustParticles", contact.contactPoint)
                 
                 // Define platform obj
                 let node = extractNode("platform", contact)!
@@ -233,15 +216,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                             switch item {
                             case is Coin:
                                 pickItem(item, platform)
-                                manager.addCoin((item as! Coin).currency)
+                                manager.collectCoin((item as! Coin).currency)
                             case is Food:
                                 var energy: CGFloat = CGFloat((item as! Food).energy)
-//                                print("before \(energy)")
-                                if ShopScene.skins[GameScene.skinIndex].name == "farmer" {
-                                    energy *= 1.25
-                                }
-//                                player.editHp((item as! Food).energy)
-//                                print("after \(energy)")
+                                energy *= ShopScene.skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1
                                 player.editHp(Int(energy))
                                 pickItem(item, platform)
                             default:
@@ -271,7 +249,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        cam.shake(1, 5, 0, 1.5)
+        cam.shake(1.25, 5, 0, 1.5)
         
         if !stopped {
             movement = lerp(player.sprite.position.x, manager.slider.position.x, 0.27)
@@ -294,6 +272,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 player.setScore(score)
                 if score%100 == 0 {
                     platformFactory.stage.upgrade(score/100)
+                    platformFactory.stage.setBarLabels(btm: manager.bottomStage, top: manager.topStage)
                 }
             }
         }
@@ -414,9 +393,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 //playSound(type: .UI, audioName: "push-down")
                 triggeredBtn = manager.menuBtn
                 restart()
-            } else if node == manager.advBtn.sprite || node == manager.advBtn.label {
-                manager.advBtn.push()
-                triggeredBtn = manager.advBtn
+            } else if node == manager.advertBtn.sprite || node == manager.advertBtn.label {
+                manager.advertBtn.push()
+                triggeredBtn = manager.advertBtn
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
                 continueGameplay()
             }
@@ -510,7 +489,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         let wait = SKAction.wait(forDuration: wait)
         let action = SKAction.run {
             self.sliderTouch = nil
-            self.manager.switchUI()
+            self.manager.finishMenu(visible: true)
             self.platformFactory.clean()
             //self.playSound(type: .world, audioName: "hurt")
             
@@ -548,9 +527,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         // BreadParticles; GoldenParticles
         
         let pos = CGPoint(x: platform.sprite.position.x + item.sprite.position.x, y: platform.sprite.position.y + item.sprite.position.y)
-        manager.addEmitter(world, String(name), pos)
+        manager.createEmitter(world, String(name), pos)
         if item is Coin {
-            manager.addLabel(world, platform.sprite.position)
+            manager.createLabel(world, platform.sprite.position)
             //playSound(type: .coin)
         } else if item is Food {
             //playSound(type: .food)

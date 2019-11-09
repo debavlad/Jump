@@ -14,7 +14,6 @@ class Player {
     private var health, maxHp: Int!
     private(set) var isAlive = true
     private(set) var score = 0
-    
     private let green, yellow, red: SKTexture!
     private let hpBorder, hpLine: SKSpriteNode!
     private let maxLineWidth: CGFloat
@@ -22,14 +21,13 @@ class Player {
     private(set) var currentAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
     
     
-    func getAlive() {
-        isAlive = true
-        health = maxHp
-    }
+//    func getAlive() {
+//        isAlive = true
+//        health = maxHp
+//    }
     
     init(_ node: SKNode) {
         self.sprite = node as! SKSpriteNode
-        
         green = SKTexture(imageNamed: "hp-green")
         yellow = SKTexture(imageNamed: "hp-yellow")
         red = SKTexture(imageNamed: "hp-red")
@@ -47,13 +45,8 @@ class Player {
     }
     
     func turn(left: Bool) {
-        if left {
-            sprite.xScale = -1
-            hpBorder.xScale = -1
-        } else {
-            sprite.xScale = 1
-            hpBorder.xScale = 1
-        }
+        sprite.xScale = left ? -1 : 1
+        hpBorder.xScale = sprite.xScale
     }
     
     func setScore(_ val: Int) {
@@ -107,13 +100,8 @@ class Player {
         
         // Animations
         let skinName = "\(ShopScene.skins[GameScene.skinIndex].name)"
-        if skinName == "zombie" {
-            maxHp = 150
-            health = 150
-        } else {
-            maxHp = 100
-            health = 100
-        }
+        maxHp = skinName == "zombie" ? 150 : 100
+        health = maxHp
         
         var textures = [SKTexture]()
         for i in 0...3 {

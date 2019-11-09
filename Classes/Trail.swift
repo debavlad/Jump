@@ -11,9 +11,11 @@ import SpriteKit
 
 class Trail {
     private let target: SKSpriteNode
+    
     private var lastParticle: SKSpriteNode!
     private let particleTexture: SKTexture
     private let anim: SKAction
+    
     
     init(_ target: SKSpriteNode) {
         self.target = target

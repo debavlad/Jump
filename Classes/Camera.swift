@@ -25,17 +25,14 @@ class Camera {
         var amp = amplitude
         var actions: [SKAction] = []
         for _ in 1...amount {
-            var tmp = Bool.random()
-            let x = tmp ? amp : -amp
-            tmp = Bool.random()
-            let y = tmp ? amp : -amp
-            
-            let action = SKAction.moveBy(x: x, y: y, duration: TimeInterval(duration))
-            action.timingMode = SKActionTimingMode.easeOut
-            actions.append(action)
-            actions.append(action.reversed())
-            
+            let x = Bool.random() ? amp : -amp
+            let y = Bool.random() ? amp : -amp
             amp -= step
+            
+            let a = SKAction.moveBy(x: x, y: y, duration: TimeInterval(duration))
+            a.timingMode = SKActionTimingMode.easeOut
+            actions.append(a)
+            actions.append(a.reversed())
         }
         
         let seq = SKAction.sequence(actions)
@@ -43,21 +40,16 @@ class Camera {
     }
     
     func earthquake() {
-        var amp = 20
         var actions: [SKAction] = []
         for _ in 1...2 {
-            let tmp = Bool.random()
-            let i = CGFloat.random(in: 15...20)
-            let x: CGFloat = tmp ? i : -i
-            let j = CGFloat.random(in: 15...20)
-            let y: CGFloat = -j
+            var x = CGFloat.random(in: 15...20)
+            x *= Bool.random() ? 1 : -1
+            let y = -CGFloat.random(in: 15...20)
             
-            let action = SKAction.moveBy(x: x, y: y, duration: 0.075)
-            action.timingMode = .easeOut
-            actions.append(action)
-            actions.append(action.reversed())
-            
-            amp -= 6
+            let a = SKAction.moveBy(x: x, y: y, duration: 0.075)
+            a.timingMode = .easeOut
+            actions.append(a)
+            actions.append(a.reversed())
         }
         
         let seq = SKAction.sequence(actions)

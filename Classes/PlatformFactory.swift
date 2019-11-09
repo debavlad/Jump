@@ -9,42 +9,11 @@
 import Foundation
 import SpriteKit
 
-class Stage {
-    var current = 0
-    var availablePlatforms: [PlatformType]
-    var availableCoins: [Currency]
-    
-    init() {
-        availablePlatforms = [.sand]
-        availableCoins = [.wood]
-    }
-    
-    func upgrade(_ stage: Int) {
-        switch (stage) {
-        case 1:
-            current = 1
-            availablePlatforms.append(.wood)
-            availableCoins.append(.bronze)
-            PlatformFactory.maxJumpQuantity = 5
-        case 2:
-            current = 2
-            availablePlatforms.append(.stone)
-            PlatformFactory.maxJumpQuantity = 6
-        case 3:
-            current = 3
-            availablePlatforms.append(.sand)
-            availableCoins.append(.golden)
-//            PlatformFactory.maxJumpQuantity = 6
-        default:
-            break
-        }
-    }
-}
-
 class PlatformFactory {
     private var highestY: CGFloat
     private let distance: ClosedRange<CGFloat>
-    private(set) var platforms: Set<Platform>
+//    private(set) var platforms: Set<Platform>
+    private(set) var platforms: [Platform]
     private(set) var items: Set<Item>
     private let data: [PlatformType : (texture: SKTexture, power: Int, damage: Int)]
     private var lastPlatformType = PlatformType.dirt
@@ -67,7 +36,7 @@ class PlatformFactory {
         stage = Stage()
         coinFactory = CoinFactory()
         foodFactory = FoodFactory()
-        platforms = Set<Platform>()
+        platforms = []
         items = Set<Item>()
         self.parent = parent
         
@@ -80,24 +49,23 @@ class PlatformFactory {
     }
     
     func create() {
-        let type = randomType()
+        let type = stage.availablePlatforms.randomElement()!
         lastPlatformType = type
         
-        let position = CGPoint(x: CGFloat.random(in: -width...width),
-                               y: highestY + CGFloat.random(in: distance))
+        let position = CGPoint(x: CGFloat.random(in: -width...width), y: highestY + CGFloat.random(in: distance))
         let platform = construct(type, position)
-        highestY = type == .dirt ? position.y + 150: position.y
+        highestY = type == .dirt ? position.y + 150 : position.y
         
-        let coin = hasItem(0.2) ? coinFactory.random(stage.availableCoins) : nil
-        if let c = coin {
-            platform.addItem(c)
-            items.insert(c)
+        if hasItem(0.2) {
+            let coin = coinFactory.random(stage.availableCoins)
+            platform.addItem(coin)
+            items.insert(coin)
         }
         
-        let food = jumpCounter >= PlatformFactory.maxJumpQuantity ? foodFactory.getRandomFood() : nil
-        if let f = food {
-            platform.addItem(f)
-            items.insert(f)
+        if jumpCounter >= PlatformFactory.maxJumpQuantity {
+            let food = foodFactory.getRandomFood()
+            platform.addItem(food)
+            items.insert(food)
             jumpCounter = 0
         } else {
             jumpCounter += 1
@@ -113,7 +81,7 @@ class PlatformFactory {
         }
         
         parent.addChild(platform.sprite)
-        platforms.insert(platform)
+        platforms.append(platform)
     }
     
     func clean() {
@@ -124,17 +92,13 @@ class PlatformFactory {
     }
     
     func remove(_ minY: CGFloat) {
-        platforms.forEach { (platform) in
-            var top = platform.sprite.frame.maxY
-            if let item = platform.sprite.children.first(where: { (child) -> Bool in
-                return child.name!.contains("item")
-            }) {
-                top += item.frame.maxY - 30
-            }
-            
+        if platforms.count > 0 {
+            let p = platforms.first!
+            var top = p.sprite.frame.maxY
+            top += p.hasItems() ? p.items.first!.sprite.frame.maxY - 30 : 0
             if top < minY {
-                platform.sprite.removeFromParent()
-                platforms.remove(platform)
+                p.sprite.removeFromParent()
+                platforms.removeFirst()
             }
         }
     }
@@ -157,26 +121,11 @@ class PlatformFactory {
     }
     
     func lowestY() -> CGFloat? {
-        var minY: CGFloat? = nil
-        if let first = platforms.first {
-            minY = first.sprite.position.y
-            platforms.forEach { (platform) in
-                if platform.sprite.position.y < minY! {
-                    minY = platform.sprite.position.y
-                }
-            }
-        }
-        return minY
+        return platforms.first?.sprite.position.y
     }
     
     func canBuild(_ playerY: CGFloat) -> Bool {
         return highestY + distance.lowerBound < playerY + height
-    }
-    
-    
-    private func randomType() -> PlatformType {
-        let random = Int.random(in: 0..<stage.availablePlatforms.count)
-        return stage.availablePlatforms[random]
     }
     
     private func construct(_ type: PlatformType, _ position: CGPoint) -> Platform {
@@ -196,4 +145,42 @@ enum PlatformType: Int {
     case sand
     case wood
     case stone
+}
+
+
+class Stage {
+    var current = 0
+    var availablePlatforms: [PlatformType]
+    var availableCoins: [Currency]
+    
+    init() {
+        availablePlatforms = [.sand]
+        availableCoins = [.wood]
+    }
+    
+    func setBarLabels(btm: SKLabelNode, top: SKLabelNode) {
+        btm.text = "\(current)"
+        top.text = "\(current+1)"
+    }
+    
+    func upgrade(_ stage: Int) {
+        switch (stage) {
+        case 1:
+            current = 1
+            availablePlatforms.append(.wood)
+            availableCoins.append(.bronze)
+            PlatformFactory.maxJumpQuantity = 5
+        case 2:
+            current = 2
+            availablePlatforms.append(.stone)
+            PlatformFactory.maxJumpQuantity = 6
+        case 3:
+            current = 3
+            availablePlatforms.append(.sand)
+            availableCoins.append(.golden)
+        default:
+            break
+        }
+        
+    }
 }

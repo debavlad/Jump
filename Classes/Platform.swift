@@ -42,6 +42,7 @@ class Platform: Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(sprite)
+        hasher.combine(type)
     }
     
     
