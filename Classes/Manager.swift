@@ -160,6 +160,11 @@ class Manager {
     private func setScene(_ world: SKNode) {
         let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         
+//        let loading = SKSpriteNode(imageNamed: "loading").px()
+//        loading.size = scene.frame.size
+//        loading.zPosition = 50
+//        cam.addChild(loading)
+        
         let sky = SKSpriteNode(imageNamed: "sky").px()
         sky.size = scene.frame.size
         sky.zPosition = -10

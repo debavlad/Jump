@@ -66,8 +66,16 @@ class ShopScene: SKScene {
         if node == actBtn.sprite || node == actBtn.label {
             actBtn.push()
             currentNode = actBtn.sprite
+            if (actBtn.color == .gray) {
+                DispatchQueue.global(qos: .background).async {
+                    GSAudio.sharedInstance.playSound(soundFileName: "error")
+                }
+            }
         }
         else if node == backBtn.sprite || node == backBtn.label {
+            DispatchQueue.global(qos: .background).async {
+                GSAudio.sharedInstance.playSound(soundFileName: "button")
+            }
             backBtn.push()
             currentNode = backBtn.sprite
             backToMain()
@@ -75,12 +83,18 @@ class ShopScene: SKScene {
             let loc = touch.location(in: self)
             if loc.y > skinSprite.frame.minY - 100 {
                 if loc.x > 0 && index != ShopScene.skins.count - 1 {
+                    DispatchQueue.global(qos: .background).async {
+                        GSAudio.sharedInstance.playSound(soundFileName: "button")
+                    }
                     if currentNode == leftArrow {
                         leftArrow.yScale = 7
                     }
                     rightArrow.yScale = -7
                     currentNode = rightArrow
                 } else if loc.x <= 0 && index != 0 {
+                    DispatchQueue.global(qos: .background).async {
+                        GSAudio.sharedInstance.playSound(soundFileName: "button")
+                    }
                     if currentNode == rightArrow {
                         rightArrow.yScale = 7
                     }

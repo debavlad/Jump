@@ -161,6 +161,9 @@ class Stage {
     func setBarLabels(btm: SKLabelNode, top: SKLabelNode) {
         btm.text = "\(current)"
         top.text = "\(current+1)"
+        DispatchQueue.global(qos: .background).async {
+            GSAudio.sharedInstance.playSound(soundFileName: "tada")
+        }
     }
     
     func upgrade(_ stage: Int) {
