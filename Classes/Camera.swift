@@ -18,7 +18,8 @@ class Camera {
         node.name = "Cam"
         scene.camera = node
         scene.addChild(node)
-        easing = 0.072
+//        easing = 0.072
+        easing = 0.082
     }
     
     func shake(_ amplitude: CGFloat, _ amount: Int, _ step: CGFloat, _ duration: CGFloat) {

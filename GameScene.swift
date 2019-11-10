@@ -41,23 +41,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
     private var bounds: Bounds!
     var doorOpens = false
     
-    var viewController: UIViewController? {
-        get {
-            if let next = self.next {
-                return next.isKind(of: UIViewController.self) ? next as? UIViewController : nil
-            } else {
-                return nil
-            }
-        }
-    }
-    
     func continueGameplay() {
         if GameScene.adWatched {
             let action = SKAction.run {
                 self.manager.finishMenu(visible: false)
-//                self.player.getAlive()
+                self.player.getAlive()
                 self.ended = false
-                self.player.push(power: 200)
+//                self.player.push(power: 200)
+                self.player.push(power: 170)
+                self.platformFactory.highestY = self.player.sprite.position.y + 100
                 let move = SKAction.moveTo(x: 0, duration: 1)
                 self.cam.node.run(move)
                 self.minY = self.player.sprite.position.y - 100
@@ -65,8 +57,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 let scale = SKAction.scale(to: 0.95, duration: 1)
                 scale.timingMode = SKActionTimingMode.easeOut
                 
-                let rotate = SKAction.rotate(toAngle: 0, duration: 2)
-                rotate.timingMode = SKActionTimingMode.easeInEaseOut
+                let rotate = SKAction.rotate(toAngle: 0, duration: 1)
+                rotate.timingMode = SKActionTimingMode.easeOut
                 
                 let go = SKAction.run {
                     self.physicsWorld.speed = 1
@@ -82,79 +74,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         }
     }
     
-    
-    
-//    var platformAudio = AVAudioPlayer(), coinAudio = AVAudioPlayer(), foodAudio = AVAudioPlayer()
-    
-//    enum AudioPlayerType {
-//        case UI
-//        case world
-//        case platform
-//        case coin
-//        case food
-//    }
-    
-//    func playSound(type: AudioPlayerType, audioName: String = "") {
-//        DispatchQueue.global(qos: .background).async {
-//            var player: AVAudioPlayer!
-//            do {
-//                switch type {
-//                case .platform, .UI, .world:
-//                    self.platformAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: audioName, withExtension: "wav")!)
-////                    self.platformAudio.prepareToPlay()
-//                    player = self.platformAudio
-//                case .coin:
-//                    player = self.coinAudio
-//                case .food:
-//                    self.foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food" + String(Int.random(in: 1...2)), withExtension: "wav")!)
-//                    player = self.foodAudio
-//                }
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//
-//            if type == .UI {
-//                player.volume = 0.6
-//            }
-//
-//            player.prepareToPlay()
-//            player.play()
-//        }
-//    }
-    
-    func sound(sound: String) {
-//        do {
-//            if let bundle = Bundle.main.path(forResource: sound, ofType: "wav") {
-//                let alertSound = NSURL(fileURLWithPath: bundle)
-//                try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.ambient)
-//                try AVAudioSession.sharedInstance().setActive(true)
-//                let audioPlayer = try AVAudioPlayer(contentsOf: alertSound as URL)
-//                arrayOfPlayers.append(audioPlayer)
-//                arrayOfPlayers.last?.prepareToPlay()
-//                arrayOfPlayers.last?.play()
-//            }
-//        } catch {
-//            print(error)
-//        }
-    }
-    
     override func didMove(to view: SKView) {
         loadData()
-//        do {
-//            coinAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "coin-pickup", withExtension: "wav")!)
-//            foodAudio = try AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "food1", withExtension: "wav")!)
-//            coinAudio.prepareToPlay()
-//            foodAudio.prepareToPlay()
-//
-//            let session = AVAudioSession()
-//            do {
-//                try session.setCategory(.playback)
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//        } catch {
-//            print(error.localizedDescription)
-//        }
         
         fade = SKSpriteNode(color: .black, size: frame.size)
         fade.alpha = GameScene.restarted ? 1 : 0
@@ -404,14 +325,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 sliderTouch = touch
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
+                gameState(paused: false)
             } else if node == manager.pauseBtn {
                 sliderTouch = nil
                 //playSound(type: .UI, audioName: "push-down")
                 stopped ? gameState(paused: false) : gameState(paused: true)
+                manager.line.isHidden = false
+                manager.slider.isHidden = false
             }
         }
         else if ended {
-            if node == manager.menuBtn.sprite || node == manager.menuBtn.label {
+            if node == manager.slider {
+                DispatchQueue.global(qos: .background).async {
+                    GSAudio.sharedInstance.playSound(soundFileName: "button")
+                }
+                sliderTouch = touch
+                offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
+                manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
+                GameScene.adWatched = true
+                continueGameplay()
+            } else if node == manager.menuBtn.sprite || node == manager.menuBtn.label {
                 DispatchQueue.global(qos: .background).async {
                     GSAudio.sharedInstance.playSound(soundFileName: "button")
                 }

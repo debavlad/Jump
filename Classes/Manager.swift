@@ -43,11 +43,17 @@ class Manager {
                 label!.position.x = icon!.frame.maxX + label!.frame.width + 30
             }
             
+            /* If watched an advertisement */
+            advertBtn.sprite.isHidden = true
+            menuBtn.sprite.position = advertBtn.sprite.position
+            show(line)
+            //
+            
             show(advertBtn.sprite, menuBtn.sprite, wIcon, bIcon, gIcon, gameOver, mScore)
             fade(0.7, 1, [darken])
             fade(0.4, 0.6, [red])
         } else {
-            hide(advertBtn.sprite, menuBtn.sprite, wIcon, bIcon, gIcon, gameOver, mScore, darken, red)
+            fade(0, 2, [advertBtn.sprite, menuBtn.sprite, wIcon, bIcon, gIcon, gameOver, mScore, darken, red])
             show(line, hpBorder, pauseBtn, stageBorder)
         }
     }

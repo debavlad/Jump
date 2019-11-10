@@ -10,7 +10,7 @@ import Foundation
 import SpriteKit
 
 class PlatformFactory {
-    private var highestY: CGFloat
+    var highestY: CGFloat
     private let distance: ClosedRange<CGFloat>
 //    private(set) var platforms: Set<Platform>
     private(set) var platforms: [Platform]
