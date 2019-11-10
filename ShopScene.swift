@@ -70,6 +70,14 @@ class ShopScene: SKScene {
                 DispatchQueue.global(qos: .background).async {
                     GSAudio.sharedInstance.playSound(soundFileName: "error")
                 }
+            } else if (actBtn.color == .green) {
+                DispatchQueue.global(qos: .background).async {
+                    GSAudio.sharedInstance.playSound(soundFileName: "button")
+                }
+            } else if (actBtn.color == .yellow) {
+                DispatchQueue.global(qos: .background).async {
+                    GSAudio.sharedInstance.playSound(soundFileName: "purchase")
+                }
             }
         }
         else if node == backBtn.sprite || node == backBtn.label {

@@ -303,9 +303,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 if player.currentAnim != player.fallAnim {
                     player.runAnimation(player.fallAnim)
                 }
-                if player.sprite.physicsBody!.velocity.dy < -2100 {
-                    player.sprite.physicsBody!.velocity.dy = -2100
-                }
             }
             
             if !ended {
@@ -345,20 +342,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         if !started {
             if node == manager.slider && !doorOpens {
                 DispatchQueue.global(qos: .background).async {
-                    GSAudio.sharedInstance.playSound(soundFileName: "button")
+                    GSAudio.sharedInstance.playSounds(soundFileNames: "button", "wood-footstep", "wind")
+//                    GSAudio.sharedInstance.playSound(soundFileName: "button")
                 }
                 sliderTouch = touch
-                //playSound(type: .UI, audioName: "push-down")
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
                 ptsOffset = ShopScene.skins[GameScene.skinIndex].name == "bman" ? 100 : 0
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadAd"), object: nil)
+                //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadAd"), object: nil)
                 
                 let push = SKAction.run {
                     self.player.push(power: 170)
                     self.cam.shake(50, 6, 6, 0.055)
-                    let scale = SKAction.scale(to: 0.95, duration: 1)
-                    scale.timingMode = SKActionTimingMode.easeIn
+                    let scale = SKAction.scale(to: 0.95, duration: 1.25)
+                    scale.timingMode = SKActionTimingMode.easeInEaseOut
                     self.cam.node.run(scale)
                 }
                 player.sprite.removeAllActions()
@@ -415,14 +412,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         }
         else if ended {
             if node == manager.menuBtn.sprite || node == manager.menuBtn.label {
+                DispatchQueue.global(qos: .background).async {
+                    GSAudio.sharedInstance.playSound(soundFileName: "button")
+                }
                 manager.menuBtn.push()
                 //playSound(type: .UI, audioName: "push-down")
                 triggeredBtn = manager.menuBtn
                 restart()
             } else if node == manager.advertBtn.sprite || node == manager.advertBtn.label {
+                DispatchQueue.global(qos: .background).async {
+                    GSAudio.sharedInstance.playSound(soundFileName: "button")
+                }
                 manager.advertBtn.push()
                 triggeredBtn = manager.advertBtn
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
+                GameScene.adWatched = true
+//                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
+//                manager.advertBtn.release()
                 continueGameplay()
             }
         }

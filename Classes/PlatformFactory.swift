@@ -179,7 +179,7 @@ class Stage {
             PlatformFactory.maxJumpQuantity = 6
         case 3:
             current = 3
-            availablePlatforms.append(.sand)
+//            availablePlatforms.append(.sand)
             availableCoins.append(.golden)
         default:
             break
