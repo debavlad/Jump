@@ -15,7 +15,7 @@ class Manager {
     private var particles: [SKEmitterNode]!
     private var width, height: CGFloat
     private(set) var menuBtn, advertBtn: Button!
-    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel, wl, bl, gl, bottomStage, topStage: SKLabelNode!
+    private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel, wl, bl, gl, bottomStage, topStage, continueLbl: SKLabelNode!
     private(set) var house, door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon, w, b, g, stageBorder, stageLine: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
     private(set) var smokeAnim, doorAnim: SKAction!
@@ -166,11 +166,6 @@ class Manager {
     private func setScene(_ world: SKNode) {
         let cam = scene.childNode(withName: "Cam") as! SKCameraNode
         
-//        let loading = SKSpriteNode(imageNamed: "loading").px()
-//        loading.size = scene.frame.size
-//        loading.zPosition = 50
-//        cam.addChild(loading)
-        
         let sky = SKSpriteNode(imageNamed: "sky").px()
         sky.size = scene.frame.size
         sky.zPosition = -10
@@ -319,6 +314,14 @@ class Manager {
         lblScore.text = "SCORE:"
         lblScore.fontSize = 90
         mScore.addChild(lblScore)
+        
+        continueLbl = SKLabelNode(fontNamed: "Coder's Crux")
+        continueLbl.text = "TIME TO CONTINUE!"
+        continueLbl.fontSize = 80
+        continueLbl.position.y = -490
+        continueLbl.zPosition = 21
+        continueLbl.isHidden = true
+        cam.addChild(continueLbl)
         
         ptsScore = SKLabelNode(fontNamed: "Coder's Crux")
         ptsScore.text = "0"

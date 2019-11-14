@@ -13,7 +13,6 @@ import SpriteKit
 class CloudFactory {
     private let parent: SKNode!
     private var bg, fg: Clouds!
-    var bounds: Bounds!
     
     init(_ frame: CGRect, _ world: SKNode) {
         bg = Clouds(250, -frame.height)

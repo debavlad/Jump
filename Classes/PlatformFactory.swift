@@ -19,7 +19,7 @@ class PlatformFactory {
     private var lastPlatformType = PlatformType.dirt
     private let parent: SKNode!
     private var jumpCounter = 0
-    static var maxJumpQuantity = 4
+    static var maxJumpQuantity = 5
     
     private(set) var stage: Stage
     private let coinFactory: CoinFactory
@@ -172,11 +172,11 @@ class Stage {
             current = 1
             availablePlatforms.append(.wood)
             availableCoins.append(.bronze)
-            PlatformFactory.maxJumpQuantity = 5
+            PlatformFactory.maxJumpQuantity = 6
         case 2:
             current = 2
             availablePlatforms.append(.stone)
-            PlatformFactory.maxJumpQuantity = 6
+            PlatformFactory.maxJumpQuantity = 7
         case 3:
             current = 3
 //            availablePlatforms.append(.sand)

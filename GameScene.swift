@@ -35,7 +35,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var sliderTouch: UITouch?
     private var triggeredBtn: Button!
     private var (started, stopped, ended) = (false, false, false)
-    private var bounds: Bounds!
+//    private var bounds: Bounds!
+    
+//    static var bounds: Bounds!
+    
+    
     var doorOpens = false
     
     func continueGameplay() {
@@ -65,6 +69,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let scaleStop = SKAction.group([scale, go])
                 self.cam.node.run(SKAction.group([scaleStop, rotate]))
                 self.manager.show(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
+                self.manager.hide(self.manager.continueLbl)
             }
             run(action)
 //            GameScene.adWatched = false
@@ -144,8 +149,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 DispatchQueue.global(qos: .background).async {
                     let audioName = "\(platform.type)-footstep"
-                    GSAudio.sharedInstance.playSound(soundFileName: audioName)
-                    GSAudio.sharedInstance.playSound(soundFileName: "wind")
+                    GSAudio.sharedInstance.playSounds(soundFileNames: audioName, "wind")
                 }
                 
                 // Pick items up
@@ -178,7 +182,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     player.push(power: Int(power))
                 } else {
                     player.push(power: 70)
-                    finish(0.7)
+                    finish(0.75)
                 }
                 
                 if platform.type == .sand {
@@ -191,21 +195,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         cam.shake(1.25, 5, 0, 1.5)
         
+        if started {
+            cam.node.position.y = lerp(cam.node.position.y, player.sprite.position.y, cam.easing)
+            if player.isFalling() && player.currentAnim != player.fallAnim {
+                player.runAnimation(player.fallAnim)
+            }
+            
+            if !ended {
+                if platformFactory.canBuild(player.sprite.position.y) {
+                    platformFactory.create()
+                }
+                platformFactory.remove(bounds.minY)
+                if player.sprite.position.y < minY {
+                    finish()
+                }
+            }
+        } else {
+            started = player.sprite.position.y > 0
+        }
+        
         if !stopped {
             movement = lerp(player.sprite.position.x, manager.slider.position.x, 0.27)
             player.sprite.position.x = movement
             
-            // Define death point
-            if let lowestY = platformFactory.lowestY(), player.sprite.position.y > lowestY {
-                minY = lowestY
+            if let deathPoint = platformFactory.lowestY(), player.sprite.position.y > deathPoint {
+                minY = deathPoint
             }
             
-            // Create trail line
             if trail.distance() > 60 && !ended {
                 trail.create(in: world)
             }
             
-            // Set score
             let score = Int(player.sprite.position.y/100) + ptsOffset
             if score > 0 && score > Int(player.score) {
                 manager.setScore(score, platformFactory.stage)
@@ -215,41 +235,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     platformFactory.stage.setBarLabels(btm: manager.bottomStage, top: manager.topStage)
                 }
             }
-        }
-        
-        if started {
-            cam.node.position.y = lerp(cam.node.position.y, player.sprite.position.y, cam.easing)
-            
-            if player.isFalling() {
-                if player.currentAnim != player.fallAnim {
-                    player.runAnimation(player.fallAnim)
-                }
-            }
+
+            bounds.minX = -frame.size.width/2 + cam.node.position.x
+            bounds.minY = cam.node.frame.minY - frame.height/2
+            bounds.maxX = frame.size.width/2 + cam.node.position.x
+            bounds.maxY = cam.node.frame.maxY + frame.height/2
             
             if !ended {
-                _ = getBounds()
-                if platformFactory.canBuild(player.sprite.position.y) {
-                    platformFactory.create()
-                }
-                platformFactory.remove(bounds.minY)
-                
-                if player.sprite.position.y < minY {
-                    finish(0)
-                }
+                cloudFactory.create(player.sprite.position.y, started)
+                cloudFactory.remove()
+                cloudFactory.move()
             }
-        } else if !started && !ended {
-            started = player.sprite.position.y > 0
         }
         
         if ended {
-            cam.node.position.x = lerp(cam.node.position.x, player.sprite.position.x, cam.easing/3)
-        }
-        
-        if !world.isPaused {
-            cloudFactory.create(player.sprite.position.y, started)
-            cloudFactory.bounds = getBounds()
-            cloudFactory.remove()
-            cloudFactory.move()
+            cam.node.position.x = lerp(cam.node.position.x, player.sprite.position.x, cam.easing/5)
         }
         
         manager.removeLabels(cam.node.frame.minY - frame.height/2)
@@ -264,7 +264,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if node == manager.slider && !doorOpens {
                 DispatchQueue.global(qos: .background).async {
                     GSAudio.sharedInstance.playSounds(soundFileNames: "button", "wood-footstep", "wind")
-//                    GSAudio.sharedInstance.playSound(soundFileName: "button")
                 }
                 sliderTouch = touch
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
@@ -367,6 +366,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     @objc func adWatchedUI() {
         manager.advertBtn.sprite.isHidden = true
         manager.menuBtn.sprite.position = manager.advertBtn.sprite.position
+        manager.continueLbl.isHidden = false
+        manager.continueLbl.alpha = 1
         manager.show(manager.line)
         /* If watched an advertisement */
         //            advertBtn.sprite.isHidden = true
@@ -461,17 +462,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return bounds
     }
     
-    private func finish(_ wait: TimeInterval) {
+    private func finish(_ wait: TimeInterval = 0) {
         ended = true
+        GSAudio.sharedInstance.playAsync(soundFileName: "hurt")
+        manager.advertBtn.sprite.isHidden = false
+        manager.menuBtn.sprite.position = CGPoint(x: 0, y: -500)
         let wait = SKAction.wait(forDuration: wait)
         let action = SKAction.run {
-            DispatchQueue.global(qos: .background).async {
-                GSAudio.sharedInstance.playSound(soundFileName: "hurt")
-            }
             self.sliderTouch = nil
             self.manager.finishMenu(visible: true)
             self.platformFactory.clean()
-            //self.playSound(type: .world, audioName: "hurt")
             
             let scale = SKAction.scale(to: 0.25, duration: 1)
             scale.timingMode = SKActionTimingMode.easeIn
@@ -497,29 +497,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func pickItem(_ item: Item, _ platform: Platform) {
-        // breaditem; goldenitem
         var name = item.sprite.name!.dropLast(4)
-        // bread; golden
         name = name.first!.uppercased() + name.dropFirst()
-        // Bread; Golden
         name += "Particles"
-        // BreadParticles; GoldenParticles
         
         let pos = CGPoint(x: platform.sprite.position.x + item.sprite.position.x, y: platform.sprite.position.y + item.sprite.position.y)
         manager.createEmitter(world, String(name), pos)
-        if item is Coin {
+        
+        switch item {
+        case is Coin:
             manager.createLabel(world, platform.sprite.position)
-            DispatchQueue.global(qos: .background).async {
-                GSAudio.sharedInstance.playSound(soundFileName: "coin-pickup")
-            }
-        } else if item is Food {
-            DispatchQueue.global(qos: .background).async {
-                GSAudio.sharedInstance.playSound(soundFileName: "food-pickup")
-            }
+            GSAudio.sharedInstance.playAsync(soundFileName: "coin-pickup")
+        case is Food:
+            GSAudio.sharedInstance.playAsync(soundFileName: "food-pickup")
+        default:
+            break
         }
         
         platformFactory.removeItem(item, from: platform)
-//        cam.earthquake()
     }
     
     private func lerp(_ start: CGFloat, _ end: CGFloat, _ percent: CGFloat) -> CGFloat {
@@ -540,7 +535,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             physicsWorld.speed = 1
             manager.darken.alpha = 0
         }
-        
+
         stopped = paused
         world.isPaused = paused
         manager.line.isHidden = paused

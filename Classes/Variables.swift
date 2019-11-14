@@ -18,6 +18,8 @@ let TEST_AD_ID = "ca-app-pub-3940256099942544/1712485313"
 
 /* GAMEPLAY */
 
+var bounds: Bounds!
+
 let Skins = [
     Skin(name: "pauper", title: "Pauper", dsc: "Default", 0, .wood, colors: [Colors.pa1, Colors.pa2]),
     Skin(name: "zombie", title: "Zombie", dsc: "150 hp", 60, .wood, colors: [Colors.zo1, Colors.zo2]),
