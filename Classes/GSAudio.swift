@@ -15,6 +15,12 @@ class GSAudio: NSObject, AVAudioPlayerDelegate {
     var duplicatePlayers = [AVAudioPlayer]()
 
     private override init() {}
+    
+    func playAsync(soundFileName: String) {
+        DispatchQueue.global(qos: .background).async {
+            GSAudio.sharedInstance.playSound(soundFileName: soundFileName)
+        }
+    }
 
     func playSound (soundFileName: String) {
         let soundFileNameURL = NSURL(fileURLWithPath: Bundle.main.path(forResource: soundFileName, ofType: "wav")!)

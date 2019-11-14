@@ -11,43 +11,50 @@ import SpriteKit
 
 class Trail {
     private let target: SKSpriteNode
-    
-    private var lastParticle: SKSpriteNode!
-    private let particleTexture: SKTexture
+    private var particle: SKSpriteNode!
     private let anim: SKAction
+    
     private let colors: [UIColor]
+    private var colorIndex = 0
     
     
     init(_ target: SKSpriteNode, _ colors: [UIColor]) {
+        particle = SKSpriteNode(imageNamed: "particle")
+        particle.zPosition = 9
+        particle.colorBlendFactor = 1
+        
         self.target = target
         self.colors = colors
-        lastParticle = SKSpriteNode()
-        lastParticle.color = colors[0]
         anim = SKAction.group([SKAction.fadeOut(withDuration: 1),
-                                    SKAction.scale(to: 0.7, duration: 1)])
+                               SKAction.scale(to: 0.7, duration: 1.25)])
         anim.timingMode = SKActionTimingMode.easeIn
-        particleTexture = SKTexture(imageNamed: "particle")
     }
     
-    func create(in parent: SKNode, _ scale: CGFloat = 18) {
-        let particle = SKSpriteNode(texture: particleTexture)
-        particle.colorBlendFactor = 1
-        particle.color = lastParticle.color == colors[0] ? colors[1] : colors[0]
-        particle.position = target.position
-        particle.zRotation = CGFloat.random(in: -20...20)
-        particle.zPosition = 9
-        particle.setScale(scale)
-        lastParticle = particle
+    func create(in parent: SKNode, _ scale: CGFloat = 20) {
+        let copy = particle.copy() as! SKSpriteNode
+        copy.position = target.position
+        copy.zRotation = CGFloat.random(in: -20...20)
+        copy.setScale(scale)
+        copy.alpha = 1.0
         
-        let remove = SKAction.run { particle.removeFromParent() }
-        let seq = SKAction.sequence([anim, remove])
+        colorIndex = colorIndex < colors.count - 1 ? colorIndex + 1 : 0
+        copy.color = colors[colorIndex]
+        
+        particle = copy
+        add(copy, to: parent)
+    }
+    
+    private func add(_ particle: SKSpriteNode, to parent: SKNode) {
+        let dispose = SKAction.run {
+            particle.removeFromParent()
+        }
         parent.addChild(particle)
-        particle.run(seq)
+        particle.run(SKAction.sequence([anim, dispose]))
     }
     
     func distance() -> CGFloat {
-        let xDist = target.position.x - lastParticle.position.x
-        let yDist = target.position.y - lastParticle.position.y
+        let xDist = target.position.x - particle.position.x
+        let yDist = target.position.y - particle.position.y
         let dist = sqrt((xDist * xDist) + (yDist * yDist))
         return dist
     }

@@ -100,7 +100,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         manager.door.addChild(doorTip.sprite)
         
         addChild(world)
-        trail = Trail(player.sprite, ShopScene.skins[GameScene.skinIndex].trailColors)
+        trail = Trail(player.sprite, Skins[GameScene.skinIndex].trailColors)
         trail.create(in: world)
         
         platformFactory = PlatformFactory(world, frame.height/2, 125...200)
@@ -159,7 +159,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                 manager.collectCoin((item as! Coin).currency)
                             case is Food:
                                 var energy: CGFloat = CGFloat((item as! Food).energy)
-                                energy *= ShopScene.skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1
+                                energy *= Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1
                                 player.editHp(Int(energy))
                                 pickItem(item, platform)
                             default:
@@ -174,7 +174,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 // Harm and push
                 player.editHp(-platform.damage)
                 if player.isAlive {
-                    let power: CGFloat = ShopScene.skins[GameScene.skinIndex].name == "ninja" ? CGFloat(platform.power) * 1.125 : CGFloat(platform.power)
+                    let power: CGFloat = Skins[GameScene.skinIndex].name == "ninja" ? CGFloat(platform.power) * 1.125 : CGFloat(platform.power)
                     player.push(power: Int(power))
                 } else {
                     player.push(power: 70)
@@ -269,7 +269,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 sliderTouch = touch
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
-                ptsOffset = ShopScene.skins[GameScene.skinIndex].name == "bman" ? 100 : 0
+                ptsOffset = Skins[GameScene.skinIndex].name == "bman" ? 100 : 0
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadAd"), object: nil)
                 
                 let push = SKAction.run {
@@ -412,8 +412,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let defaults = UserDefaults.standard
         GameScene.ownedSkins = defaults.value(forKey: "ownedSkins") as? [Int] ?? [0]
         GameScene.skinIndex = defaults.value(forKey: "skinIndex") as? Int ?? 0
-        
-        GameScene.ownedSkins.append(2)
     }
     
     static func saveData() {

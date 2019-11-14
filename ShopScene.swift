@@ -10,52 +10,41 @@ import Foundation
 import GameplayKit
 import AVFoundation
 
-struct Skin : Hashable {
-    var title, name, description: String
-    var texture: SKTexture
-    var price: Int
-    var currency: Currency
-    var trailColors: [UIColor]
+class Skin {
+    let name, title, dsc: String
+    let texture: SKTexture
+    let price: Int
+    let currency: Currency
+    let trailColors: [UIColor]
     
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(title)
-        hasher.combine(name)
-        hasher.combine(texture)
-        hasher.combine(price)
-        hasher.combine(currency)
-    }
-    
-    static func == (lhs: Skin, rhs: Skin) -> Bool {
-        return lhs.hashValue == rhs.hashValue
+    init(name: String, title: String, dsc: String, _ price: Int, _ currency: Currency, colors: [UIColor]) {
+        self.name = name
+        self.title = title
+        self.dsc = dsc
+        texture = SKTexture(imageNamed: "\(name)-sit0").px()
+        self.price = price
+        self.currency = currency
+        trailColors = colors
     }
 }
 
 class ShopScene: SKScene {
-    let defaults = UserDefaults.standard
     var wooden, bronze, golden: Int!
-    let height = UIScreen.main.bounds.height
-    private var fade, leftArrow, rightArrow, skinSprite: SKSpriteNode!
-    private var title, desc: SKLabelNode!
+    private var black, lArr, rArr, character: SKSpriteNode!
+    private var title, dsc: SKLabelNode!
     private var backBtn, actBtn: Button!
-    private var currentNode: SKNode!
+    private var triggeredNode: SKNode!
     private var cam: Camera!
     
-    static var skins = [
-        Skin(title: "Pauper", name: "pauper", description: "Default", texture: SKTexture(imageNamed: "pauper-sit0").px(), price: 0, currency: .wood, trailColors: [UIColor.blue, UIColor.white]),
-        Skin(title: "Zombie", name: "zombie", description: "Has 150 HP", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 100, currency: .wood, trailColors: [UIColor.green, UIColor.white]),
-        Skin(title: "Farmer", name: "farmer", description: "Food nrg x1.25", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze, trailColors: [UIColor.red, UIColor.white]),
-        Skin(title: "Businessman", name: "bman", description: "Starts with 100", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden, trailColors: [UIColor.white, UIColor.red]),
-        Skin(title: "Ninja", name: "ninja", description: "Jump pwr x1.25", texture: SKTexture(imageNamed: "ninja-sit0").px(), price: 50, currency: .golden, trailColors: [UIColor.darkGray, UIColor.white])
-    ]
     private var pages: [SKSpriteNode]!
     private var index: Int!
+    let defaults = UserDefaults.standard
     
     
     override func didMove(to view: SKView) {
         wooden = defaults.value(forKey: "wooden") as? Int ?? 0
         bronze = defaults.value(forKey: "bronze") as? Int ?? 0
         golden = defaults.value(forKey: "golden") as? Int ?? 0
-        
         pages = []
         setScene()
     }
@@ -66,78 +55,71 @@ class ShopScene: SKScene {
         
         if node == actBtn.sprite || node == actBtn.label {
             actBtn.push()
-            currentNode = actBtn.sprite
-            if (actBtn.color == .gray) {
-                DispatchQueue.global(qos: .background).async {
-                    GSAudio.sharedInstance.playSound(soundFileName: "error")
-                }
-            } else if (actBtn.color == .green) {
-                DispatchQueue.global(qos: .background).async {
-                    GSAudio.sharedInstance.playSound(soundFileName: "button")
-                }
-            } else if (actBtn.color == .yellow) {
-                DispatchQueue.global(qos: .background).async {
-                    GSAudio.sharedInstance.playSound(soundFileName: "purchase")
-                }
+            triggeredNode = actBtn.sprite
+            
+            let sound: String
+            switch actBtn.color {
+            case .gray:
+                sound = "error"
+            case .yellow:
+                sound = "purchase"
+            default:
+                sound = "button"
+                break
             }
+            GSAudio.sharedInstance.playAsync(soundFileName: sound)
         }
         else if node == backBtn.sprite || node == backBtn.label {
-            DispatchQueue.global(qos: .background).async {
-                GSAudio.sharedInstance.playSound(soundFileName: "button")
-            }
             backBtn.push()
-            currentNode = backBtn.sprite
-            backToMain()
+            triggeredNode = backBtn.sprite
+            GSAudio.sharedInstance.playAsync(soundFileName: "button")
+            reloadScene()
         } else {
-            let loc = touch.location(in: self)
-            if loc.y > skinSprite.frame.minY - 100 {
-                if loc.x > 0 && index != ShopScene.skins.count - 1 {
-                    DispatchQueue.global(qos: .background).async {
-                        GSAudio.sharedInstance.playSound(soundFileName: "button")
-                    }
-                    if currentNode == leftArrow {
-                        leftArrow.yScale = 7
-                    }
-                    rightArrow.yScale = -7
-                    currentNode = rightArrow
-                } else if loc.x <= 0 && index != 0 {
-                    DispatchQueue.global(qos: .background).async {
-                        GSAudio.sharedInstance.playSound(soundFileName: "button")
-                    }
-                    if currentNode == rightArrow {
-                        rightArrow.yScale = 7
-                    }
-                    leftArrow.yScale = -7
-                    currentNode = leftArrow
+            let (x, y) = (touch.location(in: self).x, touch.location(in: self).y)
+            if y > character.frame.minY - 100 {
+                var arrow: SKSpriteNode? = nil
+                if x > 0 && index != Skins.count - 1 {
+                    arrow = rArr
+                } else if x <= 0 && index != 0 {
+                    arrow = lArr
+                }
+                triggeredNode?.yScale = 7
+                arrow?.yScale = -7
+                triggeredNode = arrow
+                if (triggeredNode != nil) {
+                    GSAudio.sharedInstance.playAsync(soundFileName: "button")
                 }
             }
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if currentNode == backBtn.sprite {
+        switch triggeredNode {
+        case backBtn.sprite:
             backBtn.release()
-        } else if currentNode == actBtn.sprite {
+        case actBtn.sprite:
             actBtn.release()
             if !GameScene.ownedSkins.contains(index) {
-                if actBtn.color == .yellow && hasEnoughMoney(for: ShopScene.skins[index]) && !GameScene.ownedSkins.contains(index) {
+                if actBtn.color == .yellow && enoughMoney(for: Skins[index]) {
                     buySkin(index)
                 }
             } else {
                 GameScene.skinIndex = index
             }
             GameScene.saveData()
-        } else if currentNode == rightArrow {
+        case rArr:
             index += 1
-            rightArrow.yScale = 7
-        } else if currentNode == leftArrow {
+            rArr.yScale = 7
+        case lArr:
             index -= 1
-            leftArrow.yScale = 7
+            lArr.yScale = 7
+        default:
+            break
         }
 
-        loadSkin(ShopScene.skins[index])
-        setButtonData(index)
-        currentNode = nil
+        loadSkin(Skins[index])
+        setBtnData(index)
+        triggeredNode = nil
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -146,7 +128,7 @@ class ShopScene: SKScene {
     
     
     private func buySkin(_ index: Int) {
-        let skin = ShopScene.skins[index]
+        let skin = Skins[index]
         
         switch (skin.currency) {
         case .wood:
@@ -164,21 +146,19 @@ class ShopScene: SKScene {
     }
     
     private func loadSkin(_ skin: Skin) {
-        self.skinSprite.texture = skin.texture
+        self.character.texture = skin.texture
         self.title.text = skin.title
         
         for i in 0..<pages.count {
             pages[i].texture = SKTexture(imageNamed: i == index ? "current-page" : "inactive-page").px()
         }
         
-        desc.text = skin.description
-//        desc.position.x = -desc.frame.width/2
-        
-        leftArrow.texture = SKTexture(imageNamed: index == 0 ? "disabled-arrow" : "arrow").px()
-        rightArrow.texture = SKTexture(imageNamed: index == ShopScene.skins.count - 1 ? "disabled-arrow" : "arrow").px()
+        dsc.text = skin.dsc
+        lArr.texture = SKTexture(imageNamed: index == 0 ? "disabled-arrow" : "arrow").px()
+        rArr.texture = SKTexture(imageNamed: index == Skins.count - 1 ? "disabled-arrow" : "arrow").px()
     }
     
-    private func setButtonData(_ skinIndex: Int) {
+    private func setBtnData(_ skinIndex: Int) {
         if GameScene.skinIndex == skinIndex {
             actBtn.setText("CURRENT SKIN")
             actBtn.setColor(.blue)
@@ -189,23 +169,23 @@ class ShopScene: SKScene {
                 actBtn.setColor(.green)
                 actBtn.icon!.isHidden = true
             } else {
-                let skin = ShopScene.skins[skinIndex]
+                let skin = Skins[skinIndex]
                 actBtn.setPrice(skin.price, skin.currency)
-                actBtn.setColor(hasEnoughMoney(for: skin) ? .yellow : .gray)
+                actBtn.setColor(enoughMoney(for: skin) ? .yellow : .gray)
             }
         }
     }
     
-    private func hasEnoughMoney(for skin: Skin) -> Bool {
+    private func enoughMoney(for skin: Skin) -> Bool {
         return (skin.currency == .wood && skin.price <= wooden) ||
             (skin.currency == .bronze && skin.price <= bronze) ||
             (skin.currency == .golden && skin.price <= golden)
     }
     
-    private func backToMain() {
+    private func reloadScene() {
         let waitFadeIn = SKAction.group([
             SKAction.wait(forDuration: 0.3),
-            SKAction.run { self.fade.run(SKAction.fadeIn(withDuration: 0.3)) }
+            SKAction.run { self.black.run(SKAction.fadeIn(withDuration: 0.3)) }
         ])
         
         let startScene = SKAction.run {
@@ -220,7 +200,7 @@ class ShopScene: SKScene {
     }
     
     private func setScene() {
-        let skinName = ShopScene.skins[GameScene.skinIndex].name
+        let skinName = Skins[GameScene.skinIndex].name
         
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         let bg = SKSpriteNode(imageNamed: "shop-bg").px()
@@ -231,25 +211,25 @@ class ShopScene: SKScene {
         cam = Camera(self)
         cam.node.setScale(0.7)
         
-        skinSprite = SKSpriteNode(imageNamed: "\(skinName)-jump0").px()
-        skinSprite.position = CGPoint(x: 0, y: bg.position.y - 90)
-        skinSprite.zPosition = 2
-        skinSprite.xScale = -3
-        skinSprite.yScale = 3
-        addChild(skinSprite)
+        character = SKSpriteNode(imageNamed: "\(skinName)-jump0").px()
+        character.position = CGPoint(x: 0, y: bg.position.y - 90)
+        character.zPosition = 2
+        character.xScale = -3
+        character.yScale = 3
+        addChild(character)
         
-        leftArrow = SKSpriteNode(imageNamed: "disabled-arrow").px()
-        leftArrow.position = CGPoint(x: -250, y: skinSprite.position.y)
-        leftArrow.zPosition = 2
-        leftArrow.xScale = -7
-        leftArrow.yScale = 7
-        cam.node.addChild(leftArrow)
+        lArr = SKSpriteNode(imageNamed: "disabled-arrow").px()
+        lArr.position = CGPoint(x: -250, y: character.position.y)
+        lArr.zPosition = 2
+        lArr.xScale = -7
+        lArr.yScale = 7
+        cam.node.addChild(lArr)
         
-        rightArrow = SKSpriteNode(imageNamed: "arrow").px()
-        rightArrow.position = CGPoint(x: 250, y: skinSprite.position.y)
-        rightArrow.zPosition = 2
-        rightArrow.setScale(7)
-        cam.node.addChild(rightArrow)
+        rArr = SKSpriteNode(imageNamed: "arrow").px()
+        rArr.position = CGPoint(x: 250, y: character.position.y)
+        rArr.zPosition = 2
+        rArr.setScale(7)
+        cam.node.addChild(rArr)
         
         title = SKLabelNode(fontNamed: "Coder's Crux")
         title.position.y = bg.position.y + 205
@@ -257,11 +237,11 @@ class ShopScene: SKScene {
         title.fontSize = 70
         addChild(title)
         
-        fade = SKSpriteNode(color: .black, size: frame.size)
-        fade.zPosition = 30
-        addChild(fade)
+        black = SKSpriteNode(color: .black, size: frame.size)
+        black.zPosition = 30
+        addChild(black)
         
-        backBtn = Button("BACK TO MENU", .gray, CGPoint(x: 0, y: -height + 150))
+        backBtn = Button("BACK TO MENU", .gray, CGPoint(x: 0, y: -UIScreen.main.bounds.height + 150))
         cam.node.addChild(backBtn.sprite)
         
         actBtn = Button(90, .wood, backBtn.sprite.position.y + 180)
@@ -271,34 +251,34 @@ class ShopScene: SKScene {
 //        pageCounter.position = CGPoint(x: -75, y: bg.position.y + 170)
         pageCounter.position.y = title.position.y - 30
         pageCounter.zPosition = 2
-        for i in 0..<ShopScene.skins.count {
+        for i in 0..<Skins.count {
             let page = SKSpriteNode(imageNamed: "inactive-page").px()
             page.position.x = 50 * CGFloat(i)
             page.setScale(4)
             pages.insert(page, at: i)
             pageCounter.addChild(page)
         }
-        pageCounter.position.x = CGFloat(-25) * CGFloat(ShopScene.skins.count - 1)
+        pageCounter.position.x = CGFloat(-25) * CGFloat(Skins.count - 1)
         addChild(pageCounter)
         
-        desc = SKLabelNode(fontNamed: "Coder's Crux")
-        desc.position.y = pageCounter.position.y - 50
-        desc.zPosition = 2
-        desc.text = "Default"
-        desc.fontSize = 50
-        addChild(desc)
+        dsc = SKLabelNode(fontNamed: "Coder's Crux")
+        dsc.position.y = pageCounter.position.y - 50
+        dsc.zPosition = 2
+        dsc.text = "Default"
+        dsc.fontSize = 50
+        addChild(dsc)
         
-        for i in 0..<ShopScene.skins.count {
-            if ShopScene.skins[i].name == skinName {
+        for i in 0..<Skins.count {
+            if Skins[i].name == skinName {
                 index = i
-                loadSkin(ShopScene.skins[i])
-                setButtonData(index)
+                loadSkin(Skins[i])
+                setBtnData(index)
                 break
             }
         }
         
         let fadeOut = SKAction.fadeOut(withDuration: 0.25)
         fadeOut.timingMode = SKActionTimingMode.easeOut
-        fade.run(fadeOut)
+        black.run(fadeOut)
     }
 }

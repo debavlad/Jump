@@ -100,7 +100,7 @@ class Player {
         sprite.physicsBody?.angularDamping = 0
         
         // Animations
-        let skinName = "\(ShopScene.skins[GameScene.skinIndex].name)"
+        let skinName = "\(Skins[GameScene.skinIndex].name)"
         maxHp = skinName == "zombie" ? 150 : 100
         health = maxHp
         

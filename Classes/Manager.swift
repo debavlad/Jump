@@ -209,7 +209,7 @@ class Manager {
         world.addChild(ground)
         
         
-        let player = SKSpriteNode(imageNamed: "\(ShopScene.skins[GameScene.skinIndex].name)-sit0").px()
+        let player = SKSpriteNode(imageNamed: "\(Skins[GameScene.skinIndex].name)-sit0").px()
         player.name = "Character"
         player.size = CGSize(width: 132, height: 140)
         player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
