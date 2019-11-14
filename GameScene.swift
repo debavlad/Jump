@@ -11,12 +11,9 @@ import GameplayKit
 import AVFoundation
 import GoogleMobileAds
 
-class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
-    func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
-        //...
-    }
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    public static var adWatched = false
+//    public static var adWatched = false
     
     private var cam: Camera!
     private var manager: Manager!
@@ -42,7 +39,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
     var doorOpens = false
     
     func continueGameplay() {
-        if GameScene.adWatched {
+//        if GameScene.adWatched {
             let action = SKAction.run {
                 self.manager.finishMenu(visible: false)
                 self.player.getAlive()
@@ -71,7 +68,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
             }
             run(action)
 //            GameScene.adWatched = false
-        }
+//        }
     }
     
     override func didMove(to view: SKView) {
@@ -95,15 +92,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
         player = Player(world.childNode(withName: "Character")!)
         player.turn(left: true)
         
-        sliderTip = Tip("HOLD TO PLAY", CGPoint(x: 35, y: 70))
+        sliderTip = Tip("HOLD AND MOVE", CGPoint(x: 35, y: 70))
         manager.slider.addChild(sliderTip.sprite)
         
-        doorTip = Tip("CHANGE SKIN", CGPoint(x: -50, y: 100))
+        doorTip = Tip("SKIN SHOP", CGPoint(x: -50, y: 100))
         doorTip.flip(0.75)
         manager.door.addChild(doorTip.sprite)
         
         addChild(world)
-        trail = Trail(player.sprite)
+        trail = Trail(player.sprite, ShopScene.skins[GameScene.skinIndex].trailColors)
         trail.create(in: world)
         
         platformFactory = PlatformFactory(world, frame.height/2, 125...200)
@@ -120,6 +117,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
             a.timingMode = .easeOut
             fade.run(a)
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adWatchedUI), name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adDismissed), name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -270,7 +270,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
                 ptsOffset = ShopScene.skins[GameScene.skinIndex].name == "bman" ? 100 : 0
-                //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadAd"), object: nil)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadAd"), object: nil)
                 
                 let push = SKAction.run {
                     self.player.push(power: 170)
@@ -342,7 +342,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 sliderTouch = touch
                 offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
                 manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
-                GameScene.adWatched = true
+//                GameScene.adWatched = true
                 continueGameplay()
             } else if node == manager.menuBtn.sprite || node == manager.menuBtn.label {
                 DispatchQueue.global(qos: .background).async {
@@ -358,12 +358,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
                 }
                 manager.advertBtn.push()
                 triggeredBtn = manager.advertBtn
-                GameScene.adWatched = true
-//                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
-//                manager.advertBtn.release()
-                continueGameplay()
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
+//                continueGameplay()
             }
         }
+    }
+    
+    @objc func adWatchedUI() {
+        manager.advertBtn.sprite.isHidden = true
+        manager.menuBtn.sprite.position = manager.advertBtn.sprite.position
+        manager.show(manager.line)
+        /* If watched an advertisement */
+        //            advertBtn.sprite.isHidden = true
+        //            menuBtn.sprite.position = advertBtn.sprite.position
+        //            show(line)
+                    //
+    }
+    
+    @objc func adDismissed() {
+        manager.advertBtn.setColor(.gray)
+        manager.advertBtn.release()
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -479,7 +493,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GADRewardedAdDelegate {
             self.cam.node.run(SKAction.group([scaleStop, rotate]))
             self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
             self.ended = true
-            print("Finish")
         }
         
         run(SKAction.sequence([wait, action]))

@@ -44,9 +44,9 @@ class Manager {
             }
             
             /* If watched an advertisement */
-            advertBtn.sprite.isHidden = true
-            menuBtn.sprite.position = advertBtn.sprite.position
-            show(line)
+//            advertBtn.sprite.isHidden = true
+//            menuBtn.sprite.position = advertBtn.sprite.position
+//            show(line)
             //
             
             show(advertBtn.sprite, menuBtn.sprite, wIcon, bIcon, gIcon, gameOver, mScore)

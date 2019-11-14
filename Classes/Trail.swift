@@ -15,10 +15,14 @@ class Trail {
     private var lastParticle: SKSpriteNode!
     private let particleTexture: SKTexture
     private let anim: SKAction
+    private let colors: [UIColor]
     
     
-    init(_ target: SKSpriteNode) {
+    init(_ target: SKSpriteNode, _ colors: [UIColor]) {
         self.target = target
+        self.colors = colors
+        lastParticle = SKSpriteNode()
+        lastParticle.color = colors[0]
         anim = SKAction.group([SKAction.fadeOut(withDuration: 1),
                                     SKAction.scale(to: 0.7, duration: 1)])
         anim.timingMode = SKActionTimingMode.easeIn
@@ -27,6 +31,8 @@ class Trail {
     
     func create(in parent: SKNode, _ scale: CGFloat = 18) {
         let particle = SKSpriteNode(texture: particleTexture)
+        particle.colorBlendFactor = 1
+        particle.color = lastParticle.color == colors[0] ? colors[1] : colors[0]
         particle.position = target.position
         particle.zRotation = CGFloat.random(in: -20...20)
         particle.zPosition = 9

@@ -15,6 +15,7 @@ struct Skin : Hashable {
     var texture: SKTexture
     var price: Int
     var currency: Currency
+    var trailColors: [UIColor]
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
@@ -40,11 +41,11 @@ class ShopScene: SKScene {
     private var cam: Camera!
     
     static var skins = [
-        Skin(title: "Pauper", name: "pauper", description: "Default", texture: SKTexture(imageNamed: "pauper-sit0").px(), price: 0, currency: .wood),
-        Skin(title: "Zombie", name: "zombie", description: "Has 150 HP", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 100, currency: .wood),
-        Skin(title: "Farmer", name: "farmer", description: "Food nrg x1.25", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze),
-        Skin(title: "Businessman", name: "bman", description: "Starts with 100", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden),
-        Skin(title: "Ninja", name: "ninja", description: "Jump pwr x1.25", texture: SKTexture(imageNamed: "ninja-sit0").px(), price: 50, currency: .golden)
+        Skin(title: "Pauper", name: "pauper", description: "Default", texture: SKTexture(imageNamed: "pauper-sit0").px(), price: 0, currency: .wood, trailColors: [UIColor.blue, UIColor.white]),
+        Skin(title: "Zombie", name: "zombie", description: "Has 150 HP", texture: SKTexture(imageNamed: "zombie-sit0").px(), price: 100, currency: .wood, trailColors: [UIColor.green, UIColor.white]),
+        Skin(title: "Farmer", name: "farmer", description: "Food nrg x1.25", texture: SKTexture(imageNamed: "farmer-sit0").px(), price: 50, currency: .bronze, trailColors: [UIColor.red, UIColor.white]),
+        Skin(title: "Businessman", name: "bman", description: "Starts with 100", texture: SKTexture(imageNamed: "bman-sit0").px(), price: 25, currency: .golden, trailColors: [UIColor.white, UIColor.red]),
+        Skin(title: "Ninja", name: "ninja", description: "Jump pwr x1.25", texture: SKTexture(imageNamed: "ninja-sit0").px(), price: 50, currency: .golden, trailColors: [UIColor.darkGray, UIColor.white])
     ]
     private var pages: [SKSpriteNode]!
     private var index: Int!
