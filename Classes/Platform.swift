@@ -9,7 +9,7 @@
 import Foundation
 import SpriteKit
 
-class Platform: Hashable {
+class Platform {
     let sprite: SKSpriteNode!
     let type: PlatformType
     private(set) var items: Set<Item>!
@@ -36,16 +36,6 @@ class Platform: Hashable {
         self.power = data.power
     }
     
-    static func == (lhs: Platform, rhs: Platform) -> Bool {
-        return lhs.sprite.hashValue == rhs.sprite.hashValue
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(sprite)
-        hasher.combine(type)
-    }
-    
-    
     func addItem(_ item: Item) {
         if items == nil {
             items = Set<Item>()
@@ -62,6 +52,7 @@ class Platform: Hashable {
     func hasItems() -> Bool {
         return items != nil && items.count > 0
     }
+    
     
     func moveByX(_ width: CGFloat) {
         let right = SKAction.move(to: CGPoint(x: width, y: sprite.position.y), duration: 2)

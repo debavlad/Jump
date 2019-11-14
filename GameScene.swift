@@ -280,7 +280,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.cam.node.run(scale)
                 }
                 player.sprite.removeAllActions()
-                cloudFactory.speedUp()
+                cloudFactory.faster()
                 manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore, manager.stageBorder)
                 run(push)
                 manager.hide(sliderTip.sprite, manager.w, manager.b, manager.g)

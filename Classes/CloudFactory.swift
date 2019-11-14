@@ -44,14 +44,14 @@ class CloudFactory {
         fg.remove(bounds)
     }
     
-    func speedUp() {
-        bg.faster()
-        fg.faster()
+    func faster() {
+        bg.speed *= 2.5
+        fg.speed *= 2.5
     }
 }
 
 private class Clouds {
-    private var distance, highestY, speed: CGFloat
+    var distance, highestY, speed: CGFloat
     private let width, height: CGFloat
     private var set: Set<SKSpriteNode>!
     private var background: Bool {
@@ -95,13 +95,9 @@ private class Clouds {
         }
     }
     
-    func faster() {
-        speed *= 2.5
-    }
-    
     func remove(_ bounds: Bounds) {
         set.forEach { (cloud) in
-            if cloud.frame.maxY < bounds.minY - height*2 {
+            if cloud.frame.maxY < bounds.minY - height * 2 {
                 cloud.removeFromParent()
                 set.remove(cloud)
             }
@@ -111,8 +107,10 @@ private class Clouds {
             }).count <= 1 {
                 let pos = CGPoint(x: bounds.minX, y: cloud.position.y)
                 let new = create(pos)
-                cloud.parent?.addChild(new)
-                set.insert(new)
+                if let parent = cloud.parent {
+                    parent.addChild(new)
+                    set.insert(new)
+                }
             }
             
             if cloud.frame.minX > bounds.maxX {
@@ -123,22 +121,14 @@ private class Clouds {
     }
     
     func create(_ position: CGPoint? = nil) -> SKSpriteNode {
-        let cloud: SKSpriteNode!
-        
-        if background {
-            let scale = CGFloat.random(in: 12...16)
-            cloud = construct(-5, scale, 1)
-        } else {
-            let scale = CGFloat.random(in: 22...28)
-            cloud = construct(15, scale, 0.5)
-        }
+        let scale = CGFloat.random(in: background ? 12...16 : 22...28)
+        let cloud = construct(background ? -5 : 15, scale, background ? 1 : 0.5)
         
         if let pos = position {
             cloud.position = pos
             cloud.position.x -= cloud.frame.width/2
         } else {
-            let x = CGFloat.random(in: -width...width)
-            let y = highestY + distance
+            let (x, y) = (CGFloat.random(in: -width...width), highestY + distance)
             highestY = y
             cloud.position = CGPoint(x: x, y: y)
         }
