@@ -154,7 +154,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 // Pick items up
                 if platform.hasItems() {
-                    cam.shake(30, 1, 0, 0.1)
+                    cam.shake(35, 1, 0, 0.12)
                     for item in platform.items {
                         if item.wasTouched {
                             switch item {
@@ -172,7 +172,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         }
                     }
                 } else {
-                    cam.shake(20, 1, 0, 0.1)
+                    cam.shake(25, 1, 0, 0.12)
                 }
                 
                 // Harm and push
@@ -230,7 +230,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if score > 0 && score > Int(player.score) {
                 manager.setScore(score, platformFactory.stage)
                 player.setScore(score)
-                if score%100 == 0 {
+                if score%100 == 0 && manager.stageBorder.alpha != 0 {
                     platformFactory.stage.upgrade(score/100)
                     platformFactory.stage.setBarLabels(btm: manager.bottomStage, top: manager.topStage)
                 }
