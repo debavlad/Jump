@@ -226,16 +226,16 @@ class Manager {
         stageLine.zPosition = 20
         stageBorder.addChild(stageLine)
         
-        bottomStage = SKLabelNode(fontNamed: "Coder's Crux")
-        bottomStage.fontSize = 80
+        bottomStage = SKLabelNode(fontNamed: "pixelFJ8pt1")
+        bottomStage.fontSize = 50
         bottomStage.text = "0"
         bottomStage.position.y = -stageBorder.frame.height/2 - bottomStage.frame.height - 15
         bottomStage.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         bottomStage.zPosition = 20
         stageBorder.addChild(bottomStage)
         
-        topStage = SKLabelNode(fontNamed: "Coder's Crux")
-        topStage.fontSize = 80
+        topStage = SKLabelNode(fontNamed: "pixelFJ8pt1")
+        topStage.fontSize = 50
         topStage.text = "1"
         topStage.position.y = stageBorder.frame.height/2 + 15
         topStage.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
@@ -303,29 +303,29 @@ class Manager {
         gameOver.alpha = 0
         cam.addChild(gameOver)
         
-        menuScore = SKLabelNode(fontNamed: "Coder's Crux")
+        menuScore = SKLabelNode(fontNamed: "pixelFJ8pt1")
         
         mScore = SKSpriteNode()
         mScore.zPosition = 21
         mScore.alpha = 0
         mScore.position = CGPoint(x: gameOver.position.x, y: gameOver.position.y - 100)
         
-        lblScore = SKLabelNode(fontNamed: "Coder's Crux")
+        lblScore = SKLabelNode(fontNamed: "pixelFJ8pt1")
         lblScore.text = "SCORE:"
-        lblScore.fontSize = 90
+        lblScore.fontSize = 55
         mScore.addChild(lblScore)
         
-        continueLbl = SKLabelNode(fontNamed: "Coder's Crux")
+        continueLbl = SKLabelNode(fontNamed: "pixelFJ8pt1")
         continueLbl.text = "TIME TO CONTINUE!"
-        continueLbl.fontSize = 80
+        continueLbl.fontSize = 45
         continueLbl.position.y = -490
         continueLbl.zPosition = 21
         continueLbl.isHidden = true
         cam.addChild(continueLbl)
         
-        ptsScore = SKLabelNode(fontNamed: "Coder's Crux")
+        ptsScore = SKLabelNode(fontNamed: "pixelFJ8pt1")
         ptsScore.text = "0"
-        ptsScore.fontSize = 90
+        ptsScore.fontSize = 55
         ptsScore.fontColor = UIColor(red: 253/255, green: 255/255, blue: 115/255, alpha: 1)
         ptsScore.position.x = lblScore.frame.maxX + ptsScore.frame.width/2 + 15
         mScore.addChild(ptsScore)
@@ -349,9 +349,9 @@ class Manager {
         wIcon.alpha = 0
         icons.addChild(wIcon)
 
-        wLabel = SKLabelNode(fontNamed: "Coder's Crux")
+        wLabel = SKLabelNode(fontNamed: "pixelFJ8pt1")
         wLabel.text = "0"
-        wLabel.fontSize = 140
+        wLabel.fontSize = 76
         wLabel.position = CGPoint(x: 0, y: -wLabel.frame.height/2 + 4)
         wIcon.addChild(wLabel)
         
@@ -362,9 +362,9 @@ class Manager {
         bIcon.alpha = 0
         icons.addChild(bIcon)
         
-        bLabel = SKLabelNode(fontNamed: "Coder's Crux")
+        bLabel = SKLabelNode(fontNamed: "pixelFJ8pt1")
         bLabel.text = "0"
-        bLabel.fontSize = 140
+        bLabel.fontSize = 76
         bLabel.position = CGPoint(x: 0, y: -bLabel.frame.height/2 + 4)
         bIcon.addChild(bLabel)
         
@@ -375,9 +375,9 @@ class Manager {
         gIcon.alpha = 0
         icons.addChild(gIcon)
         
-        gLabel = SKLabelNode(fontNamed: "Coder's Crux")
+        gLabel = SKLabelNode(fontNamed: "pixelFJ8pt1")
         gLabel.text = "0"
-        gLabel.fontSize = 140
+        gLabel.fontSize = 76
         gLabel.position = CGPoint(x: 0, y: -gLabel.frame.height/2 + 4)
         gIcon.addChild(gLabel)
         
@@ -394,9 +394,9 @@ class Manager {
         
         let defaults = UserDefaults.standard
         
-        wl = SKLabelNode(fontNamed: "Coder's Crux")
+        wl = SKLabelNode(fontNamed: "pixelFJ8pt1")
         wl.text = String((defaults.value(forKey: "wooden") ?? 0) as! Int)
-        wl.fontSize = 110
+        wl.fontSize = 66
         wl.position.x = w.frame.width/2 + wl.frame.width/2 + 25
         wl.position.y = -wl.frame.height/2 + 2
         wl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
@@ -408,9 +408,9 @@ class Manager {
         b.position.x = -width + 100
         cam.addChild(b)
         
-        bl = SKLabelNode(fontNamed: "Coder's Crux")
+        bl = SKLabelNode(fontNamed: "pixelFJ8pt1")
         bl.text = String((defaults.value(forKey: "bronze") ?? 0) as! Int)
-        bl.fontSize = 110
+        bl.fontSize = 66
         bl.position.x = b.frame.width/2 + bl.frame.width/2 + 25
         bl.position.y = -bl.frame.height/2 + 2
         bl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
@@ -422,9 +422,9 @@ class Manager {
         g.position.x = -width + 100
         cam.addChild(g)
         
-        gl = SKLabelNode(fontNamed: "Coder's Crux")
+        gl = SKLabelNode(fontNamed: "pixelFJ8pt1")
         gl.text = String((defaults.value(forKey: "golden") ?? 0) as! Int)
-        gl.fontSize = 110
+        gl.fontSize = 66
         gl.position.x = g.frame.width/2 + gl.frame.width/2 + 25
         gl.position.y = -gl.frame.height/2 + 2
         gl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)

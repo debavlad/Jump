@@ -28,9 +28,9 @@ class Button {
         sprite.position = position
         sprite.zPosition = 21
         
-        label = SKLabelNode(fontNamed: "Coder's Crux")
+        label = SKLabelNode(fontNamed: "pixelFJ8pt1")
         label.fontColor = color.rgb
-        label.fontSize = 85
+        label.fontSize = 46
         label.zPosition = 1
         label.position.y = -8
         label.text = text
@@ -50,9 +50,9 @@ class Button {
         icon.size = CGSize(width: 52, height: 61)
         icon.anchorPoint = CGPoint(x: 1, y: 0.5)
 
-        label = SKLabelNode(fontNamed: "Coder's Crux")
+        label = SKLabelNode(fontNamed: "pixelFJ8pt1")
         label.fontColor = BtnColor.green.rgb
-        label.fontSize = 93
+        label.fontSize = 46
         label.zPosition = 1
         label.position.y = -10
         label.text = "\(price)"

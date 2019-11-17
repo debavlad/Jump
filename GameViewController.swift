@@ -43,8 +43,8 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
             view.ignoresSiblingOrder = true
             
 //            view.showsPhysics = true
-            view.showsFPS = true
-            view.showsNodeCount = true
+//            view.showsFPS = true
+//            view.showsNodeCount = true
         }
     }
 

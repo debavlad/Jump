@@ -14,10 +14,10 @@ class Tip {
     let label: SKLabelNode
     
     init(_ text: String, _ position: CGPoint, _ flipped: Bool = false) {
-        label = SKLabelNode(fontNamed: "Coder's Crux")
+        label = SKLabelNode(fontNamed: "pixelFJ8pt1")
         label.text = text
         label.fontColor = .black
-        label.fontSize = 60
+        label.fontSize = 34
         label.zPosition = 2
         
         // Gathering parts into one node

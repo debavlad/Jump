@@ -125,6 +125,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adWatchedUI), name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adDismissed), name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
+        
+        GSAudio.sharedInstance.playSound(soundFileName: "wind")
     }
     
     func didBegin(_ contact: SKPhysicsContact) {

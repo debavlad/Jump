@@ -231,10 +231,10 @@ class ShopScene: SKScene {
         rArr.setScale(7)
         cam.node.addChild(rArr)
         
-        title = SKLabelNode(fontNamed: "Coder's Crux")
+        title = SKLabelNode(fontNamed: "pixelFJ8pt1")
         title.position.y = bg.position.y + 205
         title.zPosition = 2
-        title.fontSize = 70
+        title.fontSize = 40
         addChild(title)
         
         black = SKSpriteNode(color: .black, size: frame.size)
@@ -261,11 +261,11 @@ class ShopScene: SKScene {
         pageCounter.position.x = CGFloat(-25) * CGFloat(Skins.count - 1)
         addChild(pageCounter)
         
-        dsc = SKLabelNode(fontNamed: "Coder's Crux")
+        dsc = SKLabelNode(fontNamed: "pixelFJ8pt1")
         dsc.position.y = pageCounter.position.y - 50
         dsc.zPosition = 2
         dsc.text = "Default"
-        dsc.fontSize = 50
+        dsc.fontSize = 26
         addChild(dsc)
         
         for i in 0..<Skins.count {
