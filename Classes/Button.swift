@@ -10,94 +10,92 @@ import Foundation
 import SpriteKit
 
 class Button {
-    var name: String
-    var color: BtnColor
-    let sprite: SKSpriteNode
-    private(set) var label: SKLabelNode
-    var icon: SKNode? {
-        get {
-            return label.children.first
-        }
-    }
+	var color: ButtonColor
+	let node: SKSpriteNode
+	private(set) var label: SKLabelNode
+	var coin: SKNode? {
+			get { return label.children.first }
+	}
+	
+	init(_ text: String, _ color: ButtonColor, _ pos: CGPoint) {
+		self.color = color
+		let tmp = color.description + "-btn"
+		node = SKSpriteNode(imageNamed: tmp + "1").px()
+		node.name = tmp
+		node.size = CGSize(width: 575, height: 150)
+		node.position = pos
+		node.zPosition = 21
+		
+		label = SKLabelNode(fontNamed: "pixelFJ8pt1")
+		label.fontColor = color.rgb
+		label.fontSize = 46
+		label.zPosition = 1
+		label.position.y = -8
+		label.text = text
+		
+		node.addChild(label)
+	}
+	
+	init(_ price: Int, _ type: Currency, _ y: CGFloat) {
+		self.color = .yellow
+		let tmp = ButtonColor.green.description + "-btn"
+		node = SKSpriteNode(imageNamed: tmp + "1").px()
+		node.name = tmp
+		node.size = CGSize(width: 575, height: 150)
+		node.position.y = y
+		node.zPosition = 21
+		
+		let icon = SKSpriteNode(imageNamed: type.description + "0").px()
+		icon.size = CGSize(width: 52, height: 61)
+		icon.anchorPoint = CGPoint(x: 1, y: 0.5)
+		
+		label = SKLabelNode(fontNamed: "pixelFJ8pt1")
+		label.fontColor = ButtonColor.green.rgb
+		label.fontSize = 46
+		label.zPosition = 1
+		label.position.y = -10
+		label.text = "\(price)"
+		
+		icon.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height/2)
+		label.addChild(icon)
+		label.position.x += icon.frame.width/2 + 10
+		node.addChild(label)
+	}
     
-    init(_ text: String, _ color: BtnColor, _ position: CGPoint) {
-        self.color = color
-        name = "\(color.description)-btn"
-        sprite = SKSpriteNode(imageNamed: "\(name)1").px()
-        sprite.size = CGSize(width: 575, height: 150)
-        sprite.position = position
-        sprite.zPosition = 21
-        
-        label = SKLabelNode(fontNamed: "pixelFJ8pt1")
-        label.fontColor = color.rgb
-        label.fontSize = 46
-        label.zPosition = 1
-        label.position.y = -8
-        label.text = text
-        
-        sprite.addChild(label)
-    }
+	
+	func setPrice(_ amount: Int, _ currency: Currency) {
+		setText("\(amount)")
+		let tmp = coin as! SKSpriteNode
+		tmp.texture = SKTexture(imageNamed: "\(currency.description)0")
+		tmp.position = CGPoint(x: label.frame.minX-20, y: label.frame.height/2)
+		tmp.isHidden = false
+		label.position.x += 10 + tmp.frame.width/2
+	}
     
-    init(_ price: Int, _ type: Currency, _ y: CGFloat) {
-        self.color = BtnColor.yellow
-        name = "\(BtnColor.green.description)-btn"
-        sprite = SKSpriteNode(imageNamed: "\(name)1").px()
-        sprite.size = CGSize(width: 575, height: 150)
-        sprite.position.y = y
-        sprite.zPosition = 21
-
-        let icon = SKSpriteNode(imageNamed: "\(type.description)0").px()
-        icon.size = CGSize(width: 52, height: 61)
-        icon.anchorPoint = CGPoint(x: 1, y: 0.5)
-
-        label = SKLabelNode(fontNamed: "pixelFJ8pt1")
-        label.fontColor = BtnColor.green.rgb
-        label.fontSize = 46
-        label.zPosition = 1
-        label.position.y = -10
-        label.text = "\(price)"
-
-        icon.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height/2)
-        label.addChild(icon)
-
-        label.position.x += 10 + icon.frame.width/2
-
-        sprite.addChild(label)
-    }
-    
-    func setPrice(_ amount: Int, _ currency: Currency) {
-        setText("\(amount)")
-        let coin = icon as! SKSpriteNode
-        coin.texture = SKTexture(imageNamed: "\(currency.description)0")
-        coin.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height / 2)
-        coin.isHidden = false
-        label.position.x += 10 + coin.frame.width/2
-    }
-    
-    func setColor(_ color: BtnColor) {
-        name = "\(color.description)-btn"
-        sprite.texture = SKTexture(imageNamed: "\(name)1").px()
-        self.color = color
-        label.fontColor = color.rgb
-    }
-    
-    func setText(_ text: String) {
-        label.text = text
-        label.position.x = 0
-    }
-    
-    func release() {
-        sprite.texture = SKTexture(imageNamed: "\(name)1").px()
-        label.position.y = -8
-    }
-    
-    func push() {
-        sprite.texture = SKTexture(imageNamed: "\(name)2").px()
-        label.position.y = -20
-    }
+	func setColor(_ color: ButtonColor) {
+		node.name = "\(color.description)-btn"
+		node.texture = SKTexture(imageNamed: "\(node.name!)1").px()
+		label.fontColor = color.rgb
+		self.color = color
+	}
+	
+	func setText(_ text: String) {
+		label.text = text.uppercased()
+		label.position.x = 0
+	}
+	
+	func release() {
+		node.texture = SKTexture(imageNamed: "\(node.name!)1").px()
+		label.position.y = -8
+	}
+	
+	func push() {
+		node.texture = SKTexture(imageNamed: "\(node.name!)2").px()
+		label.position.y = -20
+	}
 }
 
-enum BtnColor: CustomStringConvertible {
+enum ButtonColor: CustomStringConvertible {
     case gray
     case blue
     case green

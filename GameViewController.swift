@@ -66,8 +66,8 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
     
     @objc func loadAd() {
         myAd = GADRewardedAd.init(adUnitID: TEST_AD_ID)
+//        myAd = GADRewardedAd.init(adUnitID: ADMOB_AD_ID)
         let request = GADRequest()
-        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "b4e79107e711a12cec41bd7ce2f77af7" ]
         myAd.load(request, completionHandler: nil)
     }
     

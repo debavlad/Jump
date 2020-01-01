@@ -49,11 +49,11 @@ class Manager {
 //            show(line)
             //
             
-            show(advertBtn.sprite, menuBtn.sprite, wIcon, bIcon, gIcon, gameOver, mScore)
+            show(advertBtn.node, menuBtn.node, wIcon, bIcon, gIcon, gameOver, mScore)
             fade(0.7, 1, [darken])
             fade(0.4, 0.6, [red])
         } else {
-            fade(0, 2, [advertBtn.sprite, menuBtn.sprite, wIcon, bIcon, gIcon, gameOver, mScore, darken, red])
+            fade(0, 2, [advertBtn.node, menuBtn.node, wIcon, bIcon, gIcon, gameOver, mScore, darken, red])
             show(line, hpBorder, pauseBtn, stageBorder)
         }
     }
@@ -431,12 +431,12 @@ class Manager {
         g.addChild(gl)
         
         menuBtn = Button("BACK TO MENU", .gray, CGPoint(x: 0, y: -500))
-        menuBtn.sprite.alpha = 0
-        cam.addChild(menuBtn.sprite)
+        menuBtn.node.alpha = 0
+        cam.addChild(menuBtn.node)
         
-        advertBtn = Button("CONTINUE", .blue, CGPoint(x: 0, y: menuBtn.sprite.frame.maxY + 100))
-        advertBtn.sprite.alpha = 0
-        cam.addChild(advertBtn.sprite)
+        advertBtn = Button("CONTINUE", .blue, CGPoint(x: 0, y: menuBtn.node.frame.maxY + 100))
+        advertBtn.node.alpha = 0
+        cam.addChild(advertBtn.node)
     }
     
     private func setAnimations() {

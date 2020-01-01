@@ -10,86 +10,70 @@ import Foundation
 import SpriteKit
 
 class FoodFactory {
-    private var energies = [FoodType : Int]()
+	private var energies = [FoodType : Int]()
     
-    init() {
-        energies[FoodType.meat] = 25
-        energies[FoodType.chicken] = 20
-        energies[FoodType.cheese] = 20
-        energies[FoodType.bread] = 15
-        energies[FoodType.egg] = 15
-    }
+	init() {
+		energies[FoodType.meat] = 25
+		energies[FoodType.chicken] = 20
+		energies[FoodType.cheese] = 20
+		energies[FoodType.bread] = 15
+		energies[FoodType.egg] = 15
+	}
     
-    func getRandomFood() -> Food {
-        let random = Int.random(in: 0..<energies.count)
-        let type = FoodType(rawValue: random)
-        let food = create(type!)
-        
-        return food
-    }
+	func getRandomFood() -> Food {
+		let index = Int.random(in: 0..<energies.count)
+		let type = FoodType(rawValue: index)
+		let food = create(type!)
+		return food
+	}
     
-    private func create(_ type: FoodType) -> Food {
-        let sprite = SKSpriteNode(imageNamed: type.description)
-            .applyFoodSettings()
-            .randomize()
-            .px()
-        sprite.name = type.description + "item"
-        
-        return Food(sprite, energies[type]!)
-    }
+	private func create(_ type: FoodType) -> Food {
+		let node = SKSpriteNode(imageNamed: type.description)
+				.applyFoodSettings()
+				.randomize()
+				.px()
+		node.name = type.description + "item"
+		
+		return Food(node, energies[type]!)
+	}
 }
 
 enum FoodType: Int, CustomStringConvertible {
-    case chicken
-    case cheese
-    case meat
-    case egg
-    case bread
-    
-    var description: String {
-        switch self {
-        case .chicken:
-            return "chicken"
-        case .bread:
-            return "bread"
-        case .cheese:
-            return "cheese"
-        case .egg:
-            return "egg"
-        case .meat:
-            return "meat"
-        }
-    }
+	case meat
+	case chicken
+	case cheese
+	case bread
+	case egg
+	
+	var description: String {
+		switch self {
+		case .chicken: return "chicken"
+		case .bread: return "bread"
+		case .cheese: return "cheese"
+		case .egg: return "egg"
+		case .meat: return "meat"
+		}
+	}
 }
 
 extension SKSpriteNode {
-    func randomize() -> SKSpriteNode {
-        let x = CGFloat.random(in: -30...30)
-        position = CGPoint(x: x, y: 30)
-        
-        let behind = Bool.random()
-        zPosition = behind ? -1 : 2
-        
-        let mirrored = Bool.random()
-        if mirrored {
-            xScale = -6
-        }
-        
-        return self
-    }
-    
-    func applyFoodSettings() -> SKSpriteNode {
-        setScale(5.4)
-        
-        physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
-        physicsBody?.affectedByGravity = true
-        physicsBody?.categoryBitMask = Categories.food
-        physicsBody?.contactTestBitMask = Categories.player
-        physicsBody?.collisionBitMask = Categories.platform
-        physicsBody?.friction = 0
-        physicsBody?.restitution = 0
-        physicsBody?.isDynamic = false
-        
-        return self
-    }
+	func randomize() -> SKSpriteNode {
+		position = CGPoint(x: CGFloat.random(in: -30...30), y: 30)
+		zPosition = Bool.random() ? -1 : 2
+		if Bool.random() { xScale = -6 }
+		return self
+	}
+	
+	func applyFoodSettings() -> SKSpriteNode {
+		setScale(5.4)
+		physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
+		physicsBody?.affectedByGravity = true
+		physicsBody?.categoryBitMask = Categories.food
+		physicsBody?.contactTestBitMask = Categories.player
+		physicsBody?.collisionBitMask = Categories.platform
+		physicsBody?.friction = 0
+		physicsBody?.restitution = 0
+		physicsBody?.isDynamic = false
+		return self
+	}
 }
