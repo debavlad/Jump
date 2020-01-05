@@ -14,7 +14,7 @@ class Manager {
     private var labels: [SKLabelNode]!
     private var particles: [SKEmitterNode]!
     private var width, height: CGFloat
-    private(set) var menuBtn, advertBtn: Button!
+    private(set) var menuBtn: Button!
     private(set) var gameOver, gameScore, menuScore, ptsScore, lblScore, wLabel, bLabel, gLabel, wl, bl, gl, bottomStage, topStage, continueLbl: SKLabelNode!
     private(set) var house, door, line, slider, pauseBtn, darken, red, hpBorder, hpStripe, mScore, wIcon, bIcon, gIcon, w, b, g, stageBorder, stageLine: SKSpriteNode!
     private(set) var pauseTexture, playTexture: SKTexture!
@@ -49,11 +49,11 @@ class Manager {
 //            show(line)
             //
             
-            show(advertBtn.node, menuBtn.node, wIcon, bIcon, gIcon, gameOver, mScore)
+            show(menuBtn.node, wIcon, bIcon, gIcon, gameOver, mScore)
             fade(0.7, 1, [darken])
             fade(0.4, 0.6, [red])
         } else {
-            fade(0, 2, [advertBtn.node, menuBtn.node, wIcon, bIcon, gIcon, gameOver, mScore, darken, red])
+            fade(0, 2, [menuBtn.node, wIcon, bIcon, gIcon, gameOver, mScore, darken, red])
             show(line, hpBorder, pauseBtn, stageBorder)
         }
     }
@@ -125,23 +125,14 @@ class Manager {
             }
         }
     }
-    
-    func removeLabels(_ minY: CGFloat) {
-        if labels.count > 0 {
-            if labels.first!.frame.maxY < minY {
-                labels.first!.removeFromParent()
-                labels.removeFirst()
-            }
-        }
-//        if labels.count > 0 {
-//            labels.filter({ (node) -> Bool in
-//                return node.frame.maxY < minY
-//            }).forEach { (label) in
-//                labels.remove(label)
-//                label.removeFromParent()
-//            }
-//        }
-    }
+	
+	func removeLabels(_ minY: CGFloat) {
+		if labels.count <= 0 { return }
+		if labels.first!.frame.maxY < minY {
+			labels.first!.removeFromParent()
+			labels.removeFirst()
+		}
+	}
     
     
     private func fade(_ alpha: CGFloat, _ duration: TimeInterval, _ nodes: [SKNode]) {
@@ -315,13 +306,13 @@ class Manager {
         lblScore.fontSize = 55
         mScore.addChild(lblScore)
         
-        continueLbl = SKLabelNode(fontNamed: "pixelFJ8pt1")
-        continueLbl.text = "TIME TO CONTINUE!"
-        continueLbl.fontSize = 45
-        continueLbl.position.y = -490
-        continueLbl.zPosition = 21
-        continueLbl.isHidden = true
-        cam.addChild(continueLbl)
+//        continueLbl = SKLabelNode(fontNamed: "pixelFJ8pt1")
+//        continueLbl.text = "TIME TO CONTINUE!"
+//        continueLbl.fontSize = 45
+//        continueLbl.position.y = -490
+//        continueLbl.zPosition = 21
+//        continueLbl.isHidden = true
+//        cam.addChild(continueLbl)
         
         ptsScore = SKLabelNode(fontNamed: "pixelFJ8pt1")
         ptsScore.text = "0"
@@ -344,7 +335,7 @@ class Manager {
         
         wIcon = SKSpriteNode(imageNamed: "wood0").px()
         wIcon.size = CGSize(width: 90, height: 99)
-        wIcon.position.y = 180 // +50
+        wIcon.position.y = 120 // +50
         wIcon.zPosition = 21
         wIcon.alpha = 0
         icons.addChild(wIcon)
@@ -357,7 +348,7 @@ class Manager {
         
         bIcon = SKSpriteNode(imageNamed: "bronze0").px()
         bIcon.size = CGSize(width: 90, height: 99)
-        bIcon.position.y = 30
+        bIcon.position.y = -30
         bIcon.zPosition = 21
         bIcon.alpha = 0
         icons.addChild(bIcon)
@@ -370,7 +361,7 @@ class Manager {
         
         gIcon = SKSpriteNode(imageNamed: "golden0").px()
         gIcon.size = CGSize(width: 90, height: 99)
-        gIcon.position.y = -120
+        gIcon.position.y = -180
         gIcon.zPosition = 21
         gIcon.alpha = 0
         icons.addChild(gIcon)
@@ -434,9 +425,9 @@ class Manager {
         menuBtn.node.alpha = 0
         cam.addChild(menuBtn.node)
         
-        advertBtn = Button("CONTINUE", .blue, CGPoint(x: 0, y: menuBtn.node.frame.maxY + 100))
-        advertBtn.node.alpha = 0
-        cam.addChild(advertBtn.node)
+//        advertBtn = Button("CONTINUE", .blue, CGPoint(x: 0, y: menuBtn.node.frame.maxY + 100))
+//        advertBtn.node.alpha = 0
+//        cam.addChild(advertBtn.node)
     }
     
     private func setAnimations() {

@@ -9,7 +9,8 @@
 import Foundation
 import SpriteKit
 
-
+// TO-DO
+// Make one general factory
 class CloudFactory {
     private let parent: SKNode!
     private var bg, fg: Clouds!

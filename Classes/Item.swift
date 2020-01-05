@@ -26,28 +26,10 @@ class Item: Hashable {
 	}
 	
 	func hash(into hasher: inout Hasher) {
-			hasher.combine(node)
+		hasher.combine(node)
 	}
 	
 	static func == (lhs: Item, rhs: Item) -> Bool {
-			return lhs.hashValue == rhs.hashValue
-	}
-}
-
-class Coin: Item {
-	private(set) var currency: Currency
-	
-	init(_ node: SKSpriteNode, _ currency: Currency) {
-		self.currency = currency
-		super.init(node)
-	}
-}
-
-class Food: Item {
-	private(set) var energy: Int
-	
-	init(_ node: SKSpriteNode, _ energy: Int) {
-		self.energy = energy
-		super.init(node)
+		return lhs.hashValue == rhs.hashValue
 	}
 }

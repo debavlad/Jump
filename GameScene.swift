@@ -9,7 +9,7 @@
 import SpriteKit
 import GameplayKit
 import AVFoundation
-import GoogleMobileAds
+//import GoogleMobileAds
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
 	private var cam: Camera!
@@ -110,8 +110,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			fade.run(a)
 		}
 		
-		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adWatchedUI), name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adDismissed), name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
+//		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adWatchedUI), name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
+//		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adDismissed), name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
 		GSAudio.sharedInstance.playSound(soundFileName: "wind")
 	}
 	
@@ -124,7 +124,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if !(player.isFalling() && col == Collision.playerPlatform) { return }
-		player.runAnimation(player.landAnim)
+		player.runAnim(player.landAnim)
 		trail.create(in: world, 30.0)
 		manager.createEmitter(world, "DustParticles", contact.contactPoint)
 		
@@ -174,12 +174,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if started {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
 			if player.isFalling() && player.currentAnim != player.fallAnim {
-				player.runAnimation(player.fallAnim)
+				player.runAnim(player.fallAnim)
 			}
 		} else { started = player.node.position.y > 0 }
 		
 		if started && !ended {
-			if platformFactory.canBuild(player.node.position.y) { platformFactory.create() }
+			platformFactory.create(player.node.position.y)
+//			if platformFactory.canBuild(player.node.position.y) { platformFactory.create() }
 			platformFactory.remove(bounds.minY)
 			if player.node.position.y < minY { finish() }
 		}
@@ -314,29 +315,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 							//playSound(type: .UI, audioName: "push-down")
 							triggeredBtn = manager.menuBtn
 							restart()
-					} else if node == manager.advertBtn.node || node == manager.advertBtn.label {
-							DispatchQueue.global(qos: .background).async {
-									GSAudio.sharedInstance.playSound(soundFileName: "button")
-							}
-							manager.advertBtn.push()
-							triggeredBtn = manager.advertBtn
-							NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
-//                continueGameplay()
 					}
+//					else if node == manager.advertBtn.node || node == manager.advertBtn.label {
+//							DispatchQueue.global(qos: .background).async {
+//									GSAudio.sharedInstance.playSound(soundFileName: "button")
+//							}
+//							manager.advertBtn.push()
+//							triggeredBtn = manager.advertBtn
+//							NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
+//					}
 			}
-	}
-	
-	@objc func adWatchedUI() {
-			manager.advertBtn.node.isHidden = true
-			manager.menuBtn.node.position = manager.advertBtn.node.position
-			manager.continueLbl.isHidden = false
-			manager.continueLbl.alpha = 1
-			manager.show(manager.line)
-	}
-	
-	@objc func adDismissed() {
-			manager.advertBtn.setColor(.gray)
-			manager.advertBtn.release()
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -423,7 +411,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	private func finish(_ wait: TimeInterval = 0) {
 			ended = true
 			GSAudio.sharedInstance.playAsync(soundFileName: "hurt")
-			manager.advertBtn.node.isHidden = false
+//			manager.advertBtn.node.isHidden = false
 			manager.menuBtn.node.position = CGPoint(x: 0, y: -500)
 			let wait = SKAction.wait(forDuration: wait)
 			let action = SKAction.run {

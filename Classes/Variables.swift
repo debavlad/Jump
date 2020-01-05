@@ -12,7 +12,7 @@ import SpriteKit
 /* ADMOB */
 
 let USE_ADMOB = true
-let ADMOB_APP_ID = "ca-app-pub-5695778104677732~7565587493"
+
 let ADMOB_AD_ID = "ca-app-pub-5695778104677732/4898722249"
 let TEST_AD_ID = "ca-app-pub-3940256099942544/1712485313"
 
@@ -25,9 +25,9 @@ var bounds: Bounds!
 let Skins = [
 	Skin(name: "pauper", title: "Pauper", dsc: "Default", 0, .wood, colors: [Colors.pa1, Colors.pa2]),
 	Skin(name: "zombie", title: "Zombie", dsc: "150 hp", 60, .wood, colors: [Colors.zo1, Colors.zo2]),
-	Skin(name: "farmer", title: "Farmer", dsc: "Food x1.25", 40, .bronze, colors: [Colors.fa1, Colors.fa2]),
-	Skin(name: "bman", title: "Businessman", dsc: "Has 100 pts", 25, .golden, colors: [UIColor.white, Colors.bu1, Colors.bu2]),
-	Skin(name: "ninja", title: "Ninja", dsc: "Jump x1.25", 50, .golden, colors: [Colors.ni1, UIColor.gray, Colors.ni2, Colors.ni3])
+	Skin(name: "farmer", title: "Farmer", dsc: "Food x1.25", 80, .wood, colors: [Colors.fa1, Colors.fa2]),
+	Skin(name: "bman", title: "Businessman", dsc: "Has 100 pts", 40, .bronze, colors: [UIColor.white, Colors.bu1, Colors.bu2]),
+	Skin(name: "ninja", title: "Ninja", dsc: "Jump x1.25", 20, .golden, colors: [Colors.ni1, UIColor.gray, Colors.ni2, Colors.ni3])
 ]
 
 class Colors {
