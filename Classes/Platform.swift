@@ -38,7 +38,7 @@ class Platform {
 	func hasItems() -> Bool {
 		return items != nil && items.count > 0
 	}
-    
+	
 	func moveByX(_ width: CGFloat) {
 		let right = SKAction.move(to: CGPoint(x: width, y: node.position.y), duration: 2)
 		right.timingMode = .easeInEaseOut
@@ -47,7 +47,8 @@ class Platform {
 		let seq = node.position.x > 0 ? SKAction.sequence([left, right]) : SKAction.sequence([right, left])
 		node.run(SKAction.repeatForever(seq))
 	}
-    
+
+	// 150 always
 	func moveByY(_ height: CGFloat) {
 		let minY = node.position.y, highest = node.position.y + height
 		let up = SKAction.move(to: CGPoint(x: node.position.x, y: highest), duration: 1.5)

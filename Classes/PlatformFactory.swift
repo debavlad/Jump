@@ -161,7 +161,7 @@ class Stage {
 		btm.text = "\(current)"
 		top.text = "\(current+1)"
 		DispatchQueue.global(qos: .background).async {
-				GSAudio.sharedInstance.playSound(soundFileName: "tada")
+				Audio.playSound("tada")
 		}
 	}
     
@@ -171,11 +171,12 @@ class Stage {
 			current = 1
 			availablePlatforms.append(.wood)
 			availableCoins.append(.bronze)
-			PlatformFactory.foodRegularJumps = 6
+			PlatformFactory.foodRegularJumps = 5
 		case 2:
 			current = 2
 			availablePlatforms.append(.stone)
-			PlatformFactory.foodRegularJumps = 7
+			availablePlatforms.append(.dirt)
+			PlatformFactory.foodRegularJumps = 6
 		case 3:
 			current = 3
 			availableCoins.append(.golden)

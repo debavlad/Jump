@@ -43,12 +43,12 @@ class ShopScene: SKScene {
 				case .yellow: sound = "purchase"
 				default: sound = "button"
 			}
-			GSAudio.sharedInstance.playAsync(soundFileName: sound)
+			Audio.playSound(sound)
 		}
 		else if node == backBtn.node || node == backBtn.label {
 			backBtn.push()
 			touchedNode = backBtn.node
-			GSAudio.sharedInstance.playAsync(soundFileName: "button")
+			Audio.playSound("button")
 			reload()
 		}
 		else {
@@ -61,7 +61,7 @@ class ShopScene: SKScene {
 			touchedNode?.yScale = 7
 			arrow?.yScale = -7
 			touchedNode = arrow
-			if touchedNode != nil { GSAudio.sharedInstance.playAsync(soundFileName: "button") }
+			if touchedNode != nil { Audio.playSound("button") }
 		}
 	}
 	

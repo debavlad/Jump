@@ -26,6 +26,10 @@ class GameViewController: UIViewController {
 				scene.size = CGSize(width: view.frame.width*2, height: view.frame.height*2)
 				scene.scaleMode = .aspectFill
 				view.presentScene(scene)
+				
+				view.showsPhysics = true
+				view.showsFPS = true
+				view.showsNodeCount = true
 					
 //				rewardedAd = GADRewardedAd(adUnitID: ADMOB_AD_ID)
 //				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)

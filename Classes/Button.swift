@@ -95,33 +95,26 @@ class Button {
 }
 
 enum ButtonColor: CustomStringConvertible {
-    case gray
-    case blue
-    case green
-    case yellow
-    
-    var description: String {
-        switch self {
-        case .gray:
-            return "gray"
-        case .blue:
-            return "blue"
-        case .green:
-            return "green"
-        case .yellow:
-            return "yellow"
-        }
-    }
-    var rgb: UIColor {
-        switch self {
-        case .gray:
-            return UIColor(red: 149/255, green: 149/255, blue: 149/255, alpha: 1)
-        case .blue:
-            return UIColor(red: 127/255, green: 161/255, blue: 172/255, alpha: 1)
-        case .green:
-            return UIColor(red: 126/255, green: 171/255, blue: 135/255, alpha: 1)
-        case .yellow:
-            return UIColor(red: 171/255, green: 167/255, blue: 85/255, alpha: 1)
-        }
-    }
+	case gray
+	case blue
+	case green
+	case yellow
+	
+	var description: String {
+		switch self {
+		case .gray: return "gray"
+		case .blue: return "blue"
+		case .green: return "green"
+		case .yellow: return "yellow"
+		}
+	}
+	
+	var rgb: UIColor {
+		switch self {
+		case .gray: return UIColor(red: 149/255, green: 149/255, blue: 149/255, alpha: 1)
+		case .blue: return UIColor(red: 127/255, green: 161/255, blue: 172/255, alpha: 1)
+		case .green: return UIColor(red: 126/255, green: 171/255, blue: 135/255, alpha: 1)
+		case .yellow: return UIColor(red: 171/255, green: 167/255, blue: 85/255, alpha: 1)
+		}
+	}
 }

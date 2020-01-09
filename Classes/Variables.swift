@@ -8,8 +8,7 @@
 
 import Foundation
 import SpriteKit
-
-// Gameplay
+import AudioToolbox
 
 var bounds: Bounds!
 
@@ -17,6 +16,15 @@ class Fonts {
 	static let forwa = "FFFForward"
 	static let pixelf = "pixelFJ8pt1"
 	static let droid = "DisposableDroidBB"
+}
+
+func playSound(_ soundName: String) {
+	if let soundURL = Bundle.main.url(forResource: soundName, withExtension: "wav") {
+			var mySound: SystemSoundID = 0
+			AudioServicesCreateSystemSoundID(soundURL as CFURL, &mySound)
+			// Play
+			AudioServicesPlaySystemSound(mySound);
+	}
 }
 
 let Skins = [

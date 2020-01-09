@@ -113,7 +113,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 //		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adWatchedUI), name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
 //		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adDismissed), name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
-		GSAudio.sharedInstance.playSound(soundFileName: "wind")
+		Audio.playSound("wind")
 	}
 	
 	
@@ -133,7 +133,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let platform = platformFactory.findPlatform(node)
 		DispatchQueue.global(qos: .background).async {
 			let audioName = "\(platform.type)-footstep"
-			GSAudio.sharedInstance.playSounds(soundFileNames: audioName, "wind")
+			Audio.playSounds(audioName, "wind")
 		}
 		
 		if platform.hasItems() {
@@ -228,7 +228,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if !started {
 					if node == manager.slider && !doorOpens {
 							DispatchQueue.global(qos: .background).async {
-									GSAudio.sharedInstance.playSounds(soundFileNames: "button", "wood-footstep", "wind")
+									Audio.playSounds("button", "wood-footstep", "wind")
 							}
 							sliderTouch = touch
 							offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
@@ -253,7 +253,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					} else if node == manager.door {
 							doorOpens = true
 							DispatchQueue.global(qos: .background).async {
-									GSAudio.sharedInstance.playSound(soundFileName: "door-open")
+									Audio.playSound("door-open")
 							}
 							
 							manager.door.run(manager.doorAnim)
@@ -284,7 +284,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			else if started && !ended {
 					if node == manager.slider {
 							DispatchQueue.global(qos: .background).async {
-									GSAudio.sharedInstance.playSound(soundFileName: "button")
+									Audio.playSound("button")
 							}
 							sliderTouch = touch
 							offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
@@ -301,7 +301,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			else if ended {
 					if node == manager.slider {
 							DispatchQueue.global(qos: .background).async {
-									GSAudio.sharedInstance.playSound(soundFileName: "button")
+									Audio.playSound("button")
 							}
 							sliderTouch = touch
 							offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
@@ -310,7 +310,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 							continueGameplay()
 					} else if node == manager.menuBtn.node || node == manager.menuBtn.label {
 							DispatchQueue.global(qos: .background).async {
-									GSAudio.sharedInstance.playSound(soundFileName: "button")
+									Audio.playSound("button")
 							}
 							manager.menuBtn.push()
 							//playSound(type: .UI, audioName: "push-down")
@@ -411,7 +411,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	private func finish(_ wait: TimeInterval = 0) {
 			ended = true
-			GSAudio.sharedInstance.playAsync(soundFileName: "hurt")
+			Audio.playSound("hurt")
 //			manager.advertBtn.node.isHidden = false
 			manager.menuBtn.node.position = CGPoint(x: 0, y: -500)
 			let wait = SKAction.wait(forDuration: wait)
@@ -455,12 +455,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			switch item {
 			case is Coin:
 				manager.createLbl(world, platform.node.position)
-//					manager.createLabel(world, platform.node.position)
-					GSAudio.sharedInstance.playAsync(soundFileName: "coin-pickup")
+				Audio.playSound("coin-pickup")
 			case is Food:
-					GSAudio.sharedInstance.playAsync(soundFileName: "food-pickup")
+				Audio.playSound("food-pickup")
 			default:
-					break
+				break
 			}
 			
 			platformFactory.removeItem(item, from: platform)
