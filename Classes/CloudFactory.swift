@@ -1,5 +1,5 @@
 //
-//  Clouds.swift
+//  CloudFactory.swift
 //  Jump
 //
 //  Created by Vladislav Deba on 7/31/19.
@@ -9,48 +9,8 @@
 import Foundation
 import SpriteKit
 
-// TO-DO
-// Make one general factory
-class CloudFactory {
-    private let parent: SKNode!
-    private var bg, fg: Clouds!
-    
-    init(_ frame: CGRect, _ world: SKNode) {
-        bg = Clouds(250, -frame.height)
-        fg = Clouds(1200, -frame.height/1.25)
-        self.parent = world
-    }
-    
-    
-    func create(_ playerY: CGFloat, _ started: Bool) {
-        if bg.canBuild(playerY, started) {
-            let cloud = bg.create()
-            parent.addChild(cloud)
-        }
-        
-        if fg.canBuild(playerY, started) {
-            let cloud = fg.create()
-            parent.addChild(cloud)
-        }
-    }
-    
-    func move() {
-        bg.move(bounds)
-        fg.move(bounds)
-    }
-    
-    func remove() {
-        bg.remove(bounds)
-        fg.remove(bounds)
-    }
-    
-    func faster() {
-        bg.speed *= 2.5
-        fg.speed *= 2.5
-    }
-}
 
-private class Clouds {
+class CloudFactory {
     var distance, highestY, speed: CGFloat
     private let width, height: CGFloat
     private var set: Set<SKSpriteNode>!
@@ -79,7 +39,7 @@ private class Clouds {
     }
     
     
-    fileprivate func canBuild(_ playerY: CGFloat, _ started: Bool) -> Bool {
+    func canBuild(_ playerY: CGFloat, _ started: Bool) -> Bool {
         if started {
             return highestY + distance < playerY + height
         } else {

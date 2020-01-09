@@ -80,6 +80,9 @@ class SceneManager {
 		e.zPosition = 3
 		e.particleZPosition = 3
 		parent.addChild(e)
+		e.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
+			if self.blackSprite.alpha == 0 { e.removeFromParent() }
+			}]))
 	}
 	
 	func createLbl(_ parent: SKNode, _ pos: CGPoint) {
@@ -90,25 +93,10 @@ class SceneManager {
 		l.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 30))
 		let angle = CGFloat.random(in: -0.0005...0.0005)
 		l.physicsBody?.applyAngularImpulse(angle)
-	}
-	
-	// to-do
-	func disposeEmitters(_ minY: CGFloat) {
-//        if particles.count > 0 {
-//            if (particles.first!.frame.maxY < minY) {
-//                particles.first!.removeFromParent()
-//                particles.removeFirst()
-//            }
-//        }
-    }
-	
-	// to-do
-	func disposeLabels(_ minY: CGFloat) {
-//		if labels.count <= 0 { return }
-//		if labels.first!.frame.maxY < minY {
-//			labels.first!.removeFromParent()
-//			labels.removeFirst()
-//		}
+		
+		l.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
+			if self.blackSprite.alpha == 0 { l.removeFromParent() }
+			}]))
 	}
 	
 	func show(_ nodes: SKNode...) {

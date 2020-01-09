@@ -48,7 +48,6 @@ class Platform {
 		node.run(SKAction.repeatForever(seq))
 	}
 
-	// 150 always
 	func moveByY(_ height: CGFloat) {
 		let minY = node.position.y, highest = node.position.y + height
 		let up = SKAction.move(to: CGPoint(x: node.position.x, y: highest), duration: 1.5)

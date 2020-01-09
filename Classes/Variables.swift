@@ -18,15 +18,6 @@ class Fonts {
 	static let droid = "DisposableDroidBB"
 }
 
-func playSound(_ soundName: String) {
-	if let soundURL = Bundle.main.url(forResource: soundName, withExtension: "wav") {
-			var mySound: SystemSoundID = 0
-			AudioServicesCreateSystemSoundID(soundURL as CFURL, &mySound)
-			// Play
-			AudioServicesPlaySystemSound(mySound);
-	}
-}
-
 let Skins = [
 	Skin(name: "pauper", title: "Pauper", dsc: "Default", 0, .wood, colors: [Colors.pa1, Colors.pa2]),
 	Skin(name: "zombie", title: "Zombie", dsc: "150 hp", 60, .wood, colors: [Colors.zo1, Colors.zo2]),

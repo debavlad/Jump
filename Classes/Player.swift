@@ -80,7 +80,6 @@ class Player {
 		currentAnim = anim
 	}
     
-	//
 	private func setNodes() {
 		// Physics
 		node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
