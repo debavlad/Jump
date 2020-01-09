@@ -24,6 +24,8 @@ class PlatformFactory {
 	private let coinFactory: CoinFactory
 	private let foodFactory: FoodFactory
 	private let width, height: CGFloat
+	
+	private let samplePlatform: SKSpriteNode
     
     
 	init(_ parent: SKNode, _ startY: CGFloat, _ distance: ClosedRange<CGFloat>) {
@@ -44,6 +46,20 @@ class PlatformFactory {
 			PlatformType.wood : (SKTexture(imageNamed: "wooden-platform").px(), 83, 5),
 			PlatformType.stone : (SKTexture(imageNamed: "stone-platform").px(), 88, 6)
 		]
+		
+		samplePlatform = SKSpriteNode()
+		samplePlatform.size = CGSize(width: 117, height: 45)
+		samplePlatform.name = "platform"
+		samplePlatform.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 83.5, height: 1), center: CGPoint(x: 0, y: 20))
+		samplePlatform.physicsBody?.restitution = CGFloat(0.2)
+		samplePlatform.physicsBody?.friction = 0
+		samplePlatform.physicsBody?.mass = 10
+		samplePlatform.physicsBody?.linearDamping = 0
+		samplePlatform.physicsBody?.angularDamping = 0
+		samplePlatform.physicsBody?.contactTestBitMask = Categories.player
+		samplePlatform.physicsBody?.categoryBitMask = Categories.platform
+		samplePlatform.physicsBody?.collisionBitMask = Categories.coin | Categories.food
+		samplePlatform.physicsBody?.isDynamic = false
 	}
     
 	func create(_ playerY: CGFloat) {
@@ -112,7 +128,7 @@ class PlatformFactory {
 	}
     
 	private func construct(_ type: PlatformType, _ pos: CGPoint) -> Platform {
-		let platform = Platform(type, data[type]!)
+		let platform = Platform(samplePlatform, type, data[type]!)
 		platform.node.position = pos
 		return platform
 	}

@@ -121,16 +121,19 @@ class ShopScene: SKScene {
 	
 	private func setSkinBtn(_ skinId: Int) {
 		if GameScene.skinIndex == skinId {
-			actBtn.setText("current skin")
+			actBtn.textContent("current skin")
+//			actBtn.setText("current skin")
 			actBtn.setColor(.blue)
 			actBtn.coin?.isHidden = true
 		} else if GameScene.ownedSkins.contains(skinId) {
-			actBtn.setText("set skin")
+			actBtn.textContent("set skin")
+//			actBtn.setText("set skin")
 			actBtn.setColor(.green)
 			actBtn.coin?.isHidden = true
 		} else {
 			let skin = Skins[skinId]
-			actBtn.setPrice(skin.price, skin.currency)
+			actBtn.priceContent(skin.price, skin.currency)
+//			actBtn.setPrice(skin.price, skin.currency)
 			actBtn.setColor(enoughMoney(for: skin) ? .yellow : .gray)
 		}
 	}
@@ -188,7 +191,7 @@ class ShopScene: SKScene {
 		rightArr.setScale(7)
 		cam.node.addChild(rightArr)
 		
-		title = SKLabelNode(fontNamed: "pixelFJ8pt1")
+		title = SKLabelNode(fontNamed: Fonts.pixelf)
 		title.position.y = bg.position.y + 205
 		title.zPosition = 2
 		title.fontSize = 40
@@ -198,9 +201,11 @@ class ShopScene: SKScene {
 		black.zPosition = 30
 		addChild(black)
 		
+//		backBtn = Button("back to menu", .gray, -UIScreen.main.bounds.height+150)
 		backBtn = Button("BACK TO MENU", .gray, CGPoint(x: 0, y: -UIScreen.main.bounds.height + 150))
 		cam.node.addChild(backBtn.node)
 		
+//		actBtn = Button("current skin", .blue, backBtn.node.position.y+180)
 		actBtn = Button(90, .wood, backBtn.node.position.y + 180)
 		cam.node.addChild(actBtn.node)
 		
@@ -218,7 +223,7 @@ class ShopScene: SKScene {
 		pageCounter.position.x = CGFloat(-25) * CGFloat(Skins.count - 1)
 		addChild(pageCounter)
 		
-		dsc = SKLabelNode(fontNamed: "pixelFJ8pt1")
+		dsc = SKLabelNode(fontNamed: Fonts.pixelf)
 		dsc.position.y = pageCounter.position.y - 50
 		dsc.zPosition = 2
 		dsc.text = "Default"

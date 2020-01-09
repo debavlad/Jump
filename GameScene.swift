@@ -13,7 +13,7 @@ import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
 	private var cam: Camera!
-	private var manager: Manager!
+	private var manager: SceneManager!
 	private var player: Player!
 	private var trail: Trail!
 	private var cloudFactory: CloudFactory!
@@ -37,7 +37,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func continueGameplay() {
 		run(SKAction.run {
-			self.manager.finishMenu(visible: false)
+//			self.manager.finishMenu(visible: false)
+			self.manager.menuVisiblity(false)
 			self.player.revive()
 			self.ended = false
 			self.player.push(power: 170)
@@ -57,7 +58,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 			
 			self.cam.node.run(SKAction.group([scale, go, rotate]))
-			self.manager.show(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn,self.manager.gameScore)
+			self.manager.show(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn,self.manager.gameScoreLbl)
 			self.manager.hide(self.manager.continueLbl)
 		})
 	}
@@ -78,7 +79,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		cam.node.position.y = -60
 		
 		world = SKNode()
-		manager = Manager(self, world)
+		manager = SceneManager(self, world)
 		manager.show(manager.line)
 		
 		player = Player(world.childNode(withName: "Character")!)
@@ -198,7 +199,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				player.setScore(score)
 				if score%100 == 0 && manager.stageBorder.alpha != 0 {
 					platformFactory.stage.upgrade(score/100)
-					platformFactory.stage.setStageLabels(btm: manager.bottomStage, top: manager.topStage)
+					platformFactory.stage.setStageLabels(btm: manager.btmStageLbl, top: manager.topStageLbl)
 				}
 			}
 			
@@ -216,8 +217,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		
 		if ended { cam.node.position.x = lerp(cam.node.position.x, player.node.position.x, cam.easing/5) }
-		manager.removeLabels(cam.node.frame.minY - frame.height/2)
-		manager.removeEmitters(cam.node.frame.minY - frame.height/2)
+		manager.disposeLabels(cam.node.frame.minY - frame.height/2)
+		manager.disposeEmitters(cam.node.frame.minY - frame.height/2)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -244,7 +245,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 							}
 							player.node.removeAllActions()
 							cloudFactory.faster()
-							manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScore, manager.stageBorder)
+							manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScoreLbl, manager.stageBorder)
 							run(push)
 							manager.hide(sliderTip.node, manager.w, manager.b, manager.g)
 							doorTip.node.alpha = 0
@@ -383,13 +384,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 					let defaults = UserDefaults.standard
 					var wq : Int = defaults.value(forKey: "wooden") as? Int ?? 0
-					wq += Int(self.manager.wLabel.text!)!
+					wq += Int(self.manager.woodLbl.text!)!
 					defaults.set(wq, forKey: "wooden")
 					var bq : Int = defaults.value(forKey: "bronze") as? Int ?? 0
-					bq += Int(self.manager.bLabel.text!)!
+					bq += Int(self.manager.bronzeLbl.text!)!
 					defaults.set(bq, forKey: "bronze")
 					var gq : Int = defaults.value(forKey: "golden") as? Int ?? 0
-					gq += Int(self.manager.gLabel.text!)!
+					gq += Int(self.manager.goldLbl.text!)!
 					defaults.set(gq, forKey: "golden")
 					
 					let scene = GameScene(size: self.frame.size)
@@ -416,7 +417,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let wait = SKAction.wait(forDuration: wait)
 			let action = SKAction.run {
 					self.sliderTouch = nil
-					self.manager.finishMenu(visible: true)
+//					self.manager.finishMenu(visible: true)
+				self.manager.menuVisiblity(true)
 					self.platformFactory.clean()
 					
 					let scale = SKAction.scale(to: 0.25, duration: 1)
@@ -435,7 +437,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 					let scaleStop = SKAction.sequence([scale, stop])
 					self.cam.node.run(SKAction.group([scaleStop, rotate]))
-					self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScore)
+					self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScoreLbl)
 					self.ended = true
 			}
 			
@@ -452,7 +454,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			switch item {
 			case is Coin:
-					manager.createLabel(world, platform.node.position)
+				manager.createLbl(world, platform.node.position)
+//					manager.createLabel(world, platform.node.position)
 					GSAudio.sharedInstance.playAsync(soundFileName: "coin-pickup")
 			case is Food:
 					GSAudio.sharedInstance.playAsync(soundFileName: "food-pickup")
@@ -475,11 +478,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if paused {
 					manager.pauseBtn.texture = manager.playTexture
 					physicsWorld.speed = 0
-					manager.darken.alpha = 0.3
+					manager.blackSprite.alpha = 0.3
 			} else {
 					manager.pauseBtn.texture = manager.pauseTexture
 					physicsWorld.speed = 1
-					manager.darken.alpha = 0
+					manager.blackSprite.alpha = 0
 			}
 
 			stopped = paused

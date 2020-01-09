@@ -15,22 +15,11 @@ class Platform {
 	private(set) var items: Set<Item>!
 	private(set) var power, damage: Int
     
-	init(_ type: PlatformType, _ data: (texture: SKTexture, power: Int, damage: Int)) {
+	init(_ sample: SKSpriteNode, _ type: PlatformType,
+			 _ data: (texture: SKTexture, power: Int, damage: Int)) {
 		self.type = type
-		node = SKSpriteNode(texture: data.texture)
-		node.size = CGSize(width: 117, height: 45)
-		node.name = "platform"
-		node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 83.5, height: 1), center: CGPoint(x: 0, y: 20))
-		node.physicsBody?.restitution = CGFloat(0.2)
-		node.physicsBody?.friction = 0
-		node.physicsBody?.mass = 10
-		node.physicsBody?.linearDamping = 0
-		node.physicsBody?.angularDamping = 0
-		node.physicsBody?.contactTestBitMask = Categories.player
-		node.physicsBody?.categoryBitMask = Categories.platform
-		node.physicsBody?.collisionBitMask = Categories.coin | Categories.food
-		node.physicsBody?.isDynamic = false
-		
+		node = (sample.copy() as! SKSpriteNode)
+		node.texture = data.texture
 		self.damage = data.damage
 		self.power = data.power
 	}

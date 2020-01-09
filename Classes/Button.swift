@@ -10,8 +10,8 @@ import Foundation
 import SpriteKit
 
 class Button {
-	var color: ButtonColor
 	let node: SKSpriteNode
+	var color: ButtonColor
 	private(set) var label: SKLabelNode
 	var coin: SKNode? {
 			get { return label.children.first }
@@ -19,9 +19,9 @@ class Button {
 	
 	init(_ text: String, _ color: ButtonColor, _ pos: CGPoint) {
 		self.color = color
-		let tmp = color.description + "-btn"
-		node = SKSpriteNode(imageNamed: tmp + "1").px()
-		node.name = tmp
+		let name = color.description + "-btn"
+		node = SKSpriteNode(imageNamed: name + "1").px()
+		node.name = name
 		node.size = CGSize(width: 575, height: 150)
 		node.position = pos
 		node.zPosition = 21
@@ -38,17 +38,13 @@ class Button {
 	
 	init(_ price: Int, _ type: Currency, _ y: CGFloat) {
 		self.color = .yellow
-		let tmp = ButtonColor.green.description + "-btn"
-		node = SKSpriteNode(imageNamed: tmp + "1").px()
-		node.name = tmp
+		let name = ButtonColor.green.description + "-btn"
+		node = SKSpriteNode(imageNamed: name + "1").px()
+		node.name = name
 		node.size = CGSize(width: 575, height: 150)
 		node.position.y = y
 		node.zPosition = 21
-		
-		let icon = SKSpriteNode(imageNamed: type.description + "0").px()
-		icon.size = CGSize(width: 52, height: 61)
-		icon.anchorPoint = CGPoint(x: 1, y: 0.5)
-		
+
 		label = SKLabelNode(fontNamed: "pixelFJ8pt1")
 		label.fontColor = ButtonColor.green.rgb
 		label.fontSize = 46
@@ -56,20 +52,28 @@ class Button {
 		label.position.y = -10
 		label.text = "\(price)"
 		
+		let icon = SKSpriteNode(imageNamed: type.description + "0").px()
+		icon.size = CGSize(width: 52, height: 61)
+		icon.anchorPoint = CGPoint(x: 1, y: 0.5)
 		icon.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height/2)
 		label.addChild(icon)
 		label.position.x += icon.frame.width/2 + 10
 		node.addChild(label)
 	}
-    
 	
-	func setPrice(_ amount: Int, _ currency: Currency) {
-		setText("\(amount)")
-		let tmp = coin as! SKSpriteNode
-		tmp.texture = SKTexture(imageNamed: "\(currency.description)0")
-		tmp.position = CGPoint(x: label.frame.minX-20, y: label.frame.height/2)
-		tmp.isHidden = false
-		label.position.x += 10 + tmp.frame.width/2
+	
+	func priceContent(_ amount: Int, _ curr: Currency) {
+		textContent("\(amount)")
+		let node = coin as! SKSpriteNode
+		node.texture = SKTexture(imageNamed: "\(curr.description)0")
+		node.position = CGPoint(x: label.frame.minX-20, y: label.frame.height/2)
+		node.isHidden = false
+		label.position.x += 10 + node.frame.width/2
+	}
+	
+	func textContent(_ text: String) {
+		label.text = text.uppercased()
+		label.position.x = 0
 	}
     
 	func setColor(_ color: ButtonColor) {
@@ -77,11 +81,6 @@ class Button {
 		node.texture = SKTexture(imageNamed: "\(node.name!)1").px()
 		label.fontColor = color.rgb
 		self.color = color
-	}
-	
-	func setText(_ text: String) {
-		label.text = text.uppercased()
-		label.position.x = 0
 	}
 	
 	func release() {

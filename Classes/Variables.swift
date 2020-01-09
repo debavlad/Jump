@@ -9,18 +9,15 @@
 import Foundation
 import SpriteKit
 
-/* ADMOB */
-
-let USE_ADMOB = true
-
-let ADMOB_AD_ID = "ca-app-pub-5695778104677732/4898722249"
-let TEST_AD_ID = "ca-app-pub-3940256099942544/1712485313"
-
-/* GAMEPLAY */
+// Gameplay
 
 var bounds: Bounds!
 
-// font constants
+class Fonts {
+	static let forwa = "FFFForward"
+	static let pixelf = "pixelFJ8pt1"
+	static let droid = "DisposableDroidBB"
+}
 
 let Skins = [
 	Skin(name: "pauper", title: "Pauper", dsc: "Default", 0, .wood, colors: [Colors.pa1, Colors.pa2]),
