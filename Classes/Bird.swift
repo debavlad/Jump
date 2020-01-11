@@ -32,6 +32,6 @@ class Bird {
 		right.timingMode = .easeInEaseOut
 		let turn = SKAction.run { self.node.xScale = -self.node.xScale }
 		node.run(SKAction.repeatForever(SKAction.sequence([turn, left, turn, right])))
-		node.run(SKAction.repeatForever(SKAction.moveBy(x: 0, y: Bool.random() ? -50:50, duration: 1.2)))
+		node.run(SKAction.repeatForever(SKAction.moveBy(x: 0, y: Bool.random() ? -90:90, duration: 1.2)))
 	}
 }

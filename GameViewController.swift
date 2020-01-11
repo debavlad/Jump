@@ -9,14 +9,18 @@
 import UIKit
 import SpriteKit
 import GameplayKit
-//import GoogleMobileAds
+import GoogleMobileAds
 
-class GameViewController: UIViewController {
-//	func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
-//		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
-//	}
+class GameViewController: UIViewController, GADRewardedAdDelegate {
+	func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
+		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
+	}
 	
-//	var rewardedAd: GADRewardedAd!
+	func rewardedAdDidDismiss(_ rewardedAd: GADRewardedAd) {
+		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
+	}
+	
+	var rewardedAd: GADRewardedAd!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -31,9 +35,10 @@ class GameViewController: UIViewController {
 				view.showsFPS = true
 				view.showsNodeCount = true
 					
-//				rewardedAd = GADRewardedAd(adUnitID: ADMOB_AD_ID)
-//				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)
-//				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.loadAd), name: NSNotification.Name(rawValue: "loadAd"), object: nil)
+				rewardedAd = GADRewardedAd(adUnitID: TEST_AD_ID)
+				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)
+				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.loadAd), name: NSNotification.Name(rawValue: "loadAd"), object: nil)
+				loadAd()
 			}
 			
 			view.ignoresSiblingOrder = true
@@ -56,21 +61,13 @@ class GameViewController: UIViewController {
 		return true
 	}
 	
-//	@objc func loadAd() {
-//		let request = GADRequest()
-//		request.testDevices = ["b4e79107e711a12cec41bd7ce2f77af7"]
-//		rewardedAd.load(request) { (error) in
-//			if (error != nil) {
-//				print(error.debugDescription)
-//			} else {
-//				print("Successfully loaded")
-//			}
-//		}
-//	}
-//
-//	@objc func showAd() {
-//		if rewardedAd.isReady {
-//			rewardedAd.present(fromRootViewController: self, delegate: self)
-//		}
-//	}
+	@objc func loadAd() {
+		rewardedAd.load(GADRequest(), completionHandler: nil)
+	}
+
+	@objc func showAd() {
+		if rewardedAd.isReady {
+			rewardedAd.present(fromRootViewController: self, delegate: self)
+		}
+	}
 }

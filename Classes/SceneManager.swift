@@ -12,7 +12,7 @@ import SpriteKit
 class SceneManager {
 	private let scene: SKScene
 	private var width, height: CGFloat
-	private(set) var menuBtn: Button!
+	private(set) var menuBtn, advertBtn: Button!
 	// to-do: remove additional labels
 	private(set) var gameOverLbl, gameScoreLbl, menuScoreLbl, ptsScoreLbl, scoreLbl, woodLbl,
 		bronzeLbl, goldLbl, wl, bl, gl, btmStageLbl, topStageLbl, continueLbl, sampleLbl: SKLabelNode!
@@ -49,7 +49,7 @@ class SceneManager {
 			//    advertBtn.sprite.isHidden = true
 			//    menuBtn.sprite.position = advertBtn.sprite.position
 			//    show(line)
-			show(menuBtn.node, wIcon, bIcon, gIcon, gameOverLbl, mScore)
+			show(menuBtn.node, advertBtn.node, wIcon, bIcon, gIcon, gameOverLbl, mScore)
 			fade(0.7, 1, [blackSprite])
 			fade(0.4, 0.6, [redSprite])
 		}
@@ -275,13 +275,13 @@ class SceneManager {
 			scoreLbl.fontSize = 55
 			mScore.addChild(scoreLbl)
 			
-//        continueLbl = SKLabelNode(fontNamed: "pixelFJ8pt1")
-//        continueLbl.text = "TIME TO CONTINUE!"
-//        continueLbl.fontSize = 45
-//        continueLbl.position.y = -490
-//        continueLbl.zPosition = 21
-//        continueLbl.isHidden = true
-//        cam.addChild(continueLbl)
+			continueLbl = SKLabelNode(fontNamed: Fonts.pixelf)
+			continueLbl.text = "TIME TO CONTINUE!"
+			continueLbl.fontSize = 45
+			continueLbl.position.y = -490
+			continueLbl.zPosition = 21
+			continueLbl.isHidden = true
+			cam.addChild(continueLbl)
 			
 			ptsScoreLbl = SKLabelNode(fontNamed: Fonts.pixelf)
 			ptsScoreLbl.text = "0"
@@ -395,9 +395,9 @@ class SceneManager {
 			menuBtn.node.alpha = 0
 			cam.addChild(menuBtn.node)
 			
-//        advertBtn = Button("CONTINUE", .blue, CGPoint(x: 0, y: menuBtn.node.frame.maxY + 100))
-//        advertBtn.node.alpha = 0
-//        cam.addChild(advertBtn.node)
+			advertBtn = Button("CONTINUE", .blue, CGPoint(x: 0, y: menuBtn.node.frame.maxY + 100))
+			advertBtn.node.alpha = 0
+			cam.addChild(advertBtn.node)
 		
 		sampleLbl = SKLabelNode(text: "+1")
 		sampleLbl.name = ""

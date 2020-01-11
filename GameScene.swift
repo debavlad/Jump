@@ -33,7 +33,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func didMove(to view: SKView) {
 		loadData()
-		
 		fade = SKSpriteNode(color: .black, size: frame.size)
 		fade.alpha = GameScene.restarted ? 1 : 0
 		fade.zPosition = 25
@@ -83,9 +82,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			fade.run(a)
 		}
 		
-//		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adWatchedUI), name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
-//		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adDismissed), name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adWatchedUI), name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.adDismissed), name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
 		Audio.playSound("wind")
+	}
+	
+	@objc func adWatchedUI() {
+		manager.advertBtn.node.isHidden = true
+		manager.continueLbl.isHidden = false
+		manager.menuBtn.node.position = manager.advertBtn.node.position
+		manager.show(manager.line)
+	}
+	
+	@objc func adDismissed() {
+		manager.hide(manager.advertBtn.node)
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
@@ -105,7 +115,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				player.push(power: 80)
 			} else {
 				player.push(power: 70)
-				player.editHp(-10)
+				player.editHp(-15)
 				Audio.playSound("hurt")
 			}
 		}
@@ -182,7 +192,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if score > 0 && score > Int(player.score) {
 				manager.setScore(score, platformFactory.stage)
 				player.setScore(score)
-				if score%100 == 0 && manager.stageBorder.alpha != 0 {
+//				if score%100 == 0 && manager.stageBorder.alpha != 0 {
+				if score%100==0 {
 					platformFactory.stage.upgrade(score/100)
 					platformFactory.stage.setStageLabels(btm: manager.btmStageLbl, top: manager.topStageLbl)
 				}
@@ -292,14 +303,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					triggeredBtn = manager.menuBtn
 					restart()
 				}
-//					else if node == manager.advertBtn.node || node == manager.advertBtn.label {
-//							DispatchQueue.global(qos: .background).async {
-//									GSAudio.sharedInstance.playSound(soundFileName: "button")
-//							}
-//							manager.advertBtn.push()
-//							triggeredBtn = manager.advertBtn
-//							NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
-//					}
+				else if node == manager.advertBtn.node || node == manager.advertBtn.label {
+					Audio.playSound("button")
+					manager.advertBtn.push()
+					triggeredBtn = manager.advertBtn
+					NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
+				}
 			}
 	}
 	

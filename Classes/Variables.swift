@@ -26,6 +26,9 @@ let Skins = [
 	Skin(name: "ninja", title: "Ninja", dsc: "Jump x1.25", 20, .golden, colors: [Colors.ni1, UIColor.gray, Colors.ni2, Colors.ni3])
 ]
 
+let ADMOB_AD_ID = "ca-app-pub-5695778104677732/8877221005"
+let TEST_AD_ID = "ca-app-pub-3940256099942544/1712485313"
+
 class Colors {
 	static let pa1 = UIColor(red: 111/255, green: 123/255, blue: 131/255, alpha: 1)
 	static let pa2 = UIColor(red: 137/255, green: 153/255, blue: 163/255, alpha: 1)
