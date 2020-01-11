@@ -18,7 +18,7 @@ class PlatformFactory {
 	private var lastPlatformType = PlatformType.dirt
 	private let parent: SKNode!
 	private var jumpCounter = 0
-	static var foodRegularJumps = 5
+	static var foodRegularJumps = 3
 	
 	private(set) var stage: Stage
 	private let coinFactory: CoinFactory
@@ -26,6 +26,7 @@ class PlatformFactory {
 	private let width, height: CGFloat
 	
 	private let samplePlatform: SKSpriteNode
+	private let birdAnim: SKAction
     
     
 	init(_ parent: SKNode, _ startY: CGFloat, _ distance: ClosedRange<CGFloat>) {
@@ -60,6 +61,12 @@ class PlatformFactory {
 		samplePlatform.physicsBody?.categoryBitMask = Categories.platform
 		samplePlatform.physicsBody?.collisionBitMask = Categories.coin | Categories.food
 		samplePlatform.physicsBody?.isDynamic = false
+		
+		var textures = [SKTexture]()
+		for i in 0...2 {
+			textures.append(SKTexture(imageNamed: "bird\(i)").px())
+		}
+		birdAnim = SKAction.animate(with: textures, timePerFrame: 0.10)
 	}
     
 	func create(_ playerY: CGFloat) {
@@ -68,7 +75,8 @@ class PlatformFactory {
 		lastPlatformType = type
 		let pos = CGPoint(x: CGFloat.random(in: -width...width), y: highestY + CGFloat.random(in: distance))
 		let platform = construct(type, pos)
-		highestY = type == .dirt ? pos.y + 150 : pos.y
+		let diff = (pos.y+highestY)/2
+		highestY = type == .dirt ? pos.y+150 : pos.y
 		
 		if (random(0.2)) {
 			let coin = coinFactory.random(stage.availableCoins)
@@ -81,6 +89,12 @@ class PlatformFactory {
 			items.insert(food)
 			jumpCounter = 0
 		} else { jumpCounter += 1 }
+		
+		if random(0.1) {
+			let bird = Bird(width, diff)
+			bird.node.run(SKAction.repeatForever(birdAnim))
+			parent.addChild(bird.node)
+		}
 		
 		switch type {
 			case .dirt:
@@ -171,12 +185,12 @@ class Stage {
 			current = 1
 			availablePlatforms.append(.wood)
 			availableCoins.append(.bronze)
-			PlatformFactory.foodRegularJumps = 5
+			PlatformFactory.foodRegularJumps = 4
 		case 2:
 			current = 2
 			availablePlatforms.append(.stone)
 			availablePlatforms.append(.dirt)
-			PlatformFactory.foodRegularJumps = 6
+			PlatformFactory.foodRegularJumps = 5
 		case 3:
 			current = 3
 			availableCoins.append(.golden)

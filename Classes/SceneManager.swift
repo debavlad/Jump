@@ -60,6 +60,12 @@ class SceneManager {
 		gameScoreLbl.text = String(value)
 		gameScoreLbl.position = CGPoint(x: -width + gameScoreLbl.frame.width/2+60,
 																		y: height - gameScoreLbl.frame.height/2-100)
+//		if stage.current < 3 {
+//				let amount = CGFloat(score - stage.current*100)
+//				stageLine.size.height = stageBorder.size.height/100*amount
+//		} else {
+//				hide(stageBorder)
+//		}
 	}
 	
 	func collectCoin(_ curr: Currency) {

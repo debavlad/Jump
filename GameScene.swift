@@ -95,6 +95,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			platformFactory.findItem(node).wasTouched = true
 		}
 		
+		if col == Collision.playerBird {
+			guard let bird = extractNode("bird", contact) else { return }
+			cam.shake(40, 1, 0, 0.12)
+			manager.createEmitter(world, "BirdParticles", bird.position)
+			Audio.playSound("bird")
+			bird.removeFromParent()
+			if (player.isFalling()) {
+				player.push(power: 80)
+			} else {
+				player.push(power: 70)
+				player.editHp(-10)
+				Audio.playSound("hurt")
+			}
+		}
+		
 		if !(player.isFalling() && col == Collision.playerPlatform) { return }
 		player.runAnim(player.landAnim)
 		trail.create(in: world, 30.0)
@@ -219,7 +234,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					player.node.removeAllActions()
 					bg.speed *= 2.5
 					fg.speed *= 2.5
-					manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScoreLbl, manager.stageBorder)
+//					manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScoreLbl, manager.stageBorder)
+					manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScoreLbl)
 					run(push)
 					manager.hide(sliderTip.node, manager.w, manager.b, manager.g)
 					doorTip.node.alpha = 0

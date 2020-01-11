@@ -47,6 +47,7 @@ class Categories {
 	static let ground: UInt32 = 0x1 << 4
 	static let platform: UInt32 = 0x1 << 5
 	static let rock: UInt32 = 0x1 << 6
+	static let bird: UInt32 = 0x1 << 7
 }
 
 class Collision {
@@ -54,4 +55,5 @@ class Collision {
 	static let playerGround = Categories.player | Categories.ground
 	static let playerCoin = Categories.player | Categories.coin
 	static let playerFood = Categories.player | Categories.food
+	static let playerBird = Categories.player | Categories.bird
 }
