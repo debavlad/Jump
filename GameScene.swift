@@ -105,38 +105,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			platformFactory.findItem(node).wasTouched = true
 		}
 		
+		// Bird
 		if col == Collision.playerBird {
 			guard let bird = extractNode("bird", contact) else { return }
-			cam.shake(40, 1, 0, 0.12)
 			manager.createEmitter(world, "BirdParticles", bird.position)
+			cam.shake(40, 1, 0, 0.12)
 			Audio.playSound("bird")
 			bird.removeFromParent()
-			if (player.isFalling()) {
-				player.push(power: 80)
-			} else {
+			
+			if !player.isFalling() {
 				player.push(power: 70)
 				player.editHp(-15)
 				Audio.playSound("hurt")
-			}
+			} else { player.push(power: 80) }
 		}
 		
+		// Platform
 		if !(player.isFalling() && col == Collision.playerPlatform) { return }
 		player.runAnim(player.landAnim)
 		trail.create(in: world, 30.0)
 		manager.createEmitter(world, "DustParticles", contact.contactPoint)
-		
-		let node = extractNode("platform", contact)!
+		guard let node = extractNode("platform", contact) else { return }
 		let platform = platformFactory.findPlatform(node)
-		DispatchQueue.global(qos: .background).async {
-			let audioName = "\(platform.type)-footstep"
-			Audio.playSounds(audioName, "wind")
-		}
+		Audio.playSounds("\(platform.type)-footstep", "wind")
 		
 		if platform.hasItems() {
 			cam.shake(35, 1, 0, 0.12)
-			
 			for item in platform.items {
-				if !item.wasTouched { continue }
 				switch (item) {
 					case is Coin:
 						pickItem(item, platform)
@@ -153,21 +148,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		player.editHp(-platform.damage)
 		if player.isAlive {
-			let power: CGFloat = Skins[GameScene.skinIndex].name == "ninja" ? CGFloat(platform.power) * 1.125 : CGFloat(platform.power)
+			let power: CGFloat = Skins[GameScene.skinIndex].name == "ninja" ?
+				CGFloat(platform.power) * 1.125 : CGFloat(platform.power)
 			player.push(power: Int(power))
-		} else {
-			player.push(power: 70)
-			finish(0.75)
-		}
+		} else { finish(0.5) }
 		
-		if platform.type == .sand {
-			platform.fall(contact.contactPoint.x)
-		}
+		if platform.type == .sand { platform.fall(contact.contactPoint.x) }
 	}
 	
 	override func update(_ currentTime: TimeInterval) {
 		cam.shake(1.25, 5, 0, 1.5)
 		
+		// Cam, player anim
 		if started {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
 			if player.isFalling() && player.currentAnim != player.fallAnim {
@@ -175,49 +167,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		} else { started = player.node.position.y > 0 }
 		
+		// Platforms
 		if started && !ended {
 			platformFactory.create(player.node.position.y)
 			platformFactory.remove(bounds.minY)
 			if player.node.position.y < minY { finish() }
 		}
 		
-		
+		// Player movement, trail, score, bounds
 		if !stopped {
 			movement = lerp(player.node.position.x, manager.slider.position.x, 0.27)
 			player.node.position.x = movement
-			if let tmp = platformFactory.lowestY(), player.node.position.y > tmp { minY = tmp }
+			
+			bounds.minX = -frame.size.width/2 + cam.node.position.x
+			bounds.minY = cam.node.frame.minY - frame.height/2
+			bounds.maxX = frame.size.width/2 + cam.node.position.x
+			bounds.maxY = cam.node.frame.maxY + frame.height/2
+			if bounds.minY > minY { minY = bounds.minY }
 			if trail.distance() > 60 { trail.create(in: world) }
 			
 			let score = Int(player.node.position.y/100) + ptsOffset
 			if score > 0 && score > Int(player.score) {
 				manager.setScore(score, platformFactory.stage)
 				player.setScore(score)
-//				if score%100 == 0 && manager.stageBorder.alpha != 0 {
-				if score%100==0 {
-					platformFactory.stage.upgrade(score/100)
-					platformFactory.stage.setStageLabels(btm: manager.btmStageLbl, top: manager.topStageLbl)
-				}
+				if score%100==0 { platformFactory.stage.upgrade(score/100) }
 			}
-			
-			bounds.minX = -frame.size.width/2 + cam.node.position.x
-			bounds.minY = cam.node.frame.minY - frame.height/2
-			bounds.maxX = frame.size.width/2 + cam.node.position.x
-			bounds.maxY = cam.node.frame.maxY + frame.height/2
 		}
 		
+		// Clouds
 		if !stopped && !ended {
-			if bg.canBuild(player.node.position.y, started) {
-				let cloud = bg.create()
-				world.addChild(cloud)
-			}
-			if fg.canBuild(player.node.position.y, started) {
-				let cloud = fg.create()
-				world.addChild(cloud)
-			}
-			bg.remove(bounds)
-			fg.remove(bounds)
-			bg.move(bounds)
-			fg.move(bounds)
+			if bg.canBuild(player.node.position.y, started) { world.addChild(bg.create()) }
+			if fg.canBuild(player.node.position.y, started) { world.addChild(fg.create()) }
+			bg.dispose(); bg.move()
+			fg.dispose(); fg.move()
 		}
 		
 		if ended { cam.node.position.x = lerp(cam.node.position.x, player.node.position.x, cam.easing/5) }

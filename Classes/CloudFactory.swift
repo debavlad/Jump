@@ -46,39 +46,33 @@ class CloudFactory {
             return highestY + distance < height
         }
     }
-    
-    func move(_ bounds: Bounds) {
-        for cloud in set {
-            if cloud.frame.maxY > bounds.minY {
-                cloud.position.x += speed
-            }
-        }
-    }
-    
-    func remove(_ bounds: Bounds) {
-        set.forEach { (cloud) in
-            if cloud.frame.maxY < bounds.minY - height * 2 {
-                cloud.removeFromParent()
-                set.remove(cloud)
-            }
-            
-            if cloud.position.x > 0 && set.filter({ (n) -> Bool in
-                return n.position.y == cloud.position.y
-            }).count <= 1 {
-                let pos = CGPoint(x: bounds.minX, y: cloud.position.y)
-                let new = create(pos)
-                if let parent = cloud.parent {
-                    parent.addChild(new)
-                    set.insert(new)
-                }
-            }
-            
-            if cloud.frame.minX > bounds.maxX {
-                cloud.removeFromParent()
-                set.remove(cloud)
-            }
-        }
-    }
+	
+	func move() {
+		for cloud in set {
+			if cloud.frame.maxY > bounds.minY { cloud.position.x += speed }
+		}
+	}
+	
+	func dispose() {
+		set.forEach { (c) in
+			if c.frame.maxY < bounds.minY-height*2 {
+				c.removeFromParent()
+				set.remove(c)
+			}
+			if c.position.x > 0 &&
+				set.filter({ (n) -> Bool in return n.position.y == c.position.y }).count <= 1 {
+				let new = create(CGPoint(x: bounds.minX, y: c.position.y))
+				if let p = c.parent {
+					p.addChild(new)
+					set.insert(new)
+				}
+			}
+			if c.frame.minX > bounds.maxX {
+				c.removeFromParent()
+				set.remove(c)
+			}
+		}
+	}
     
     func create(_ position: CGPoint? = nil) -> SKSpriteNode {
         let scale = CGFloat.random(in: background ? 12...16 : 22...28)
