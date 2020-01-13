@@ -77,7 +77,6 @@ class SceneManager {
 			case .golden: lbl = goldLbl
 		}
 		lbl.text = String(Int(lbl.text!)! + 1)
-		SKAction.playSoundFileNamed("coin-pickup.wav", waitForCompletion: false)
 	}
     
 	func createEmitter(_ parent: SKNode, _ fileName: String, _ pos: CGPoint) {
