@@ -14,6 +14,7 @@ class PlatformFactory {
 	private let distance: ClosedRange<CGFloat>
 	private(set) var platforms: [Platform]
 	private(set) var items: Set<Item>
+	private(set) var birds: [Bird]
 	private let data: [PlatformType : (texture: SKTexture, power: Int, damage: Int)]
 	private var lastPlatformType = PlatformType.dirt
 	private let parent: SKNode!
@@ -38,6 +39,7 @@ class PlatformFactory {
 		coinFactory = CoinFactory()
 		foodFactory = FoodFactory()
 		platforms = []
+		birds = []
 		items = Set<Item>()
 		self.parent = parent
 		
@@ -94,6 +96,7 @@ class PlatformFactory {
 			let bird = Bird(width, diff)
 			bird.node.run(SKAction.repeatForever(birdAnim))
 			parent.addChild(bird.node)
+			birds.append(bird)
 		}
 		
 		switch type {
@@ -114,13 +117,20 @@ class PlatformFactory {
 	}
     
 	func remove(_ minY: CGFloat) {
-		if platforms.count <= 0 { return }
-		let p = platforms.first!
+		// platforms
+		guard let p = platforms.first else { return }
 		var top = p.node.frame.maxY
-		top += p.hasItems() ? p.items.first!.node.frame.maxY - 30 : 0
+		top += p.hasItems() ? p.items.first!.node.frame.maxY-30 : 0
 		if top < minY {
 			p.node.removeFromParent()
 			platforms.removeFirst()
+		}
+		
+		// birds
+		guard let b = birds.first else { return }
+		if b.node.position.y < minY {
+			b.node.removeFromParent()
+			birds.removeFirst()
 		}
 	}
     

@@ -31,14 +31,14 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
 				scene.scaleMode = .aspectFill
 				view.presentScene(scene)
 				
-				view.showsPhysics = true
+//				view.showsPhysics = true
 				view.showsFPS = true
 				view.showsNodeCount = true
 					
-				rewardedAd = GADRewardedAd(adUnitID: TEST_AD_ID)
-				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)
-				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.loadAd), name: NSNotification.Name(rawValue: "loadAd"), object: nil)
-				loadAd()
+//				rewardedAd = GADRewardedAd(adUnitID: TEST_AD_ID)
+//				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)
+//				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.loadAd), name: NSNotification.Name(rawValue: "loadAd"), object: nil)
+//				loadAd()
 			}
 			
 			view.ignoresSiblingOrder = true
@@ -62,12 +62,12 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
 	}
 	
 	@objc func loadAd() {
-		rewardedAd.load(GADRequest(), completionHandler: nil)
+//		rewardedAd.load(GADRequest(), completionHandler: nil)
 	}
 
 	@objc func showAd() {
-		if rewardedAd.isReady {
-			rewardedAd.present(fromRootViewController: self, delegate: self)
-		}
+//		if rewardedAd.isReady {
+//			rewardedAd.present(fromRootViewController: self, delegate: self)
+//		}
 	}
 }

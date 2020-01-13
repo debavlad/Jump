@@ -88,12 +88,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	func didBegin(_ contact: SKPhysicsContact) {
 		if !player.isAlive { return }
 		let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-		if let node = extractNode("item", contact), col == Collision.playerFood || col == Collision.playerCoin {
+		// Food or coin
+		if col == Collision.playerFood || col == Collision.playerCoin {
+			guard let node = extractNode("item", contact) else { return }
 			platforms.findItem(node).wasTouched = true
 		}
-		
 		// Bird
-		if col == Collision.playerBird {
+		else if col == Collision.playerBird {
 			guard let bird = extractNode("bird", contact) else { return }
 			manager.createEmitter(world, "BirdParticles", bird.position)
 			cam.shake(40, 1, 0, 0.12)
@@ -102,45 +103,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			if !player.isFalling() {
 				player.push(power: 70)
-				player.editHp(-15)
+				player.editHp(-20)
 				Audio.playSound("hurt")
 			} else { player.push(power: 80) }
 		}
-		
 		// Platform
-		if !(player.isFalling() && col == Collision.playerPlatform) { return }
-		player.runAnim(player.landAnim)
-		trail.create(in: world, 30.0)
-		manager.createEmitter(world, "DustParticles", contact.contactPoint)
-		guard let node = extractNode("platform", contact) else { return }
-		let platform = platforms.findPlatform(node)
-		Audio.playSounds("\(platform.type)-footstep", "wind")
-		
-		if platform.hasItems() {
-			cam.shake(35, 1, 0, 0.12)
-			for item in platform.items {
-				switch (item) {
-					case is Coin:
-						pickItem(item, platform)
-						manager.collectCoin((item as! Coin).currency)
-					case is Food:
-						var energy = CGFloat((item as! Food).energy)
-						energy *= Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1
-						player.editHp(Int(energy))
-						pickItem(item, platform)
-					default: return
+		else if col == Collision.playerPlatform && player.isFalling() {
+			player.runAnim(player.landAnim)
+			trail.create(in: world, 30.0)
+			manager.createEmitter(world, "DustParticles", contact.contactPoint)
+			guard let node = extractNode("platform", contact) else { return }
+			let platform = platforms.findPlatform(node)
+			Audio.playSounds("\(platform.type)-footstep", "wind")
+			
+			if platform.hasItems() {
+				cam.shake(35, 1, 0, 0.12)
+				for item in platform.items {
+					switch (item) {
+						case is Coin:
+							pickItem(item, platform)
+							manager.collectCoin((item as! Coin).currency)
+						case is Food:
+							var energy = CGFloat((item as! Food).energy)
+							energy *= Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1
+							player.editHp(Int(energy))
+							pickItem(item, platform)
+						default: return
+					}
 				}
-			}
-		} else { cam.shake(25, 1, 0, 0.12) }
-		
-		player.editHp(-platform.damage)
-		if player.isAlive {
-			let power: CGFloat = Skins[GameScene.skinIndex].name == "ninja" ?
-				CGFloat(platform.power) * 1.125 : CGFloat(platform.power)
-			player.push(power: Int(power))
-		} else { finish(0.5) }
-		
-		if platform.type == .sand { platform.fall(contact.contactPoint.x) }
+			} else { cam.shake(25, 1, 0, 0.12) }
+			
+			player.editHp(-platform.damage)
+			if player.isAlive {
+				let power: CGFloat = Skins[GameScene.skinIndex].name == "ninja" ?
+					CGFloat(platform.power) * 1.125 : CGFloat(platform.power)
+				player.push(power: Int(power))
+			} else { finish(0.5) }
+			
+			if platform.type == .sand { platform.fall(contact.contactPoint.x) }
+		}
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
