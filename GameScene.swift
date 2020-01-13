@@ -213,6 +213,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			SOUND_ENABLED = !SOUND_ENABLED
 			manager.soundButton.pressed = true
 			manager.soundButton.node.texture = manager.soundButton.textures[SOUND_ENABLED ? 3 : 1].px()
+			GameScene.saveData()
 		}
 		
 			if !started {
@@ -332,11 +333,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	func loadData() {
 		GameScene.ownedSkins = UserDefaults.standard.value(forKey: "ownedSkins") as? [Int] ?? [0]
 		GameScene.skinIndex = UserDefaults.standard.value(forKey: "skinIndex") as? Int ?? 0
+		SOUND_ENABLED = UserDefaults.standard.value(forKey: "soundEnabled") as? Bool ?? true
 	}
 	
 	static func saveData() {
-			UserDefaults.standard.set(GameScene.ownedSkins, forKey: "ownedSkins")
-			UserDefaults.standard.set(GameScene.skinIndex, forKey: "skinIndex")
+		UserDefaults.standard.set(GameScene.ownedSkins, forKey: "ownedSkins")
+		UserDefaults.standard.set(GameScene.skinIndex, forKey: "skinIndex")
+		UserDefaults.standard.set(SOUND_ENABLED, forKey: "soundEnabled")
 	}
 	
 	private func restart() {
@@ -400,12 +403,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	private func finish(_ wait: TimeInterval = 0) {
 		ended = true
 		Audio.playSound("hurt")
-//			manager.advertBtn.node.isHidden = false
 		manager.menuBtn.node.position = CGPoint(x: 0, y: -500)
 		let wait = SKAction.wait(forDuration: wait)
 		let action = SKAction.run {
 				self.sliderTouch = nil
-//					self.manager.finishMenu(visible: true)
 			self.manager.menuVisiblity(true)
 				self.platformFactory.clean()
 				

@@ -25,9 +25,7 @@ class Audio {
 	
 	static func playSounds(_ soundFileNames: String...) {
 		if SOUND_ENABLED {
-			for soundFileName in soundFileNames {
-				playSound(soundFileName)
-			}
+			for soundFileName in soundFileNames { playSound(soundFileName) }
 		}
 	}
 }
