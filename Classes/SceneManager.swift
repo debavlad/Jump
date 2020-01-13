@@ -15,7 +15,7 @@ class SceneManager {
 	private(set) var menuBtn, advertBtn: Button!
 	
 	
-	var soundButton: ButtonTest
+	var soundButton: ButtonStruct
 	
 	// to-do: remove additional labels
 	private(set) var gameOverLbl, gameScoreLbl, menuScoreLbl, ptsScoreLbl, scoreLbl, woodLbl,
@@ -32,7 +32,7 @@ class SceneManager {
 		width = UIScreen.main.bounds.width
 		height = UIScreen.main.bounds.height
 		
-		soundButton = ButtonTest(node: SKSpriteNode(imageNamed: SOUND_ENABLED ? "blue-s1" : "gray-s1").px(), textures: [SKTexture(imageNamed: "blue-s1"), SKTexture(imageNamed: "blue-s2"),
+		soundButton = ButtonStruct(node: SKSpriteNode(imageNamed: SOUND_ENABLED ? "blue-s1" : "gray-s1").px(), textures: [SKTexture(imageNamed: "blue-s1"), SKTexture(imageNamed: "blue-s2"),
 		SKTexture(imageNamed: "gray-s1"), SKTexture(imageNamed: "gray-s2")])
 		soundButton.node.setScale(9)
 		soundButton.node.position = CGPoint(x: width-115, y: height-115)

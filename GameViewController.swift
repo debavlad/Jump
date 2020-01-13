@@ -13,11 +13,11 @@ import GoogleMobileAds
 
 class GameViewController: UIViewController, GADRewardedAdDelegate {
 	func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "adWatchedUI"), object: nil)
+		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "watchedAd"), object: nil)
 	}
 	
 	func rewardedAdDidDismiss(_ rewardedAd: GADRewardedAd) {
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "adDismissed"), object: nil)
+		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "dismissedAd"), object: nil)
 	}
 	
 	var rewardedAd: GADRewardedAd!
