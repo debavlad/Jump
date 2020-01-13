@@ -28,6 +28,7 @@ let Skins = [
 
 let ADMOB_AD_ID = "ca-app-pub-5695778104677732/8877221005"
 let TEST_AD_ID = "ca-app-pub-3940256099942544/1712485313"
+var SOUND_ENABLED = true
 
 class Colors {
 	static let pa1 = UIColor(red: 111/255, green: 123/255, blue: 131/255, alpha: 1)

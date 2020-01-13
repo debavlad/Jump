@@ -12,18 +12,22 @@ import AudioToolbox
 
 class Audio {
 	static func playSound(_ soundName: String) {
-		DispatchQueue.global(qos: .background).async {
-			if let soundURL = Bundle.main.url(forResource: soundName, withExtension: "wav") {
-					var mySound: SystemSoundID = 0
-					AudioServicesCreateSystemSoundID(soundURL as CFURL, &mySound)
-					AudioServicesPlaySystemSound(mySound);
+		if SOUND_ENABLED {
+			DispatchQueue.global(qos: .background).async {
+				if let soundURL = Bundle.main.url(forResource: soundName, withExtension: "wav") {
+						var mySound: SystemSoundID = 0
+						AudioServicesCreateSystemSoundID(soundURL as CFURL, &mySound)
+						AudioServicesPlaySystemSound(mySound);
+				}
 			}
 		}
 	}
 	
 	static func playSounds(_ soundFileNames: String...) {
-		for soundFileName in soundFileNames {
-			playSound(soundFileName)
+		if SOUND_ENABLED {
+			for soundFileName in soundFileNames {
+				playSound(soundFileName)
+			}
 		}
 	}
 }

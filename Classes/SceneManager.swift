@@ -13,10 +13,14 @@ class SceneManager {
 	private let scene: SKScene
 	private var width, height: CGFloat
 	private(set) var menuBtn, advertBtn: Button!
+	
+	
+	var soundButton: ButtonTest
+	
 	// to-do: remove additional labels
 	private(set) var gameOverLbl, gameScoreLbl, menuScoreLbl, ptsScoreLbl, scoreLbl, woodLbl,
-		bronzeLbl, goldLbl, wl, bl, gl, btmStageLbl, topStageLbl, continueLbl, sampleLbl: SKLabelNode!
-	private(set) var house, door, line, slider, pauseBtn, blackSprite, redSprite, hpBorder, hpStripe,
+		bronzeLbl, goldLbl, wl, bl, gl, btmStageLbl, topStageLbl, continueLbl, sampleLbl, pausedLbl: SKLabelNode!
+	private(set) var house, door, line, slider, blackSprite, redSprite, hpBorder, hpStripe,
 		mScore, wIcon, bIcon, gIcon, w, b, g, stageBorder, stageLine: SKSpriteNode!
 	private(set) var pauseTexture, playTexture: SKTexture!
 	private(set) var smokeAnim, doorAnim: SKAction!
@@ -24,23 +28,36 @@ class SceneManager {
     
 	
 	init(_ scene: SKScene, _ world: SKNode) {
-			self.scene = scene
-			width = UIScreen.main.bounds.width
-			height = UIScreen.main.bounds.height
-			createAnims()
-			createNodes(world)
+		self.scene = scene
+		width = UIScreen.main.bounds.width
+		height = UIScreen.main.bounds.height
+		
+		soundButton = ButtonTest(node: SKSpriteNode(imageNamed: "blue-s1").px(), textures: [SKTexture(imageNamed: "blue-s1"), SKTexture(imageNamed: "blue-s2"),
+		SKTexture(imageNamed: "gray-s1"), SKTexture(imageNamed: "gray-s2")])
+		soundButton.node.setScale(9)
+		soundButton.node.position = CGPoint(x: width-115, y: height-115)
+		soundButton.node.zPosition = 21
+		
+//		soundButton = SKSpriteNode(imageNamed: "blue-sound1").px()
+//		soundButton.setScale(9)
+//		soundButton.position.y = height - 115
+//		soundButton.position.x = width - 115
+//		soundButton.zPosition = 21
+		
+		createAnims()
+		createNodes(world)
 	}
 	
 	func menuVisiblity(_ visible: Bool) {
 		if !visible {
 			fade(0, 2, [menuBtn.node, wIcon, bIcon, gIcon, gameOverLbl, mScore, blackSprite, redSprite])
-			show(line, hpBorder, pauseBtn, stageBorder)
+			show(line, hpBorder, stageBorder)
 		} else {
 			ptsScoreLbl.text = "\(score)"
 			ptsScoreLbl.position.x = scoreLbl.frame.maxX + ptsScoreLbl.frame.width/2 + 15
 			mScore.position = CGPoint(x: gameOverLbl.position.x - ptsScoreLbl.frame.width/2,
 																y: gameOverLbl.position.y - 100)
-			hide(line, hpBorder, pauseBtn, stageBorder)
+			hide(line, hpBorder, stageBorder)
 			for (icon, label) in [(wIcon, woodLbl), (bIcon, bronzeLbl), (gIcon, goldLbl)] {
 					icon!.position.x = -label!.frame.width/2
 					label!.position.x = icon!.frame.maxX + label!.frame.width + 30
@@ -125,6 +142,7 @@ class SceneManager {
 	
 	private func createNodes(_ world: SKNode) {
 			let cam = scene.childNode(withName: "Cam") as! SKCameraNode
+		cam.addChild(soundButton.node)
 			
 			let sky = SKSpriteNode(imageNamed: "sky").px()
 			sky.size = scene.frame.size
@@ -231,14 +249,14 @@ class SceneManager {
 			line.addChild(slider)
 			cam.addChild(line)
 			
-			pauseBtn = SKSpriteNode(imageNamed: "pause").px()
-			pauseBtn.size = CGSize(width: 106, height: 106)
-			pauseBtn.position.y = height - 100
-			pauseBtn.position.x = width - 100
-			pauseBtn.position = CGPoint(x: width - 100, y: height - 100)
-			pauseBtn.zPosition = 21
-			pauseBtn.alpha = 0
-			cam.addChild(pauseBtn)
+//			pauseBtn = SKSpriteNode(imageNamed: "pause").px()
+//			pauseBtn.size = CGSize(width: 106, height: 106)
+//			pauseBtn.position.y = height - 100
+//			pauseBtn.position.x = width - 100
+//			pauseBtn.position = CGPoint(x: width - 100, y: height - 100)
+//			pauseBtn.zPosition = 21
+//			pauseBtn.alpha = 0
+//			cam.addChild(pauseBtn)
 			
 			redSprite = SKSpriteNode()
 			redSprite.size = scene.frame.size
@@ -302,6 +320,8 @@ class SceneManager {
 			
 			let icons = SKNode()
 			
+			
+		
 			wIcon = SKSpriteNode(imageNamed: "wood0").px()
 			wIcon.size = CGSize(width: 90, height: 99)
 			wIcon.position.y = 120 // +50
@@ -344,7 +364,20 @@ class SceneManager {
 			icons.position.y = 30
 			cam.addChild(icons)
 			
-			
+//		let soundButton = SKSpriteNode(imageNamed: "blue-sound1").px()
+//		soundButton.setScale(9)
+//		soundButton.position.y = height - 115
+//		soundButton.position.x = width - 115
+//		soundButton.zPosition = 21
+//		cam.addChild(soundButton)
+		
+		pausedLbl = SKLabelNode(fontNamed: Fonts.droid)
+		pausedLbl.text = "PAUSED"
+		pausedLbl.fontSize = 100
+		pausedLbl.zPosition = 23
+		pausedLbl.position.y = -height/3
+		pausedLbl.isHidden = true
+		cam.addChild(pausedLbl)
 			
 			w = SKSpriteNode(imageNamed: "wood0").px()
 			w.size = CGSize(width: 72, height: 81)

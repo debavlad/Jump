@@ -38,7 +38,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		fade.zPosition = 25
 		
 		physicsWorld.contactDelegate = self
-		physicsWorld.gravity = CGVector(dx: 0, dy: -23.5)
+		physicsWorld.gravity = CGVector(dx: 0, dy: -24)
 		
 		cam = Camera(self)
 		cam.node.addChild(fade)
@@ -209,6 +209,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let touch = touches.first!
 			let node = atPoint(touch.location(in: self))
 		
+		if node == manager.soundButton.node {
+			SOUND_ENABLED = !SOUND_ENABLED
+			manager.soundButton.pressed = true
+			manager.soundButton.node.texture = manager.soundButton.textures[SOUND_ENABLED ? 3 : 1].px()
+		}
+		
 			if !started {
 				if node == manager.slider && !doorOpens {
 					Audio.playSounds("button", "wood-footstep", "wind")
@@ -228,7 +234,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					bg.speed *= 2.5
 					fg.speed *= 2.5
 //					manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScoreLbl, manager.stageBorder)
-					manager.show(manager.line, manager.hpBorder, manager.pauseBtn, manager.gameScoreLbl)
+					manager.show(manager.line, manager.hpBorder, manager.gameScoreLbl)
 					run(push)
 					manager.hide(sliderTip.node, manager.w, manager.b, manager.g)
 					doorTip.node.alpha = 0
@@ -265,11 +271,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
 					manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
 					gameState(paused: false)
-				} else if node == manager.pauseBtn {
-					sliderTouch = nil
-					stopped ? gameState(paused: false) : gameState(paused: true)
-					manager.line.isHidden = false
-					manager.slider.isHidden = false
 				}
 			}
 			else if ended {
@@ -311,8 +312,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		
+		if manager.soundButton.pressed {
+			manager.soundButton.pressed = false
+			manager.soundButton.node.texture = manager.soundButton.textures[SOUND_ENABLED ? 0 : 2].px()
+		}
+		
 			if let st = sliderTouch, touches.contains(st) {
 					sliderTouch = nil
+				gameState(paused: true)
 					manager.slider.texture = SKTexture(imageNamed: "slider-0").px()
 			} else if triggeredBtn != nil {
 					triggeredBtn.release()
@@ -384,7 +392,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 			
 			self.cam.node.run(SKAction.group([scale, go, rotate]))
-			self.manager.show(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn,self.manager.gameScoreLbl)
+			self.manager.show(self.manager.line, self.manager.hpBorder, self.manager.gameScoreLbl)
 			self.manager.hide(self.manager.continueLbl)
 		})
 	}
@@ -417,7 +425,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				let scaleStop = SKAction.sequence([scale, stop])
 				self.cam.node.run(SKAction.group([scaleStop, rotate]))
-				self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.pauseBtn, self.manager.gameScoreLbl)
+				self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.gameScoreLbl)
 				self.ended = true
 		}
 		
@@ -457,18 +465,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	private func gameState(paused: Bool) {
 			if paused {
-					manager.pauseBtn.texture = manager.playTexture
 					physicsWorld.speed = 0
 					manager.blackSprite.alpha = 0.3
 			} else {
-					manager.pauseBtn.texture = manager.pauseTexture
 					physicsWorld.speed = 1
 					manager.blackSprite.alpha = 0
 			}
 
 			stopped = paused
 			world.isPaused = paused
-			manager.line.isHidden = paused
-			manager.slider.isHidden = paused
+		manager.pausedLbl.isHidden = !paused
 	}
+}
+
+struct ButtonTest {
+	var node: SKSpriteNode
+	var pressed = false
+	var textures: [SKTexture]
 }
