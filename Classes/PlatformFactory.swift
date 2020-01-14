@@ -16,7 +16,6 @@ class PlatformFactory {
 	private(set) var items: Set<Item>
 	private(set) var birds: [Bird]
 	private let data: [PlatformType : (texture: SKTexture, power: Int, damage: Int)]
-	private var lastPlatformType = PlatformType.dirt
 	private let parent: SKNode!
 	private var jumpCounter = 0
 	static var foodRegularJumps = 3
@@ -74,26 +73,39 @@ class PlatformFactory {
 	func create(_ playerY: CGFloat) {
 		if !(highestY + distance.lowerBound < playerY + height) { return }
 		let type = stage.availablePlatforms.randomElement()!
-		lastPlatformType = type
 		let pos = CGPoint(x: CGFloat.random(in: -width...width), y: highestY + CGFloat.random(in: distance))
 		let platform = construct(type, pos)
-		let diff = (pos.y+highestY)/2
-		highestY = type == .dirt ? pos.y+150 : pos.y
+		let birdY = (pos.y + highestY)/2
+		highestY = type == .dirt ? pos.y + 150 : pos.y
 		
-		if (random(0.2)) {
-			let coin = coinFactory.random(stage.availableCoins)
-			platform.addItem(coin)
-			items.insert(coin)
+		// Coin
+		if random(0.2) {
+			let c = coinFactory.random(stage.availableCoins)
+			platform.addItem(c)
+			items.insert(c)
 		}
+		// Food
 		if jumpCounter >= PlatformFactory.foodRegularJumps {
-			let food = foodFactory.getRandomFood()
-			platform.addItem(food)
-			items.insert(food)
+			let f = foodFactory.getRandomFood()
+			platform.addItem(f)
+			items.insert(f)
 			jumpCounter = 0
 		} else { jumpCounter += 1 }
-		
+		// Potion
 		if random(0.1) {
-			let bird = Bird(width, diff)
+			let p = Potion()
+			platform.addItem(p)
+			items.insert(p)
+		}
+		// Trampoline
+		if !platform.hasItems() && random(0.075) {
+			let t = Trampoline()
+			platform.addItem(t)
+			items.insert(t)
+		}
+		// Bird
+		if random(0.1) {
+			let bird = Bird(width, birdY)
 			bird.node.run(SKAction.repeatForever(birdAnim))
 			parent.addChild(bird.node)
 			birds.append(bird)
@@ -117,7 +129,6 @@ class PlatformFactory {
 	}
     
 	func remove(_ minY: CGFloat) {
-		// platforms
 		guard let p = platforms.first else { return }
 		var top = p.node.frame.maxY
 		top += p.hasItems() ? p.items.first!.node.frame.maxY-30 : 0
@@ -126,7 +137,6 @@ class PlatformFactory {
 			platforms.removeFirst()
 		}
 		
-		// birds
 		guard let b = birds.first else { return }
 		if b.node.position.y < minY {
 			b.node.removeFromParent()

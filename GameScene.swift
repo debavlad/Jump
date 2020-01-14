@@ -32,6 +32,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	private var started = false, stopped = false, ended = false
 	private var movement, offset, minY: CGFloat!
 	
+	var trampolineAnim: SKAction!
+	
 	
 	override func didMove(to view: SKView) {
 		loadDefaults()
@@ -83,13 +85,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.watchedAd), name: NSNotification.Name(rawValue: "watchedAd"), object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.dismissedAd), name: NSNotification.Name(rawValue: "dismissedAd"), object: nil)
 		Audio.playSound("wind")
+		
+		trampolineAnim = SKAction.animate(with: [SKTexture(imageNamed: "batut1"),
+																						 SKTexture(imageNamed: "batut0")], timePerFrame: 0.1)
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
 		if !player.isAlive { return }
 		let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 		// Food or coin
-		if col == Collision.playerFood || col == Collision.playerCoin {
+		if col == Collision.playerFood || col == Collision.playerCoin || col == Collision.playerTrampoline {
 			guard let node = extractNode("item", contact) else { return }
 			platforms.findItem(node).wasTouched = true
 		}
@@ -97,7 +102,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		else if col == Collision.playerBird {
 			guard let bird = extractNode("bird", contact) else { return }
 			manager.createEmitter(world, "BirdParticles", bird.position)
-			cam.shake(40, 1, 0, 0.12)
+//			cam.shake(40, 1, 0, 0.12)
 			Audio.playSound("bird")
 			bird.removeFromParent()
 			
@@ -116,10 +121,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let platform = platforms.findPlatform(node)
 			Audio.playSounds("\(platform.type)-footstep", "wind")
 			
+			var power: CGFloat = 0
+			
 			if platform.hasItems() {
-				cam.shake(35, 1, 0, 0.12)
+//				cam.shake(35, 1, 0, 0.12)
 				for item in platform.items {
 					switch (item) {
+						case is Trampoline:
+							power = 92
+							item.node.run(trampolineAnim)
 						case is Coin:
 							pickItem(item, platform)
 							manager.collectCoin((item as! Coin).currency)
@@ -131,12 +141,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 						default: return
 					}
 				}
-			} else { cam.shake(25, 1, 0, 0.12) }
+			} else {
+//				cam.shake(25, 1, 0, 0.12)
+			}
 			
 			player.editHp(-platform.damage)
 			if player.isAlive {
-				let power: CGFloat = Skins[GameScene.skinIndex].name == "ninja" ?
-					CGFloat(platform.power) * 1.125 : CGFloat(platform.power)
+				if power == 0 { power = CGFloat(platform.power) }
+				if Skins[GameScene.skinIndex].name == "ninja" { power *= 1.125 }
 				player.push(power: Int(power))
 			} else { finish(0.5) }
 			
