@@ -42,7 +42,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		fade.zPosition = 25
 		
 		physicsWorld.contactDelegate = self
-		physicsWorld.gravity = CGVector(dx: 0, dy: -24)
+		physicsWorld.gravity = CGVector(dx: 0, dy: -24.5)
 		
 		cam = Camera(self)
 		cam.node.addChild(fade)
@@ -96,13 +96,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		// Food or coin
 		if col == Collision.playerFood || col == Collision.playerCoin || col == Collision.playerTrampoline {
 			guard let node = extractNode("item", contact) else { return }
-			platforms.findItem(node).wasTouched = true
+			platforms.getItem(node)?.wasTouched = true
+//			platforms.findItem(node).wasTouched = true
 		}
 		// Bird
 		else if col == Collision.playerBird {
 			guard let bird = extractNode("bird", contact) else { return }
 			manager.createEmitter(world, "BirdParticles", bird.position)
-//			cam.shake(40, 1, 0, 0.12)
+			cam.shake(40, 1, 0, 0.12)
 			Audio.playSound("bird")
 			bird.removeFromParent()
 			
@@ -118,13 +119,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			trail.create(in: world, 30.0)
 			manager.createEmitter(world, "DustParticles", contact.contactPoint)
 			guard let node = extractNode("platform", contact) else { return }
-			let platform = platforms.findPlatform(node)
+			let platform = platforms.getPlatform(node)
 			Audio.playSounds("\(platform.type)-footstep", "wind")
 			
 			var power: CGFloat = 0
 			
 			if platform.hasItems() {
-//				cam.shake(35, 1, 0, 0.12)
+				cam.shake(35, 1, 0, 0.12)
 				for item in platform.items {
 					switch (item) {
 						case is Trampoline:
@@ -142,7 +143,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					}
 				}
 			} else {
-//				cam.shake(25, 1, 0, 0.12)
+				cam.shake(25, 1, 0, 0.12)
 			}
 			
 			player.editHp(-platform.damage)
@@ -281,7 +282,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		// Platforms
 		if started && !ended {
 			platforms.create(player.node.position.y)
-			platforms.remove(bounds.minY)
+			platforms.removeLowerThan(bounds.minY)
+//			platforms.remove(bounds.minY)
 			if player.node.position.y < minY { finish() }
 		}
 		
@@ -323,7 +325,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		player.revive()
 		ended = false
 		player.push(power: 170)
-		platforms.highestY = player.node.position.y + 100
+		platforms.maxY = player.node.position.y + 100
 		cam.node.run(SKAction.moveTo(x: 0, duration: 1))
 		minY = self.player.node.position.y - 100
 		
@@ -378,7 +380,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let action = SKAction.run {
 			self.sliderTouch = nil
 			self.manager.menuVisiblity(true)
-			self.platforms.clean()
+//			self.platforms.clean()
 				
 			let scale = SKAction.scale(to: 0.25, duration: 1)
 			scale.timingMode = SKActionTimingMode.easeIn
@@ -458,4 +460,9 @@ struct ButtonStruct {
 	var node: SKSpriteNode
 	var pressed = false
 	var textures: [SKTexture]
+}
+
+
+class Helper {
+	
 }

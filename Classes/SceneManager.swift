@@ -85,6 +85,7 @@ class SceneManager {
 		e.position = pos
 		e.zPosition = 3
 		e.particleZPosition = 3
+
 		parent.addChild(e)
 		e.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
 			if self.blackSprite.alpha == 0 { e.removeFromParent() }

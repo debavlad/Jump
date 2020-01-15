@@ -11,7 +11,8 @@ import SpriteKit
 
 class Potion : Item {
 	init() {
-		let n = SKSpriteNode(imageNamed: Bool.random() ? "potion1" : "potion2").px()
+		let n = SKSpriteNode(imageNamed: Bool.random() ?
+			PotionType.red.description : PotionType.yellow.description).px()
 		n.setScale(6)
 		n.position.y = 30
 		n.physicsBody = SKPhysicsBody(rectangleOf: n.frame.size)
@@ -20,5 +21,17 @@ class Potion : Item {
 		n.physicsBody?.collisionBitMask = Categories.platform
 		n.zPosition = 3
 		super.init(n)
+	}
+}
+
+enum PotionType: Int, CustomStringConvertible {
+	case red
+	case yellow
+	
+	var description: String {
+		switch self {
+			case .red: return "red"
+			case .yellow: return "yellow"
+		}
 	}
 }
