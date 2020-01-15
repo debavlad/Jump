@@ -19,7 +19,7 @@ class Potion : Item {
 		n.physicsBody?.categoryBitMask = Categories.potion
 		n.physicsBody?.contactTestBitMask = Categories.player
 		n.physicsBody?.collisionBitMask = Categories.platform
-		n.zPosition = 3
+		n.zPosition = 1
 		super.init(n)
 	}
 }
@@ -30,8 +30,8 @@ enum PotionType: Int, CustomStringConvertible {
 	
 	var description: String {
 		switch self {
-			case .red: return "red"
-			case .yellow: return "yellow"
+			case .red: return "redpotion"
+			case .yellow: return "yellowpotion"
 		}
 	}
 }

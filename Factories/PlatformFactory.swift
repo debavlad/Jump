@@ -13,7 +13,7 @@ class PlatformFactory {
 	var maxY: CGFloat
 	private let distance: ClosedRange<CGFloat>
 	private(set) var platforms: [Platform]
-	private(set) var birds: [Bird]
+	var birds: Set<Bird>
 	private let data: [PlatformType : (texture: SKTexture, power: Int, damage: Int)]
 	private let itemFactory: ItemFactory
 	private(set) var stage: Stage
@@ -31,7 +31,7 @@ class PlatformFactory {
 		self.distance = distance
 		self.parent = parent
 		platforms = []
-		birds = []
+		birds = Set<Bird>()
 		stage = Stage()
 		itemFactory = ItemFactory()
 		
@@ -60,13 +60,13 @@ class PlatformFactory {
 			jumpsAmount = 0
 		} else { jumpsAmount += 1 }
 		if random(0.2) { platform.addItem(itemFactory.randomCoin(stage.coins)) }
-//		if random(0.1) { platform.addItem(Potion()) }
+		if random(0.1) { platform.addItem(Potion()) }
 		if !platform.hasItems() && random(0.075) { platform.addItem(Trampoline()) }
 		if random(0.1) {
 			let b = Bird(width, birdY)
 			b.node.run(SKAction.repeatForever(birdAnim))
 			parent.addChild(b.node)
-			birds.append(b)
+			birds.insert(b)
 		}
 		
 		switch type {

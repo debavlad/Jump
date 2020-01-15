@@ -25,6 +25,9 @@ class SceneManager {
 	private(set) var pauseTexture, playTexture: SKTexture!
 	private(set) var smokeAnim, doorAnim: SKAction!
 	private var score = 0
+	
+	var emitters: Set<SKEmitterNode>
+	var labels: Set<SKLabelNode>
     
 	
 	init(_ scene: SKScene, _ world: SKNode) {
@@ -37,6 +40,9 @@ class SceneManager {
 		soundButton.node.setScale(9)
 		soundButton.node.position = CGPoint(x: width-115, y: height-115)
 		soundButton.node.zPosition = 21
+		
+		emitters = Set<SKEmitterNode>()
+		labels = Set<SKLabelNode>()
 		
 		createAnims()
 		createNodes(world)
@@ -87,23 +93,25 @@ class SceneManager {
 		e.particleZPosition = 3
 
 		parent.addChild(e)
-		e.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
-			if self.blackSprite.alpha == 0 { e.removeFromParent() }
-			}]))
+		emitters.insert(e)
+//		e.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
+//			if self.blackSprite.alpha == 0 { e.removeFromParent() }
+//			}]))
 	}
 	
 	func createLbl(_ parent: SKNode, _ pos: CGPoint) {
 		let l = sampleLbl.copy() as! SKLabelNode
 		l.position = CGPoint(x: pos.x+70, y: pos.y+70)
 		parent.addChild(l)
+		labels.insert(l)
 		
 		l.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 30))
 		let angle = CGFloat.random(in: -0.0005...0.0005)
 		l.physicsBody?.applyAngularImpulse(angle)
 		
-		l.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
-			if self.blackSprite.alpha == 0 { l.removeFromParent() }
-			}]))
+//		l.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
+//			if self.blackSprite.alpha == 0 { l.removeFromParent() }
+//			}]))
 	}
 	
 	func show(_ nodes: SKNode...) {

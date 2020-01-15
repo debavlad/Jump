@@ -97,7 +97,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if col == Collision.playerFood || col == Collision.playerCoin || col == Collision.playerTrampoline {
 			guard let node = extractNode("item", contact) else { return }
 			platforms.getItem(node)?.wasTouched = true
-//			platforms.findItem(node).wasTouched = true
 		}
 		// Bird
 		else if col == Collision.playerBird {
@@ -115,6 +114,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		// Platform
 		else if col == Collision.playerPlatform && player.isFalling() {
+			removeThingsLowerThan(bounds.minY)
 			player.runAnim(player.landAnim)
 			trail.create(in: world, 30.0)
 			manager.createEmitter(world, "DustParticles", contact.contactPoint)
@@ -127,19 +127,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if platform.hasItems() {
 				cam.shake(35, 1, 0, 0.12)
 				for item in platform.items {
-					switch (item) {
-						case is Trampoline:
-							power = 92
-							item.node.run(trampolineAnim)
-						case is Coin:
-							pickItem(item, platform)
-							manager.collectCoin((item as! Coin).currency)
-						case is Food:
-							var energy = CGFloat((item as! Food).energy)
-							energy *= Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1
-							player.editHp(Int(energy))
-							pickItem(item, platform)
-						default: return
+					if item.wasTouched {
+						switch (item) {
+							case is Trampoline:
+								power = 92
+								item.node.run(trampolineAnim)
+							case is Coin:
+								pickItem(item, platform)
+								manager.collectCoin((item as! Coin).currency)
+							case is Food:
+								var energy = CGFloat((item as! Food).energy)
+								energy *= Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1
+								player.editHp(Int(energy))
+								pickItem(item, platform)
+							default: return
+						}
 					}
 				}
 			} else {
@@ -319,6 +321,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	// Imp
+	
+	func removeThingsLowerThan(_ minY: CGFloat) {
+		manager.emitters.forEach { (e) in
+			if e.position.y < minY {
+				e.removeFromParent()
+				manager.emitters.remove(e)
+			}
+		}
+		manager.labels.forEach { (l) in
+			if l.position.y < minY {
+				l.removeFromParent()
+				manager.labels.remove(l)
+			}
+		}
+		platforms.birds.forEach { (b) in
+			if b.node.position.y < minY {
+				b.node.removeFromParent()
+				platforms.birds.remove(b)
+			}
+		}
+	}
 	
 	func continueGameplay() {
 		manager.menuVisiblity(false)
