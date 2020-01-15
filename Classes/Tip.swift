@@ -61,9 +61,8 @@ class Tip {
 	
 	private func move() {
 		let up = SKAction.move(by: CGVector(dx: 0, dy: 10), duration: 1.5)
-		up.timingMode = .easeInEaseOut
 		let down = SKAction.move(by: CGVector(dx: 0, dy: -10), duration: 1.5)
-		down.timingMode = .easeInEaseOut
+		up.timingMode = .easeInEaseOut; down.timingMode = .easeInEaseOut
 		node.run(SKAction.repeatForever(SKAction.sequence([up, down])))
 	}
 }

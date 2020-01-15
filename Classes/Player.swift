@@ -14,11 +14,12 @@ class Player {
 	private var health, maxHp: Int!
 	private(set) var isAlive = true
 	private(set) var score = 0
+	
 	private let green, yellow, red: SKTexture!
 	private let hpBorder, hpLine: SKSpriteNode!
 	private let maxLineWidth: CGFloat
-	
 	private(set) var currentAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
+	
 	
 	init(_ node: SKNode) {
 		self.node = node as! SKSpriteNode
@@ -28,7 +29,6 @@ class Player {
 		hpBorder = node.children.first! as? SKSpriteNode
 		hpLine = hpBorder.children.first! as? SKSpriteNode
 		maxLineWidth = hpLine.size.width
-		
 		setNodes()
 	}
     
@@ -42,9 +42,10 @@ class Player {
 		node.xScale = left ? -1 : 1
 		hpBorder.xScale = node.xScale
 	}
-    
-	func setScore(_ value: Int) {
-		score = value
+	
+	func revive() {
+		isAlive = true
+		editHp(maxHp)
 	}
 	
 	func editHp(_ amount: Int) {
@@ -66,9 +67,8 @@ class Player {
 		else if tmp <= 100 { hpLine.texture = green }
 	}
 	
-	func revive() {
-		isAlive = true
-		editHp(maxHp)
+	func setScore(_ value: Int) {
+		score = value
 	}
     
 	func isFalling() -> Bool {
