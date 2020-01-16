@@ -49,9 +49,9 @@ class ItemFactory {
 		return Food(node, foodEnergy[type]!)
 	}
 	
-	func randomCoin(_ available: [Currency]) -> Coin {
+	func randomCoin(_ available: Set<Currency>) -> Coin {
 		let node = SKSpriteNode().applyCoinProperties().px()
-		let currency = available[Int.random(in: 0..<available.count)]
+		let currency = available.randomElement()!
 		node.name = "\(currency.description)item"
 		let anim = coinAnims[currency.description]!
 		node.run(SKAction.repeatForever(anim))

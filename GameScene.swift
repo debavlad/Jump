@@ -109,10 +109,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			manager.createEmitter(world, "BirdParticles", bird.position)
 			cam.shake(40, 1, 0, 0.12)
 			bird.removeFromParent()
-			player.push(power: 75)
-			if !player.isFalling() {
+			if player.node.position.y < bird.position.y {
 				player.editHp(-20)
 				Audio.playSound("hurt")
+				player.push(power: 10, nullify: false)
+			} else {
+				player.push(power: 75, nullify: true)
 			}
 		}
 		else if col == Collision.playerPlatform && player.isFalling() {
@@ -153,7 +155,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			player.editHp(-platform.damage)
 			if player.isAlive {
 				power *= Skins[GameScene.skinIndex].name == "ninja" ? 1.125 : 1
-				player.push(power: Int(power))
+				player.push(power: Int(power), nullify: true)
 			} else { finish(0.5) }
 			
 			if platform.type == .sand { platform.fall(contact.contactPoint.x) }
@@ -185,7 +187,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				let scale = SKAction.scale(to: 0.95, duration: 1.25)
 				scale.timingMode = .easeInEaseOut
-				player.push(power: 170)
+				player.push(power: 170, nullify: true)
 				cam.shake(50, 6, 6, 0.055)
 				cam.node.run(scale)
 				doorTip.node.alpha = 0
@@ -340,7 +342,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		manager.menuVisiblity(false)
 		player.revive()
 		ended = false
-		player.push(power: 170)
+		player.push(power: 170, nullify: true)
 		platforms.maxY = player.node.position.y + 100
 		cam.node.run(SKAction.moveTo(x: 0, duration: 1))
 		minY = self.player.node.position.y - 100

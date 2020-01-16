@@ -13,7 +13,6 @@ class Player {
 	let node: SKSpriteNode
 	private var health, maxHp: Int!
 	private(set) var isAlive = true
-//	private(set) var score = 0
 	
 	private let green, yellow, red: SKTexture!
 	private let hpBorder, hpLine: SKSpriteNode!
@@ -32,9 +31,9 @@ class Player {
 		setNodes()
 	}
     
-	func push(power: Int) {
+	func push(power: Int, nullify: Bool) {
 		runAnim(jumpAnim)
-		node.physicsBody!.velocity = CGVector()
+		if nullify { node.physicsBody!.velocity = CGVector() }
 		node.physicsBody!.applyImpulse(CGVector(dx: 0, dy: power))
 	}
 	
@@ -66,10 +65,6 @@ class Player {
 		else if tmp <= 50 { hpLine.texture = yellow }
 		else if tmp <= 100 { hpLine.texture = green }
 	}
-	
-//	func setScore(_ value: Int) {
-//		score = value
-//	}
     
 	func isFalling() -> Bool {
 		return node.physicsBody!.velocity.dy < 0

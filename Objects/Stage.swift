@@ -11,8 +11,10 @@ import SpriteKit
 
 class Stage {
 	var current = 0
-	var platforms: [PlatformType]
-	var coins: [Currency]
+	var platforms: Set<PlatformType>
+	var coins: Set<Currency>
+//	var platforms: [PlatformType]
+//	var coins: [Currency]
     
 	init() {
 		platforms = [.sand]
@@ -23,17 +25,17 @@ class Stage {
 		switch (stage) {
 		case 1:
 			current = 1
-			platforms.append(.wood)
-			coins.append(.bronze)
+			platforms.insert(.wood)
+			coins.insert(.bronze)
 			PlatformFactory.foodFrequency = 4
 		case 2:
 			current = 2
-			platforms.append(.stone)
-			platforms.append(.dirt)
+			platforms.insert(.stone)
+			platforms.insert(.dirt)
 			PlatformFactory.foodFrequency = 5
 		case 3:
 			current = 3
-			coins.append(.golden)
+			coins.insert(.golden)
 		default: break
 		}
 	}

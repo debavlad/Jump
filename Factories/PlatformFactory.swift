@@ -82,7 +82,7 @@ class PlatformFactory {
     
 	func removeLowerThan(_ y: CGFloat) {
 		guard let p = platforms.first else { return }
-		let top = p.node.frame.maxY + (p.hasItems() ? p.items.first!.node.frame.maxY - 30 : 0)
+		let top = p.node.position.y + (p.hasItems() ? p.items.first!.node.frame.maxY : 0)
 		if top < y {
 			p.node.removeFromParent()
 			platforms.removeFirst()
