@@ -13,7 +13,7 @@ class Player {
 	let node: SKSpriteNode
 	private var health, maxHp: Int!
 	private(set) var isAlive = true
-	private(set) var score = 0
+//	private(set) var score = 0
 	
 	private let green, yellow, red: SKTexture!
 	private let hpBorder, hpLine: SKSpriteNode!
@@ -67,9 +67,9 @@ class Player {
 		else if tmp <= 100 { hpLine.texture = green }
 	}
 	
-	func setScore(_ value: Int) {
-		score = value
-	}
+//	func setScore(_ value: Int) {
+//		score = value
+//	}
     
 	func isFalling() -> Bool {
 		return node.physicsBody!.velocity.dy < 0

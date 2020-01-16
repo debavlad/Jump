@@ -24,7 +24,7 @@ class SceneManager {
 		mScore, wIcon, bIcon, gIcon, w, b, g: SKSpriteNode!
 	private(set) var pauseTexture, playTexture: SKTexture!
 	private(set) var smokeAnim, doorAnim: SKAction!
-	private var score = 0
+	var score = 0
 	
 	var emitters: Set<SKEmitterNode>
 	var labels: Set<SKLabelNode>
@@ -68,7 +68,7 @@ class SceneManager {
 		}
 	}
   
-	func setScore(_ value: Int, _ stage: Stage) {
+	func setScore(_ value: Int) {
 		score = value
 		gameScoreLbl.text = String(value)
 		gameScoreLbl.position = CGPoint(x: -width + gameScoreLbl.frame.width/2+60,

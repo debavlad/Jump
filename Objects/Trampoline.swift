@@ -20,7 +20,7 @@ class Trampoline : Item {
 		n.physicsBody?.collisionBitMask = Categories.platform
 		n.physicsBody?.friction = 0
 		n.physicsBody?.restitution = 0
-		n.zPosition = 3
+		n.zPosition = 4
 		super.init(n)
 	}
 }

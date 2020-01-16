@@ -46,6 +46,12 @@ class Platform {
 		return items != nil && items.count > 0
 	}
 	
+	func getItem(_ c: AnyClass) -> Item? {
+		return items.first { (i) -> Bool in
+			object_getClass(i) == c
+		}
+	}
+	
 	func moveX(_ w: CGFloat) {
 		let r = SKAction.move(to: CGPoint(x: w, y: node.position.y), duration: 2)
 		let l = SKAction.move(to: CGPoint(x: -w, y: node.position.y), duration: 2)

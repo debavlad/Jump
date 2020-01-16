@@ -19,7 +19,7 @@ class Potion : Item {
 		n.physicsBody?.categoryBitMask = Categories.potion
 		n.physicsBody?.contactTestBitMask = Categories.player
 		n.physicsBody?.collisionBitMask = Categories.platform
-		n.zPosition = 1
+		n.zPosition = 3
 		super.init(n)
 	}
 }

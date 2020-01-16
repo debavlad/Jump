@@ -21,38 +21,33 @@ class Camera {
 		easing = 0.082
 	}
 	
-	func shake(_ amplitude: CGFloat, _ amount: Int, _ step: CGFloat, _ duration: CGFloat) {
-		var amp = amplitude
-		var actions: [SKAction] = []
-		for _ in 1...amount {
-			let x = Bool.random() ? amp : -amp
-			let y = Bool.random() ? amp : -amp
-			amp -= step
-			
-			let tmp = SKAction.moveBy(x: x, y: y, duration: TimeInterval(duration))
-			tmp.timingMode = .easeOut
-			actions.append(tmp)
-			actions.append(tmp.reversed())
+	func punch(_ amp: CGFloat) {
+		let x = Bool.random() ? amp : -amp
+		let a = SKAction.moveBy(x: x, y: -amp, duration: 0.12)
+		a.timingMode = .easeOut
+		node.run(SKAction.sequence([a, a.reversed()]))
+	}
+	
+	func shake(_ amp: CGFloat, _ amount: Int, _ step: CGFloat, _ dur: CGFloat) {
+		var a = amp, actions: [SKAction] = []
+		for _ in 0..<amount {
+			let act = SKAction.moveBy(x: Bool.random() ? a : -a,
+																y: Bool.random() ? a : -a, duration: TimeInterval(dur))
+			act.timingMode = .easeOut
+			actions.append(contentsOf: [act, act.reversed()])
+			a -= step
 		}
-		
-		let seq = SKAction.sequence(actions)
-		node.run(seq)
+		node.run(SKAction.sequence(actions))
 	}
 	
 	func earthquake() {
 		var actions: [SKAction] = []
-		for _ in 1...2 {
-			var x = CGFloat.random(in: 15...20)
-			x *= Bool.random() ? 1 : -1
-			let y = -CGFloat.random(in: 15...20)
-			
-			let a = SKAction.moveBy(x: x, y: y, duration: 0.075)
-			a.timingMode = .easeOut
-			actions.append(a)
-			actions.append(a.reversed())
+		for _ in 0..<2 {
+			let x = CGFloat.random(in: 15...20) * (Bool.random() ? 1 : -1)
+			let act = SKAction.moveBy(x: x, y: -CGFloat.random(in: 15...20), duration: 0.075)
+			act.timingMode = .easeOut
+			actions.append(contentsOf: [act, act.reversed()])
 		}
-		
-		let seq = SKAction.sequence(actions)
-		node.run(seq)
+		node.run(SKAction.sequence(actions))
 	}
 }
