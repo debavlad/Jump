@@ -114,7 +114,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				Audio.playSound("hurt")
 				player.push(power: 10, nullify: false)
 			} else {
-				player.push(power: 75, nullify: true)
+				player.push(power: 80, nullify: true)
 			}
 		}
 		else if col == Collision.playerPlatform && player.isFalling() {
@@ -290,7 +290,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if !stopped {
-			player.node.position.x = lerp(player.node.position.x, manager.slider.position.x, 0.27)
+			movement = lerp(player.node.position.x, manager.slider.position.x, 0.27)
+			player.node.position.x = movement
 			bounds.minX = -frame.size.width/2 + cam.node.position.x
 			bounds.minY = cam.node.frame.minY - frame.height/2
 			bounds.maxX = frame.size.width/2 + cam.node.position.x
