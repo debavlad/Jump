@@ -11,7 +11,7 @@ import SpriteKit
 
 class Player {
 	let node: SKSpriteNode
-	private var health, maxHp: Int!
+	var health, maxHp: Int!
 	private(set) var isAlive = true
 	
 	private let green, yellow, red: SKTexture!
@@ -61,9 +61,9 @@ class Player {
 			hpLine.size.width = maxLineWidth/CGFloat(maxHp)*CGFloat(tmp)
 		}
 		
-		if tmp <= 25 { hpLine.texture = red }
-		else if tmp <= 50 { hpLine.texture = yellow }
-		else if tmp <= 100 { hpLine.texture = green }
+		if tmp <= maxHp/4 { hpLine.texture = red }
+		else if tmp <= maxHp/2 { hpLine.texture = yellow }
+		else if tmp <= maxHp { hpLine.texture = green }
 	}
     
 	func isFalling() -> Bool {

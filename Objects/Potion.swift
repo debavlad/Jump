@@ -10,7 +10,10 @@ import Foundation
 import SpriteKit
 
 class Potion : Item {
+	let type: PotionType
+	
 	init(_ type: PotionType) {
+		self.type = type
 		let n = SKSpriteNode(imageNamed: type.rawValue).px()
 		n.setScale(6)
 		n.position.y = 30

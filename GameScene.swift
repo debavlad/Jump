@@ -110,7 +110,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			manager.createEmitter(world, "BirdParticles", bird.position)
 			cam.shake(40, 1, 0, 0.12)
 			bird.removeFromParent()
-			if player.node.position.y < bird.position.y {
+			if player.node.physicsBody!.velocity.dy >= 0 {
 				player.editHp(-20)
 				Audio.playSound("hurt")
 				player.push(power: 10, nullify: false)
@@ -151,8 +151,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					t.node.run(trampolineAnim)
 					power = 92
 				}
-				if let p = platform.getItem(Potion.self) {
-					player.editHp(100)
+				if let p = platform.getItem(Potion.self) as? Potion {
+					player.editHp(p.type == PotionType.red ? -player.health/2 : player.health/2)
 					pickItem(p, platform)
 				}
 			} else { cam.punch(30) }
