@@ -52,6 +52,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		progress.xScale = 0; progress.yScale = 12
 		progress.position.x = frame.minX
 		progress.position.y = frame.maxY
+		progress.color = .red
+		progress.colorBlendFactor = 1
 		cam.node.addChild(progress)
 		print(UIScreen.main.bounds.width)
 		
@@ -127,12 +129,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let platform = platforms.getPlatform(node)
 			Audio.playSounds("\(platform.type)-footstep", "wind")
 			
-//			let scale = CGFloat(7.5) * (platforms.stage.current >= 1 ?
-//				CGFloat(player.score + 3 - platforms.stage.current*100) : CGFloat(player.score + 3))
-//			let action = SKAction.scaleX(to: scale, y: 12, duration: 0.3)
-//			action.timingMode = .easeOut
+			let scale = CGFloat(7.5) * (platforms.stage.current >= 1 ?
+				CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score + 3))
+			let action = SKAction.scaleX(to: scale, y: 12, duration: 0.3)
+			action.timingMode = .easeOut
 //			let colorize = SKAction.colorize(with: UIColor(red: CGFloat.random(in: 0...1), green: CGFloat.random(in: 0...1), blue: CGFloat.random(in: 0...1), alpha: 1), colorBlendFactor: 1.0, duration: 0.3)
-//			progress.run(action)
+			progress.run(action)
 //			progress.run(colorize)
 			
 			var power = CGFloat(platform.power)
@@ -295,7 +297,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if !stopped {
-			movement = lerp(player.node.position.x, manager.slider.position.x, 0.27)
+			movement = lerp(player.node.position.x, manager.slider.position.x, 0.28)
 			player.node.position.x = movement
 			bounds.minX = -frame.size.width/2 + cam.node.position.x
 			bounds.minY = cam.node.frame.minY - frame.height/2
