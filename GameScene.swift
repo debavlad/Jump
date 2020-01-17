@@ -50,10 +50,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		progress = SKSpriteNode(imageNamed: "particle").px()
 		progress.anchorPoint = CGPoint(x: 0, y: 1)
 		progress.xScale = 0; progress.yScale = 12
-		progress.position.x = frame.minX
-		progress.position.y = frame.maxY
-		progress.color = .red
+		progress.position = CGPoint(x: frame.minX, y: frame.maxY)
 		progress.colorBlendFactor = 1
+		progress.zPosition = 16
+		progress.color = Colors.red
 		cam.node.addChild(progress)
 		print(UIScreen.main.bounds.width)
 		
@@ -129,13 +129,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let platform = platforms.getPlatform(node)
 			Audio.playSounds("\(platform.type)-footstep", "wind")
 			
-			let scale = CGFloat(7.5) * (platforms.stage.current >= 1 ?
-				CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score + 3))
-			let action = SKAction.scaleX(to: scale, y: 12, duration: 0.3)
-			action.timingMode = .easeOut
-//			let colorize = SKAction.colorize(with: UIColor(red: CGFloat.random(in: 0...1), green: CGFloat.random(in: 0...1), blue: CGFloat.random(in: 0...1), alpha: 1), colorBlendFactor: 1.0, duration: 0.3)
-			progress.run(action)
-//			progress.run(colorize)
+//			let scale = CGFloat(7.5) * (platforms.stage.current >= 1 ?
+//				CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score + 3))
+//			let action = SKAction.scaleX(to: scale, y: 12, duration: 1)
+//			action.timingMode = .easeOut
+//			action.speed = 3
+//
+//			let sc = platforms.stage.current >= 1 ?
+//			CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score)
+//			if sc > 66 {
+//				progress.run(SKAction.colorize(with: Colors.green, colorBlendFactor: 1, duration: 1))
+//			} else if sc > 33 {
+//				progress.run(SKAction.colorize(with: Colors.yellow, colorBlendFactor: 1, duration: 1))
+//			} else {
+//				progress.run(SKAction.colorize(with: Colors.red, colorBlendFactor: 1, duration: 1))
+//			}
+//			progress.run(action)
 			
 			var power = CGFloat(platform.power)
 			if platform.hasItems() {
@@ -287,6 +296,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
 			if player.isFalling() && player.currentAnim != player.fallAnim {
 				player.runAnim(player.fallAnim)
+			}
+			let scale = CGFloat(7.5) * (platforms.stage.current >= 1 ?
+				CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score + 3))
+			if scale >= 748 {
+				progress.xScale = 0
+			} else {
+				let action = SKAction.scaleX(to: scale, y: 12, duration: 0.4)
+				progress.run(action)
 			}
 		} else { started = player.node.position.y > 0 }
 		

@@ -31,6 +31,9 @@ let TEST_AD_ID = "ca-app-pub-3940256099942544/1712485313"
 var SOUND_ENABLED: Bool!
 
 class Colors {
+	static let red = UIColor(red: 231/255, green: 57/255, blue: 43/255, alpha: 1)
+	static let yellow = UIColor(red: 235/255, green: 216/255, blue: 3/255, alpha: 1)
+	static let green = UIColor(red: 0/255, green: 173/255, blue: 2/255, alpha: 1)
 	static let pa1 = UIColor(red: 111/255, green: 123/255, blue: 131/255, alpha: 1)
 	static let pa2 = UIColor(red: 137/255, green: 153/255, blue: 163/255, alpha: 1)
 	static let fa1 = UIColor(red: 188/255, green: 72/255, blue: 53/255, alpha: 1)
