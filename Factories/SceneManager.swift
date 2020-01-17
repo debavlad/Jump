@@ -145,13 +145,13 @@ class SceneManager {
 		house = SKSpriteNode(imageNamed: "house").px()
 		house.size = CGSize(width: 543, height: 632)
 		house.position = CGPoint(x: 200, y: -47)
-		house.zPosition = 1
+		house.zPosition = 0
 		world.addChild(house)
 			
 		door = SKSpriteNode(imageNamed: "door0").px()
 		door.size = CGSize(width: 112, height: 134)
 		door.position = CGPoint(x: -119, y: -220)
-		door.zPosition = 2
+		door.zPosition = 1
 		house.addChild(door)
 			
 		let smoke = SKSpriteNode(imageNamed: "smoke0").px()
@@ -172,6 +172,7 @@ class SceneManager {
 		let ground = SKSpriteNode(imageNamed: "ground").px()
 		ground.size = CGSize(width: 826, height: 518)
 		ground.position = CGPoint(x: 30, y: -530)
+		ground.zPosition = -1
 		world.addChild(ground)
 			
 		let player = SKSpriteNode(imageNamed: "\(Skins[GameScene.skinIndex].name)-sit0").px()
@@ -180,7 +181,6 @@ class SceneManager {
 		player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
 		player.zPosition = 10
 			
-		
 		// UI
 			
 		hpBorder = SKSpriteNode(imageNamed: "hp-border").px()
@@ -375,7 +375,7 @@ class SceneManager {
 		sampleLbl.fontName = Fonts.droid
 		sampleLbl.fontColor = UIColor.white
 		sampleLbl.fontSize = 64
-		sampleLbl.zPosition = 18
+		sampleLbl.zPosition = 5
 		
 		sampleLbl.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20))
 		sampleLbl.physicsBody?.collisionBitMask = 0

@@ -32,8 +32,9 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
 				view.presentScene(scene)
 				
 //				view.showsPhysics = true
-				view.showsFPS = true
+//				view.showsFPS = true
 				view.showsNodeCount = true
+				view.showsDrawCount = true
 					
 //				rewardedAd = GADRewardedAd(adUnitID: TEST_AD_ID)
 //				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)

@@ -22,7 +22,7 @@ class Trail {
 		self.colors = colors
 		
 		particle = SKSpriteNode(imageNamed: "particle")
-		particle.zPosition = 9
+		particle.zPosition = 5
 		particle.colorBlendFactor = 1
 		
 		anim = SKAction.group([SKAction.fadeOut(withDuration: 1),
