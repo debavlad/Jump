@@ -10,74 +10,67 @@ import Foundation
 import SpriteKit
 
 class PlatformFactory {
-	var maxY: CGFloat
-	private let distance: ClosedRange<CGFloat>
-	private(set) var platforms: [Platform]
-	var birds: Set<Bird>
-	private let data: [PlatformType : (texture: SKTexture, power: Int, damage: Int)]
-	private let itemFactory: ItemFactory
-	private(set) var stage: Stage
-	private let parent: SKNode!
+	var highestY: CGFloat
+	private let w, h: CGFloat
+	private let dist: ClosedRange<CGFloat>
+	private(set) var platforms = [Platform]()
+	private let data: [PlatformType : (power: Int, damage: Int)]
+	private let items = ItemFactory()
+	private(set) var stage = Stage()
+	public var birds = Set<Bird>()
+	private let parent: SKNode
+	
 	private var jumpsAmount = 0
-	static var foodFrequency = 3
-	private let width, height: CGFloat
 	private let birdAnim: SKAction
     
-    
-	init(_ parent: SKNode, _ startY: CGFloat, _ distance: ClosedRange<CGFloat>) {
-		width = UIScreen.main.bounds.width - 100
-		height = UIScreen.main.bounds.height + 50
-		self.maxY = startY
-		self.distance = distance
-		self.parent = parent
-		platforms = []
-		birds = Set<Bird>()
-		stage = Stage()
-		itemFactory = ItemFactory()
-		
+	init(_ node: SKNode, _ y: CGFloat, _ dist: ClosedRange<CGFloat>) {
+		highestY = y
+		self.dist = dist
+		parent = node
 		data = [
-			PlatformType.dirt : (SKTexture(imageNamed: "dirt-platform").px(), 73, 3),
-			PlatformType.sand : (SKTexture(imageNamed: "sand-platform").px(), 78, 4),
-			PlatformType.wood : (SKTexture(imageNamed: "wooden-platform").px(), 83, 5),
-			PlatformType.stone : (SKTexture(imageNamed: "stone-platform").px(), 88, 6)
+			PlatformType.dirt : (73, 3),
+			PlatformType.sand : (78, 4),
+			PlatformType.wooden : (83, 5),
+			PlatformType.stone : (88, 6)
 		]
-		
+		w = UIScreen.main.bounds.width - 100
+		h = UIScreen.main.bounds.height + 50
+		//
 		birdAnim = SKAction.animate(with: [SKTexture(imageNamed: "bird0").px(),
-		 SKTexture(imageNamed: "bird1").px(), SKTexture(imageNamed: "bird2").px()], timePerFrame: 0.1)
+		 SKTexture(imageNamed: "bird1").px(), SKTexture(imageNamed: "bird2").px()],
+			timePerFrame: 0.1)
 	}
 	
 	func create(_ playerY: CGFloat) {
-		if !(maxY + distance.lowerBound < playerY + height) { return }
-		let type = stage.platforms.randomElement()!
-		let pos = CGPoint(x: CGFloat.random(in: -width...width), y: maxY + CGFloat.random(in: distance))
-		let platform = Platform(type, data[type]!)
-		platform.node.position = pos
-		let birdY = (pos.y + maxY)/2
-		maxY = type == .dirt ? pos.y + 150 : pos.y
+		if !(highestY + dist.lowerBound < playerY + h) { return }
+		let t = stage.platforms.randomElement()!
+		let pos = CGPoint(x: CGFloat.random(in: -w...w), y: highestY + CGFloat.random(in: dist))
+		let p = Platform(t, data[t]!)
+		p.node.position = pos
+		let birdY = (pos.y + highestY)/2
+		highestY = (t == .dirt ? pos.y + 150 : pos.y)
 		
-		if jumpsAmount >= PlatformFactory.foodFrequency {
-			platform.addItem(itemFactory.randomFood())
+		if jumpsAmount >= stage.foodFreq {
+			p.addItem(items.randomFood())
 			jumpsAmount = 0
 		} else { jumpsAmount += 1 }
-		if random(0.2) { platform.addItem(itemFactory.randomCoin(stage.coins)) }
-		if random(0.1) { platform.addItem(Potion()) }
-		if !platform.hasItems() && random(0.075) { platform.addItem(Trampoline()) }
+		if random(0.2) { p.addItem(items.randomCoin(stage.coins)) }
+		if random(0.1) { p.addItem(items.randomPotion())}
+		if !p.hasItems() && random(0.075) { p.addItem(Trampoline()) }
 		if random(0.1) {
-			let b = Bird(width, birdY)
+			let b = Bird(w, birdY)
 			b.node.run(SKAction.repeatForever(birdAnim))
 			parent.addChild(b.node)
 			birds.insert(b)
 		}
 		
-		switch type {
-			case .dirt:
-				platform.moveY(150)
-			case .sand: break
-			case .wood, .stone:
-				platform.moveX(width)
+		switch (t) {
+			case .dirt: p.moveY(150)
+			case .wooden, .stone: p.moveX(w)
+			default: break
 		}
-		parent.addChild(platform.node)
-		platforms.append(platform)
+		parent.addChild(p.node)
+		platforms.append(p)
 	}
     
 	func removeLowerThan(_ y: CGFloat) {
@@ -114,9 +107,6 @@ class PlatformFactory {
 	}
 }
 
-enum PlatformType: Int {
-	case dirt
-	case sand
-	case wood
-	case stone
+enum PlatformType: String {
+	case dirt, sand, wooden, stone
 }

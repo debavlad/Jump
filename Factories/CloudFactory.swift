@@ -10,48 +10,46 @@ import Foundation
 import SpriteKit
 
 class CloudFactory {
-	var distance, maxY, speed: CGFloat
-	private let width, height: CGFloat
-	private var set: Set<SKSpriteNode>!
-	private var textures: [SKTexture]
+	var dist, highestY, speed: CGFloat
+	private let w, h: CGFloat
+	private var set = Set<SKSpriteNode>()
+	private var textures = [SKTexture]()
 	
 	
-	init(_ distance: CGFloat, _ maxY: CGFloat) {
-		self.distance = distance
-		self.maxY = maxY
-		speed = distance <= 500 ? 1 : 0.5
-		width = UIScreen.main.bounds.width
-		height = UIScreen.main.bounds.height + 50
-		set = Set<SKSpriteNode>()
-		textures = [
+	init(_ dist: CGFloat, _ y: CGFloat) {
+		self.dist = dist
+		highestY = y
+		speed = dist <= 500 ? 1 : 0.5
+		w = UIScreen.main.bounds.width
+		h = UIScreen.main.bounds.height + 50
+		textures.append(contentsOf: [
 			SKTexture(imageNamed: "cloud-0").px(),
 			SKTexture(imageNamed: "cloud-1").px(),
 			SKTexture(imageNamed: "cloud-2").px(),
 			SKTexture(imageNamed: "cloud-3").px()
-		]
+		])
 	}
 	
-	func canBuild(_ playerY: CGFloat, _ started: Bool) -> Bool {
-		return maxY + distance < (started ? playerY + height : height)
+	func canSpawn(_ playerY: CGFloat, _ started: Bool) -> Bool {
+		return highestY + dist < (started ? playerY + h : h)
 	}
 	
-	func create(_ pos: CGPoint? = nil) -> SKSpriteNode {
-		let cloud = SKSpriteNode(texture: textures.randomElement()!)
-		cloud.zPosition = distance <= 500 ? -5 : 15
-		cloud.setScale(CGFloat.random(in: distance <= 500 ? 12...16 : 22...28))
-		cloud.alpha = distance <= 500 ? 1 : 0.5
-		if Bool.random() { cloud.xScale *= -1 }
+	func create(_ pos: CGPoint?=nil) -> SKSpriteNode {
+		let c = SKSpriteNode(texture: textures.randomElement()!)
+		if (dist <= 500) { c.zPosition = -5; c.setScale(CGFloat.random(in: 12...16)); c.alpha = 1 }
+		else { c.zPosition = 15; c.setScale(CGFloat.random(in: 22...28)); c.alpha = 0.5 }
+		if Bool.random() { c.xScale *= -1 }
 		
 		if let p = pos {
-			cloud.position = p
-			cloud.position.x -= cloud.frame.width/2
+			c.position = p
+			c.position.x -= c.frame.width/2
 		} else {
-			let tmp = CGPoint(x: CGFloat.random(in: -width...width), y: maxY + distance)
-			cloud.position = tmp
-			maxY = tmp.y
+			let rand = CGPoint(x: CGFloat.random(in: -w...w), y: highestY + dist)
+			c.position = rand
+			highestY = rand.y
 		}
-		set.insert(cloud)
-		return cloud
+		set.insert(c)
+		return c
 	}
 	
 	func move() {
@@ -71,7 +69,7 @@ class CloudFactory {
 				c.parent!.addChild(cloud)
 				set.insert(cloud)
 			}
-			if c.frame.maxY < bounds.minY - height*2 || c.frame.minX > bounds.maxX {
+			if c.frame.maxY < bounds.minY - h*2 || c.frame.minX > bounds.maxX {
 				c.removeFromParent()
 				set.remove(c)
 			}

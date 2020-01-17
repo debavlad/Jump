@@ -16,7 +16,6 @@ class SceneManager {
 	
 	
 	var soundButton: ButtonStruct
-	
 	// to-do: remove additional labels
 	private(set) var largeGameOverLbl, gameScoreLbl, menuScoreLbl, ptsScoreLbl, scoreLbl, woodLbl,
 		bronzeLbl, goldLbl, wl, bl, gl, btmStageLbl, topStageLbl, continueLbl, sampleLbl, pausedLbl: SKLabelNode!

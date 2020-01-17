@@ -52,7 +52,7 @@ class Button {
 		label.position.y = -10
 		label.text = "\(price)"
 		
-		let icon = SKSpriteNode(imageNamed: type.description + "0").px()
+		let icon = SKSpriteNode(imageNamed: "\(type.rawValue)0").px()
 		icon.size = CGSize(width: 52, height: 61)
 		icon.anchorPoint = CGPoint(x: 1, y: 0.5)
 		icon.position = CGPoint(x: label.frame.minX - 20, y: label.frame.height/2)
@@ -65,7 +65,7 @@ class Button {
 	func priceContent(_ amount: Int, _ curr: Currency) {
 		textContent("\(amount)")
 		let node = coin as! SKSpriteNode
-		node.texture = SKTexture(imageNamed: "\(curr.description)0")
+		node.texture = SKTexture(imageNamed: "\(curr.rawValue)0")
 		node.position = CGPoint(x: label.frame.minX-20, y: label.frame.height/2)
 		node.isHidden = false
 		label.position.x += 10 + node.frame.width/2

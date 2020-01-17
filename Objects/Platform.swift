@@ -15,25 +15,12 @@ class Platform {
 	var items: Set<Item>!
 	private(set) var power, damage: Int
   
-	init(_ type: PlatformType, _ data: (texture: SKTexture, power: Int, damage: Int)) {
+	init(_ type: PlatformType, _ data: (power: Int, damage: Int)) {
 		self.type = type
 		self.power = data.power
 		self.damage = data.damage
-		
-		node = SKSpriteNode(texture: data.texture)
-		node.size = CGSize(width: 117, height: 45)
-		node.name = "platform"
-		node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 83.5, height: 1),
-																		 center: CGPoint(x: 0, y: 20))
-		node.physicsBody?.restitution = CGFloat(0.2)
-		node.physicsBody?.friction = 0
-		node.physicsBody?.mass = 10
-		node.physicsBody?.linearDamping = 0
-		node.physicsBody?.angularDamping = 0
-		node.physicsBody?.contactTestBitMask = Categories.player
-		node.physicsBody?.categoryBitMask = Categories.platform
-		node.physicsBody?.collisionBitMask = Categories.coin | Categories.food
-		node.physicsBody?.isDynamic = false
+		node = SKSpriteNode(texture: SKTexture(imageNamed: "\(type.rawValue)-platform")
+			.px()).platformOptions()
 	}
     
 	func addItem(_ item: Item) {
@@ -70,17 +57,32 @@ class Platform {
     
 	func fall(_ contactX: CGFloat) {
 		node.zPosition = -1
-		node.physicsBody?.collisionBitMask = 0
-		node.physicsBody?.contactTestBitMask = 0
-		node.physicsBody?.categoryBitMask = 0
-		node.physicsBody?.isDynamic = true
-		node.physicsBody?.allowsRotation = true
+		node.fall()
 		node.physicsBody?.applyAngularImpulse(contactX > node.position.x ? -0.1 : 0.1)
 		
 		if !hasItems() { return }
 		for item in items {
-			item.fall()
+			item.node.fall()
 			item.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -20))
 		}
+	}
+}
+
+extension SKSpriteNode {
+	func platformOptions() -> SKSpriteNode {
+		size = CGSize(width: 117, height: 45)
+		name = "platform"
+		physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 83.5, height: 1),
+																		 center: CGPoint(x: 0, y: 20))
+		physicsBody?.restitution = CGFloat(0.2)
+		physicsBody?.friction = 0
+		physicsBody?.mass = 10
+		physicsBody?.linearDamping = 0
+		physicsBody?.angularDamping = 0
+		physicsBody?.contactTestBitMask = Categories.player
+		physicsBody?.categoryBitMask = Categories.platform
+		physicsBody?.collisionBitMask = Categories.coin | Categories.food
+		physicsBody?.isDynamic = false
+		return self
 	}
 }

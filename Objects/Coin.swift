@@ -17,3 +17,7 @@ class Coin: Item {
 		super.init(node)
 	}
 }
+
+enum Currency: String, CaseIterable {
+	case wood, bronze, golden
+}

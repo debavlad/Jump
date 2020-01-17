@@ -17,3 +17,7 @@ class Food: Item {
 		super.init(node)
 	}
 }
+
+enum FoodType: String, CaseIterable {
+	case meat, chicken, cheese, bread, egg
+}

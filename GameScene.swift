@@ -100,7 +100,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	func didBegin(_ contact: SKPhysicsContact) {
 		if !player.isAlive { return }
 		let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-		if col == Collision.playerFood || col == Collision.playerCoin || col == Collision.playerTrampoline {
+		if col == Collision.playerFood || col == Collision.playerCoin || col == Collision.playerTrampoline
+		|| col == Collision.playerPotion {
 			guard let node = extractNode("item", contact) else { return }
 			platforms.getItem(node)?.wasTouched = true
 		}
@@ -149,6 +150,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				if let t = platform.getItem(Trampoline.self) {
 					t.node.run(trampolineAnim)
 					power = 92
+				}
+				if let p = platform.getItem(Potion.self) {
+					player.editHp(100)
+					pickItem(p, platform)
 				}
 			} else { cam.punch(30) }
 			
@@ -306,8 +311,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if !stopped && !ended {
-			if bg.canBuild(player.node.position.y, started) { world.addChild(bg.create()) }
-			if fg.canBuild(player.node.position.y, started) { world.addChild(fg.create()) }
+			if bg.canSpawn(player.node.position.y, started) { world.addChild(bg.create()) }
+			if fg.canSpawn(player.node.position.y, started) { world.addChild(fg.create()) }
 			bg.dispose(); bg.move(); fg.dispose(); fg.move()
 		}
 		
@@ -344,7 +349,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		player.revive()
 		ended = false
 		player.push(power: 170, nullify: true)
-		platforms.maxY = player.node.position.y + 100
+		platforms.highestY = player.node.position.y + 100
 		cam.node.run(SKAction.moveTo(x: 0, duration: 1))
 		minY = self.player.node.position.y - 100
 		

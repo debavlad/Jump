@@ -10,9 +10,8 @@ import Foundation
 import SpriteKit
 
 class Potion : Item {
-	init() {
-		let n = SKSpriteNode(imageNamed: Bool.random() ?
-			PotionType.red.description : PotionType.yellow.description).px()
+	init(_ type: PotionType) {
+		let n = SKSpriteNode(imageNamed: type.rawValue).px()
 		n.setScale(6)
 		n.position.y = 30
 		n.physicsBody = SKPhysicsBody(rectangleOf: n.frame.size)
@@ -24,14 +23,6 @@ class Potion : Item {
 	}
 }
 
-enum PotionType: Int, CustomStringConvertible {
-	case red
-	case yellow
-	
-	var description: String {
-		switch self {
-			case .red: return "redpotion"
-			case .yellow: return "yellowpotion"
-		}
-	}
+enum PotionType: String, CaseIterable {
+	case red, yellow
 }
