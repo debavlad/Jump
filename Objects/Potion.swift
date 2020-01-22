@@ -27,5 +27,5 @@ class Potion : Item {
 }
 
 enum PotionType: String, CaseIterable {
-	case red, yellow
+	case Red, Yellow
 }

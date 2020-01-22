@@ -19,7 +19,7 @@ class Stage {
     
 	init() {
 		platforms = [.sand]
-		coins = [.wood]
+		coins = [.Wood]
 		foodFreq = 3
 	}
     
@@ -28,7 +28,7 @@ class Stage {
 		case 1:
 			current = 1
 			platforms.insert(.wooden)
-			coins.insert(.bronze)
+			coins.insert(.Bronze)
 			foodFreq = 4
 		case 2:
 			current = 2
@@ -37,7 +37,7 @@ class Stage {
 			foodFreq = 5
 		case 3:
 			current = 3
-			coins.insert(.golden)
+			coins.insert(.Golden)
 		default: break
 		}
 	}

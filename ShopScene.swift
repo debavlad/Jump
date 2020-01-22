@@ -95,13 +95,13 @@ class ShopScene: SKScene {
 	private func buySkin(_ id: Int) {
 		let skin = Skins[id]
 		switch (skin.currency) {
-			case .wood:
+			case .Wood:
 				wooden -= skin.price
 				defaults.set(wooden, forKey: "wooden")
-			case .bronze:
+			case .Bronze:
 				bronze -= skin.price
 				defaults.set(bronze, forKey: "bronze")
-			case .golden:
+			case .Golden:
 				golden -= skin.price
 				defaults.set(golden, forKey: "golden")
 		}
@@ -139,9 +139,9 @@ class ShopScene: SKScene {
 	}
     
 	private func enoughMoney(for skin: Skin) -> Bool {
-		return (skin.currency == .wood && skin.price <= wooden) ||
-				(skin.currency == .bronze && skin.price <= bronze) ||
-				(skin.currency == .golden && skin.price <= golden)
+		return (skin.currency == .Wood && skin.price <= wooden) ||
+				(skin.currency == .Bronze && skin.price <= bronze) ||
+				(skin.currency == .Golden && skin.price <= golden)
 	}
 	
 	private func reload() {
@@ -206,7 +206,7 @@ class ShopScene: SKScene {
 		cam.node.addChild(backBtn.node)
 		
 //		actBtn = Button("current skin", .blue, backBtn.node.position.y+180)
-		actBtn = Button(90, .wood, backBtn.node.position.y + 180)
+		actBtn = Button(90, .Wood, backBtn.node.position.y + 180)
 		cam.node.addChild(actBtn.node)
 		
 		let pageCounter = SKNode()

@@ -16,11 +16,13 @@ class ItemFactory {
 	
 	init() {
 		set = Set<Item>()
-		foodEnergy[FoodType.meat] = 25
-		foodEnergy[FoodType.chicken] = 20
-		foodEnergy[FoodType.cheese] = 20
-		foodEnergy[FoodType.bread] = 15
-		foodEnergy[FoodType.egg] = 15
+		foodEnergy = [
+			.Meat: 25,
+			.Chicken: 20,
+			.Cheese: 20,
+			.Bread: 15,
+			.Egg: 15
+		]
 		
 		var textures = [SKTexture]()
 		for currency in Currency.allCases {

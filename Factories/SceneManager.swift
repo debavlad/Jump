@@ -77,9 +77,9 @@ class SceneManager {
 	func collectCoin(_ curr: Currency) {
 		let lbl: SKLabelNode
 		switch curr {
-			case .wood: lbl = woodLbl
-			case .bronze: lbl = bronzeLbl
-			case .golden: lbl = goldLbl
+			case .Wood: lbl = woodLbl
+			case .Bronze: lbl = bronzeLbl
+			case .Golden: lbl = goldLbl
 		}
 		lbl.text = String(Int(lbl.text!)! + 1)
 	}

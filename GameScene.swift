@@ -63,7 +63,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		progress.zPosition = 16
 		progress.color = UIColor.black
 		cam.node.addChild(progress)
-		print(UIScreen.main.bounds.width)
 		
 		manager = SceneManager(self, world)
 		manager.show(manager.line)
@@ -131,7 +130,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if player.isFalling() {
 			if col == Collision.playerPlatform {
 				guard let node = extractNode("platform", contact) else { return }
-				manager.createEmitter(world, "DustParticles", contact.contactPoint)
+				manager.createEmitter(world, "Dust", contact.contactPoint)
 				trail.create(in: world, 30.0)
 				cam.shake(40, 1, 0, 0.125)
 				let block = blockFactory.find(node)
