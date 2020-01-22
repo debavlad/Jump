@@ -31,7 +31,7 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
 				scene.scaleMode = .aspectFill
 				view.presentScene(scene)
 				
-//				view.showsPhysics = true
+				view.showsPhysics = true
 //				view.showsFPS = true
 				view.showsNodeCount = true
 				view.showsDrawCount = true

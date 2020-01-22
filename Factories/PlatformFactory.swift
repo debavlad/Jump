@@ -28,10 +28,10 @@ class PlatformFactory {
 		self.dist = dist
 		parent = node
 		data = [
-			PlatformType.dirt : (73, 3),
-			PlatformType.sand : (78, 4),
-			PlatformType.wooden : (83, 5),
-			PlatformType.stone : (88, 6)
+			PlatformType.Dirt : (73, 3),
+			PlatformType.Sand : (78, 4),
+			PlatformType.Wooden : (83, 5),
+			PlatformType.Stone : (88, 6)
 		]
 		w = UIScreen.main.bounds.width - 100
 		h = UIScreen.main.bounds.height + 50
@@ -43,19 +43,19 @@ class PlatformFactory {
 	
 	func create(_ playerY: CGFloat) {
 		if !(highestY + dist.lowerBound < playerY + h) { return }
-		let t = stage.platforms.randomElement()!
+		let t = stage.blocks.randomElement()!
 		let pos = CGPoint(x: CGFloat.random(in: -w...w), y: highestY + CGFloat.random(in: dist))
 		let p = Platform(t, data[t]!)
 		p.node.position = pos
 		let birdY = (pos.y + highestY)/2
-		highestY = (t == .dirt ? pos.y + 150 : pos.y)
+		highestY = (t == .Dirt ? pos.y + 150 : pos.y)
 		
 		if jumpsAmount >= stage.foodFreq {
-			p.addItem(items.randomFood())
+			p.addItem(items.getFood())
 			jumpsAmount = 0
 		} else { jumpsAmount += 1 }
-		if random(0.2) { p.addItem(items.randomCoin(stage.coins)) }
-		if random(0.1) { p.addItem(items.randomPotion())}
+//		if random(0.2) { p.addItem(items.randomCoin(stage.coins)) }
+		if random(0.1) { p.addItem(items.getPotion())}
 		if !p.hasItems() && random(0.075) { p.addItem(Trampoline()) }
 		if random(0.1) {
 			let b = Bird(w, birdY)
@@ -65,8 +65,8 @@ class PlatformFactory {
 		}
 		
 		switch (t) {
-			case .dirt: p.moveY(150)
-			case .wooden, .stone: p.moveX(w)
+			case .Dirt: p.moveY(150)
+			case .Wooden, .Stone: p.moveX(w)
 			default: break
 		}
 		parent.addChild(p.node)
@@ -108,5 +108,5 @@ class PlatformFactory {
 }
 
 enum PlatformType: String {
-	case dirt, sand, wooden, stone
+	case Dirt, Sand, Wooden, Stone
 }

@@ -11,23 +11,23 @@ import SpriteKit
 
 class Block: Hashable {
 	let node: SKSpriteNode
-//	var items: Set<Item>?
+	var items: Set<Item>?
 	let type: BlockType
 	let power, damage: Int
 	
 	init(_ type: BlockType, _ data: (Int, Int)) {
 		self.type = type
 		node = SKSpriteNode(imageNamed: type.rawValue).blockOptions().px()
-//		items = nil
+		items = nil
 		power = data.0
 		damage = data.1
 	}
 	
 	func addItem(_ item: Item) {
-//		if items == nil {
-//			items = Set<Item>()
-//		}
-//		items!.insert(item)
+		if items == nil {
+			items = Set<Item>()
+		}
+		items!.insert(item)
 		node.addChild(item.node)
 	}
 	
@@ -51,14 +51,14 @@ extension SKSpriteNode {
 		physicsBody?.mass = 10
 		physicsBody?.linearDamping = 0
 		physicsBody?.angularDamping = 0
-		physicsBody?.contactTestBitMask = Categories.player
-		physicsBody?.categoryBitMask = Categories.platform
-		physicsBody?.collisionBitMask = Categories.coin | Categories.food | Categories.potion
+		physicsBody?.contactTestBitMask = Bit.player
+		physicsBody?.categoryBitMask = Bit.platform
+		physicsBody?.collisionBitMask = Bit.coin | Bit.food | Bit.potion
 		physicsBody?.isDynamic = false
 		return self
 	}
 }
 
 enum BlockType: String, CaseIterable {
-	case dirt, sand, wooden, stone
+	case Dirt, Sand, Wooden, Stone
 }

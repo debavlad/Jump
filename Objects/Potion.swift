@@ -18,9 +18,9 @@ class Potion : Item {
 		n.setScale(6)
 		n.position.y = 30
 		n.physicsBody = SKPhysicsBody(rectangleOf: n.frame.size)
-		n.physicsBody?.categoryBitMask = Categories.potion
-		n.physicsBody?.contactTestBitMask = Categories.player
-		n.physicsBody?.collisionBitMask = Categories.platform
+		n.physicsBody?.categoryBitMask = Bit.potion
+		n.physicsBody?.contactTestBitMask = Bit.player
+		n.physicsBody?.collisionBitMask = Bit.platform
 		n.zPosition = 3
 		super.init(n)
 	}

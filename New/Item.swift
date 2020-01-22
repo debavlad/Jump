@@ -11,9 +11,11 @@ import SpriteKit
 
 class Item: Hashable {
 	let node: SKSpriteNode
+	var intersected: Bool
 	
 	init(_ node: SKSpriteNode) {
 		self.node = node
+		intersected = false
 	}
 	
 	func execute() {

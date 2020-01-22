@@ -23,7 +23,6 @@ class ItemFactory {
 			.Bread: 15,
 			.Egg: 15
 		]
-		
 		var textures = [SKTexture]()
 		for currency in Currency.allCases {
 			for i in 0...7 {
@@ -40,27 +39,27 @@ class ItemFactory {
 		}!
 	}
 	
-	func randomFood() -> Food {
+	func getFood() -> Food {
 		let t = FoodType.allCases.randomElement()!
 		let node = SKSpriteNode(imageNamed: t.rawValue)
-			.foodOptions().itemDefaults().randomPos().px()
+			.foodOptions().itemDefaults().randPos().px()
 		node.name = "\(t.rawValue)item"
 		let f = Food(node, foodEnergy[t]!)
 		set.insert(f)
 		return f
 	}
 	
-	func randomCoin(_ available: Set<Currency>) -> Coin {
-		let c = available.randomElement()!
+	func getCoin() -> Coin {
+		let t = Currency.allCases.randomElement()!
 		let node = SKSpriteNode().coinOptions().itemDefaults().px()
-		node.name = "\(c.rawValue)item"
-		node.run(SKAction.repeatForever(coinAnims[c]!))
-		let coin = Coin(node, c)
-		set.insert(coin)
-		return coin
+		node.name = "\(t.rawValue)item"
+		node.run(SKAction.repeatForever(coinAnims[t]!))
+		let c = Coin(node, t)
+		set.insert(c)
+		return c
 	}
 	
-	func randomPotion() -> Potion {
+	func getPotion() -> Potion {
 		let t = PotionType.allCases.randomElement()!
 		let potion = Potion(t)
 		potion.node.name = "\(t.rawValue)item"
@@ -71,7 +70,7 @@ class ItemFactory {
 
 
 extension SKSpriteNode {
-	func randomPos() -> SKSpriteNode {
+	func randPos() -> SKSpriteNode {
 		position = CGPoint(x: CGFloat.random(in: -30...30), y: 30)
 		zPosition = Bool.random() ? -1 : 2
 		if Bool.random() { xScale = -6 }
@@ -80,27 +79,10 @@ extension SKSpriteNode {
 
 	func itemDefaults() -> SKSpriteNode {
 		physicsBody?.isDynamic = false
-		physicsBody?.contactTestBitMask = Categories.player
-		physicsBody?.collisionBitMask = Categories.platform
+		physicsBody?.contactTestBitMask = Bit.player
+		physicsBody?.collisionBitMask = Bit.platform
 		physicsBody?.friction = 0
 		physicsBody?.restitution = 0
-		return self
-	}
-	
-	func foodOptions() -> SKSpriteNode {
-		setScale(5.4)
-		physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
-		physicsBody?.affectedByGravity = true
-		physicsBody?.categoryBitMask = Categories.food
-		return self
-	}
-	
-	func coinOptions() -> SKSpriteNode {
-		zPosition = 1
-		size = CGSize(width: 54, height: 59.4)
-		position = CGPoint(x: CGFloat.random(in: -20...20), y: 52)
-		physicsBody = SKPhysicsBody(circleOfRadius: 35)
-		physicsBody?.categoryBitMask = Categories.coin
 		return self
 	}
 }

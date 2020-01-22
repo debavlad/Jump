@@ -79,9 +79,9 @@ extension SKSpriteNode {
 		physicsBody?.mass = 10
 		physicsBody?.linearDamping = 0
 		physicsBody?.angularDamping = 0
-		physicsBody?.contactTestBitMask = Categories.player
-		physicsBody?.categoryBitMask = Categories.platform
-		physicsBody?.collisionBitMask = Categories.coin | Categories.food
+		physicsBody?.contactTestBitMask = Bit.player
+		physicsBody?.categoryBitMask = Bit.platform
+		physicsBody?.collisionBitMask = Bit.coin | Bit.food
 		physicsBody?.isDynamic = false
 		return self
 	}

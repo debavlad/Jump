@@ -20,8 +20,8 @@ class Bird : Hashable {
 		node.size = CGSize(width: 70, height: 50)
 		node.position = CGPoint(x: rand ? width : -width, y: diff)
 		node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: node.size.width, height: 5))
-		node.physicsBody?.categoryBitMask = Categories.bird
-		node.physicsBody?.contactTestBitMask = Categories.player
+		node.physicsBody?.categoryBitMask = Bit.bird
+		node.physicsBody?.contactTestBitMask = Bit.player
 		node.physicsBody?.collisionBitMask = 0
 		node.physicsBody?.isDynamic = false
 		node.physicsBody?.friction = 0

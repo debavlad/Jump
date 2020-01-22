@@ -21,3 +21,14 @@ class Coin: Item {
 enum Currency: String, CaseIterable {
 	case Wood, Bronze, Golden
 }
+
+extension SKSpriteNode {
+	func coinOptions() -> SKSpriteNode {
+		zPosition = 1
+		size = CGSize(width: 54, height: 59.4)
+		position = CGPoint(x: CGFloat.random(in: -20...20), y: 52)
+		physicsBody = SKPhysicsBody(circleOfRadius: 25)
+		physicsBody?.categoryBitMask = Bit.coin
+		return self
+	}
+}

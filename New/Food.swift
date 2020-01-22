@@ -21,3 +21,13 @@ class Food: Item {
 enum FoodType: String, CaseIterable {
 	case Meat, Chicken, Cheese, Bread, Egg
 }
+
+extension SKSpriteNode {
+	func foodOptions() -> SKSpriteNode {
+		setScale(5.4)
+		physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
+		physicsBody?.affectedByGravity = true
+		physicsBody?.categoryBitMask = Bit.food
+		return self
+	}
+}

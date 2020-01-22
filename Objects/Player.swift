@@ -78,9 +78,9 @@ class Player {
 	private func setNodes() {
 		// Physics
 		node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
-		node.physicsBody?.collisionBitMask = Categories.ground
-		node.physicsBody?.categoryBitMask = Categories.player
-		node.physicsBody?.contactTestBitMask = Categories.coin | Categories.food | Categories.platform
+		node.physicsBody?.collisionBitMask = Bit.ground
+		node.physicsBody?.categoryBitMask = Bit.player
+		node.physicsBody?.contactTestBitMask = Bit.coin | Bit.food | Bit.platform
 		node.physicsBody?.allowsRotation = false
 		node.physicsBody?.friction = 0
 		node.physicsBody?.restitution = GameScene.restarted ? 0.4 : 0

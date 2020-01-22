@@ -103,7 +103,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		trampolineAnim = SKAction.animate(with: [SKTexture(imageNamed: "batut1"),
 																						 SKTexture(imageNamed: "batut0")], timePerFrame: 0.1)
-		blockFactory.produce(10)
+		blockFactory.produce(20)
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
@@ -128,19 +128,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //			}
 //		}
 		if player.isFalling() {
-			if col == Collision.playerPlatform {
+			if col == Bit.player | Bit.platform {
 				guard let node = extractNode("platform", contact) else { return }
 				manager.createEmitter(world, "Dust", contact.contactPoint)
 				trail.create(in: world, 30.0)
 				cam.shake(40, 1, 0, 0.125)
 				let block = blockFactory.find(node)
+				if let items = block.items?.filter({ (item) -> Bool in return item.intersected }) {
+					for item in items { item.execute() }
+				}
 				player.editHp(-block.damage)
 				player.push(block.power, nullify: true)
 			}
-			else if col == Collision.playerFood {
+			else if col == (Bit.player | Bit.food) || col == (Bit.player | Bit.coin) || col == (Bit.player | Bit.potion) {
 				guard let node = extractNode("item", contact) else { return }
 				let item = itemFactory.find(node)
-				item.execute()
+				item.intersected = true
 			}
 		}
 //		if col == Collision.playerPlatform && player.isFalling() {
@@ -471,7 +474,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	private func getEmitter(_ name: String, _ key: String, _ pos: CGPoint) -> SKEmitterNode {
 		let em = SKEmitterNode(fileNamed: name)!
 		em.particleColorSequence = nil
-		em.particleColor = dict[key]!
+//		em.particleColor = dict[key]!
 		em.particleBlendMode = key == "gold" || key == "yellow" ? .add : .alpha
 		em.position = pos
 		return em

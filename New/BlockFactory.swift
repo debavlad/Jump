@@ -22,10 +22,10 @@ class BlockFactory {
 		y = UIScreen.main.bounds.height
 		width = UIScreen.main.bounds.width - 100
 		data = [
-			.dirt : (73, 3),
-			.sand : (78, 4),
-			.wooden : (83, 5),
-			.stone : (88, 6)
+			.Dirt : (73, 3),
+			.Sand : (78, 4),
+			.Wooden : (83, 5),
+			.Stone : (88, 6)
 		]
 		set = Set<Block>()
 	}
@@ -49,7 +49,15 @@ class BlockFactory {
 	}
 	
 	private func addRandomLoot(to block: Block) {
-		let food = itemFactory.randomFood()
+		let food = itemFactory.getFood()
 		block.addItem(food)
+		if Bool.random() {
+			let coin = itemFactory.getCoin()
+			block.addItem(coin)
+		}
+		if Bool.random() {
+			let pot = itemFactory.getPotion()
+			block.addItem(pot)
+		}
 	}
 }

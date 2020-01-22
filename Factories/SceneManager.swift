@@ -169,7 +169,7 @@ class SceneManager {
 		bench.size = CGSize(width: 161, height: 34)
 		bench.position = CGPoint(x: -173, y: -347)
 		bench.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: bench.frame.width, height: bench.frame.height))
-		bench.physicsBody?.categoryBitMask = Categories.ground
+		bench.physicsBody?.categoryBitMask = Bit.ground
 		bench.physicsBody?.isDynamic = false
 		world.addChild(bench)
 			
@@ -276,7 +276,7 @@ class SceneManager {
 		// Dead menu icons
 		
 		let icons = SKNode()
-		wIcon = SKSpriteNode(imageNamed: "wood0").px()
+		wIcon = SKSpriteNode(imageNamed: "Wood0").px()
 		wIcon.size = CGSize(width: 90, height: 99)
 		wIcon.position.y = 120 // +50
 		wIcon.zPosition = 21
@@ -289,7 +289,7 @@ class SceneManager {
 		woodLbl.position = CGPoint(x: 0, y: -woodLbl.frame.height/2 + 4)
 		wIcon.addChild(woodLbl)
 		
-		bIcon = SKSpriteNode(imageNamed: "bronze0").px()
+		bIcon = SKSpriteNode(imageNamed: "Bronze0").px()
 		bIcon.size = CGSize(width: 90, height: 99)
 		bIcon.position.y = -30
 		bIcon.zPosition = 21
@@ -302,7 +302,7 @@ class SceneManager {
 		bronzeLbl.position = CGPoint(x: 0, y: -bronzeLbl.frame.height/2 + 4)
 		bIcon.addChild(bronzeLbl)
 		
-		gIcon = SKSpriteNode(imageNamed: "golden0").px()
+		gIcon = SKSpriteNode(imageNamed: "Golden0").px()
 		gIcon.size = CGSize(width: 90, height: 99)
 		gIcon.position.y = -180
 		gIcon.zPosition = 21
@@ -322,7 +322,7 @@ class SceneManager {
 		// Left upper corner
 		let defaults = UserDefaults.standard
 		
-		w = SKSpriteNode(imageNamed: "wood0").px()
+		w = SKSpriteNode(imageNamed: "Wood0").px()
 		w.size = CGSize(width: 72, height: 81)
 		w.position.y = height - 100
 		w.position.x = -width + 100
@@ -336,7 +336,7 @@ class SceneManager {
 		wl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
 		w.addChild(wl)
 		
-		b = SKSpriteNode(imageNamed: "bronze0").px()
+		b = SKSpriteNode(imageNamed: "Bronze0").px()
 		b.size = CGSize(width: 72, height: 81)
 		b.position.y = w.frame.minY - 70
 		b.position.x = -width + 100
@@ -350,7 +350,7 @@ class SceneManager {
 		bl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
 		b.addChild(bl)
 		
-		g = SKSpriteNode(imageNamed: "golden0").px()
+		g = SKSpriteNode(imageNamed: "Golden0").px()
 		g.size = CGSize(width: 72, height: 81)
 		g.position.y = b.frame.minY - 70
 		g.position.x = -width + 100

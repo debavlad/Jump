@@ -15,9 +15,9 @@ class Trampoline : Item {
 		n.position.y = 40
 		n.setScale(6)
 		n.physicsBody = SKPhysicsBody(rectangleOf: n.frame.size)
-		n.physicsBody?.categoryBitMask = Categories.trampoline
-		n.physicsBody?.contactTestBitMask = Categories.player
-		n.physicsBody?.collisionBitMask = Categories.platform
+		n.physicsBody?.categoryBitMask = Bit.trampoline
+		n.physicsBody?.contactTestBitMask = Bit.player
+		n.physicsBody?.collisionBitMask = Bit.platform
 		n.physicsBody?.friction = 0
 		n.physicsBody?.restitution = 0
 		n.zPosition = 4
