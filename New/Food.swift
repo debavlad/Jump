@@ -16,6 +16,10 @@ class Food: Item {
 		self.energy = energy
 		super.init(node)
 	}
+	
+	override func execute() {
+		node.removeFromParent()
+	}
 }
 
 enum FoodType: String, CaseIterable {

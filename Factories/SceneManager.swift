@@ -84,6 +84,13 @@ class SceneManager {
 		lbl.text = String(Int(lbl.text!)! + 1)
 	}
     
+	func createEmitter(_ parent: SKNode, _ em: SKEmitterNode) {
+		em.name = ""
+		em.particleZPosition = 3
+		parent.addChild(em)
+		emitters.insert(em)
+	}
+	
 	func createEmitter(_ parent: SKNode, _ fileName: String, _ pos: CGPoint) {
 		let e = SKEmitterNode(fileNamed: fileName)!
 		e.name = ""
@@ -93,9 +100,6 @@ class SceneManager {
 
 		parent.addChild(e)
 		emitters.insert(e)
-//		e.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
-//			if self.blackSprite.alpha == 0 { e.removeFromParent() }
-//			}]))
 	}
 	
 	func createLbl(_ parent: SKNode, _ pos: CGPoint) {

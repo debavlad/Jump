@@ -12,10 +12,13 @@ import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
 	// scene
+	var blockFactory: BlockFactory!
+	var itemFactory: ItemFactory!
+	
 	private var cam: Camera!
 	private var manager: SceneManager!
 	private var bg, fg: CloudFactory!
-	private var platforms: PlatformFactory!
+//	private var platforms: PlatformFactory!
 	private var world: SKNode!
 	private var player: Player!
 	private var trail: Trail!
@@ -35,6 +38,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	
 	override func didMove(to view: SKView) {
+		world = SKNode()
+		itemFactory = ItemFactory()
+		blockFactory = BlockFactory(world, itemFactory)
+		
+		
 		loadDefaults()
 		fade = SKSpriteNode(color: .black, size: frame.size)
 		fade.alpha = GameScene.restarted ? 1 : 0
@@ -53,11 +61,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		progress.position = CGPoint(x: frame.minX, y: frame.maxY)
 		progress.colorBlendFactor = 1
 		progress.zPosition = 16
-		progress.color = Colors.red
+		progress.color = UIColor.black
 		cam.node.addChild(progress)
 		print(UIScreen.main.bounds.width)
 		
-		world = SKNode()
 		manager = SceneManager(self, world)
 		manager.show(manager.line)
 		
@@ -77,7 +84,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		bg = CloudFactory(250, -frame.height)
 		fg = CloudFactory(1200, -frame.height/1.25)
-		platforms = PlatformFactory(world, frame.height/2, 125...200)
+//		platforms = PlatformFactory(world, frame.height/2, 125...200)
 		bounds = Bounds()
 		minY = player.node.position.y
 		
@@ -97,85 +104,96 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		trampolineAnim = SKAction.animate(with: [SKTexture(imageNamed: "batut1"),
 																						 SKTexture(imageNamed: "batut0")], timePerFrame: 0.1)
+		blockFactory.produce(10)
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
 		if !player.isAlive { return }
 		let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-		if col == Collision.playerFood || col == Collision.playerCoin || col == Collision.playerTrampoline
-		|| col == Collision.playerPotion {
-			guard let node = extractNode("item", contact) else { return }
-			platforms.getItem(node)?.wasTouched = true
-		}
-		else if col == Collision.playerBird {
-			guard let bird = extractNode("bird", contact) else { return }
-			manager.createEmitter(world, "BirdParticles", bird.position)
-			cam.shake(40, 1, 0, 0.12)
-			bird.removeFromParent()
-			if player.node.physicsBody!.velocity.dy >= 0 {
-				player.editHp(-20)
-				Audio.playSound("hurt")
-				player.push(power: 10, nullify: false)
-			} else {
-				player.push(power: 80, nullify: true)
+//		if col == Collision.playerFood || col == Collision.playerCoin || col == Collision.playerTrampoline
+//		|| col == Collision.playerPotion {
+//			guard let node = extractNode("item", contact) else { return }
+//			platforms.getItem(node)?.wasTouched = true
+//		}
+//		if col == Collision.playerBird {
+//			guard let bird = extractNode("bird", contact) else { return }
+//			manager.createEmitter(world, "BirdParticles", bird.position)
+//			cam.shake(40, 1, 0, 0.12)
+//			bird.removeFromParent()
+//			if player.node.physicsBody!.velocity.dy >= 0 {
+//				player.editHp(-20)
+//				Audio.playSound("hurt")
+//				player.push(10, nullify: false)
+//			} else {
+//				player.push(80, nullify: true)
+//			}
+//		}
+		if player.isFalling() {
+			if col == Collision.playerPlatform {
+				guard let node = extractNode("platform", contact) else { return }
+				manager.createEmitter(world, "DustParticles", contact.contactPoint)
+				trail.create(in: world, 30.0)
+				cam.shake(40, 1, 0, 0.125)
+				let block = blockFactory.find(node)
+				player.editHp(-block.damage)
+				player.push(block.power, nullify: true)
+			}
+			else if col == Collision.playerFood {
+				guard let node = extractNode("item", contact) else { return }
+				let item = itemFactory.find(node)
+				item.execute()
 			}
 		}
-		else if col == Collision.playerPlatform && player.isFalling() {
-			removeThingsLowerThan(bounds.minY)
-			player.runAnim(player.landAnim)
-			trail.create(in: world, 30.0)
-			manager.createEmitter(world, "DustParticles", contact.contactPoint)
-			guard let node = extractNode("platform", contact) else { return }
-			let platform = platforms.getPlatform(node)
-			Audio.playSounds("\(platform.type)-footstep", "wind")
-			
-//			let scale = CGFloat(7.5) * (platforms.stage.current >= 1 ?
-//				CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score + 3))
-//			let action = SKAction.scaleX(to: scale, y: 12, duration: 1)
+//		if col == Collision.playerPlatform && player.isFalling() {
+//			guard let node = extractNode("platform", contact) else { return }
+//			let block = blockFactory.find(node)
+//			player.editHp(-block.damage)
+//			player.push(block.power, nullify: true)
+//		}
+//			removeThingsLowerThan(bounds.minY)
+//			player.animate(player.landAnim)
+//			trail.create(in: world, 30.0)
+//			manager.createEmitter(world, "DustParticles", contact.contactPoint)
+//			guard let node = extractNode("platform", contact) else { return }
+//			let platform = platforms.getPlatform(node)
+//			Audio.playSounds("\(platform.type)-footstep", "wind")
+//
+//			let action = SKAction.scaleX(to: CGFloat(7.5) * (platforms.stage.current >= 1 ?
+//				CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score + 3)),
+//				y: 12, duration: 1)
 //			action.timingMode = .easeOut
 //			action.speed = 3
-//
-//			let sc = platforms.stage.current >= 1 ?
-//			CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score)
-//			if sc > 66 {
-//				progress.run(SKAction.colorize(with: Colors.green, colorBlendFactor: 1, duration: 1))
-//			} else if sc > 33 {
-//				progress.run(SKAction.colorize(with: Colors.yellow, colorBlendFactor: 1, duration: 1))
-//			} else {
-//				progress.run(SKAction.colorize(with: Colors.red, colorBlendFactor: 1, duration: 1))
-//			}
 //			progress.run(action)
-			
-			var power = CGFloat(platform.power)
-			if platform.hasItems() {
-				cam.shake(40, 1, 0, 0.125)
-				if let f = platform.getItem(Food.self) as? Food {
-					let e = CGFloat(f.energy) * (Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1)
-					player.editHp(Int(e))
-					pickItem(f, platform)
-				}
-				if let c = platform.getItem(Coin.self) as? Coin {
-					pickItem(c, platform)
-					manager.collectCoin(c.currency)
-				}
-				if let t = platform.getItem(Trampoline.self) {
-					t.node.run(trampolineAnim)
-					power = 92
-				}
-				if let p = platform.getItem(Potion.self) as? Potion {
-					player.editHp(p.type == PotionType.red ? -player.health/2 : player.health/2)
-					pickItem(p, platform)
-				}
-			} else { cam.punch(30) }
-			
-			player.editHp(-platform.damage)
-			if player.isAlive {
-				power *= Skins[GameScene.skinIndex].name == "ninja" ? 1.125 : 1
-				player.push(power: Int(power), nullify: true)
-			} else { finish(0.5) }
-			
-			if platform.type == .sand { platform.fall(contact.contactPoint.x) }
-		}
+//
+//			var power = CGFloat(platform.power)
+//			if platform.hasItems() {
+//				cam.shake(40, 1, 0, 0.125)
+//				if let f = platform.getItem(Food.self) as? Food {
+//					let e = CGFloat(f.energy) * (Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1)
+//					player.editHp(Int(e))
+//					pick(f, platform)
+//				}
+//				if let c = platform.getItem(Coin.self) as? Coin {
+//					pick(c, platform)
+//					manager.collectCoin(c.currency)
+//				}
+//				if let t = platform.getItem(Trampoline.self) {
+//					t.node.run(trampolineAnim)
+//					power = 92
+//				}
+//				if let p = platform.getItem(Potion.self) as? Potion {
+//					player.editHp(p.type == PotionType.red ? -player.health/2 : player.health/2)
+//					pick(p, platform)
+//				}
+//			} else { cam.punch(30) }
+//
+//			player.editHp(-platform.damage)
+//			if player.isAlive {
+//				power *= Skins[GameScene.skinIndex].name == "ninja" ? 1.125 : 1
+//				player.push(power: Int(power), nullify: true)
+//			} else { end(0.5) }
+//
+//			if platform.type == .sand { platform.fall(contact.contactPoint.x) }
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -203,7 +221,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				let scale = SKAction.scale(to: 0.95, duration: 1.25)
 				scale.timingMode = .easeInEaseOut
-				player.push(power: 170, nullify: true)
+				player.push(170, nullify: true)
 				cam.shake(50, 6, 6, 0.055)
 				cam.node.run(scale)
 				doorTip.node.alpha = 0
@@ -250,12 +268,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				sliderTouch = touch
 				offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
 				manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
-				continueGameplay()
+				revive()
 				Audio.playSound("button")
 			} else if node == manager.menuBtn.node || node == manager.menuBtn.label {
 				triggeredBtn = manager.menuBtn
 				manager.menuBtn.push()
-				reloadScene()
+				reload()
 				Audio.playSound("button")
 			} else if node == manager.advertBtn.node || node == manager.advertBtn.label {
 				triggeredBtn = manager.advertBtn
@@ -291,26 +309,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func update(_ currentTime: TimeInterval) {
 		cam.shake(1.25, 1, 0, 1.5)
-		
 		if started {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
-			if player.isFalling() && player.currentAnim != player.fallAnim {
-				player.runAnim(player.fallAnim)
+			if player.isFalling() && player.anim != player.fallAnim {
+				player.animate(player.fallAnim)
 			}
-			let scale = CGFloat(7.5) * (platforms.stage.current >= 1 ?
-				CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score + 3))
-			if scale >= 748 {
-				progress.xScale = 0
-			} else {
-				let action = SKAction.scaleX(to: scale, y: 12, duration: 0.4)
-				progress.run(action)
-			}
-		} else { started = player.node.position.y > 0 }
+		} else {
+			started = player.node.position.y > 0
+		}
 		
 		if started && !ended {
-			platforms.create(player.node.position.y)
-			platforms.removeLowerThan(bounds.minY)
-			if player.node.position.y < minY { finish() }
+//			platforms.create(player.node.position.y)
+//			platforms.removeLowerThan(bounds.minY)
+			if player.node.position.y < minY { end() }
 		}
 		
 		if !stopped {
@@ -325,7 +336,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let s = Int(player.node.position.y/100) + bonusPoints
 			if s > manager.score {
 				manager.setScore(s)
-				if s%100 == 0 { platforms.stage.upgrade(s/100) }
+//				if s%100 == 0 { platforms.stage.upgrade(s/100) }
 			}
 		}
 		
@@ -355,20 +366,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				manager.labels.remove(l)
 			}
 		}
-		platforms.birds.forEach { (b) in
-			if b.node.position.y < minY {
-				b.node.removeFromParent()
-				platforms.birds.remove(b)
-			}
-		}
+//		platforms.birds.forEach { (b) in
+//			if b.node.position.y < minY {
+//				b.node.removeFromParent()
+//				platforms.birds.remove(b)
+//			}
+//		}
 	}
 	
-	func continueGameplay() {
+	private func revive() {
 		manager.menuVisiblity(false)
 		player.revive()
 		ended = false
-		player.push(power: 170, nullify: true)
-		platforms.highestY = player.node.position.y + 100
+		player.push(170, nullify: true)
+//		platforms.highestY = player.node.position.y + 100
 		cam.node.run(SKAction.moveTo(x: 0, duration: 1))
 		minY = self.player.node.position.y - 100
 		
@@ -386,7 +397,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		manager.hide(manager.continueLbl)
 	}
 	
-	private func reloadScene() {
+	private func reload() {
 		let physics = SKAction.run {
 			self.player.node.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
 			self.physicsWorld.gravity = CGVector(dx: 0, dy: -18)
@@ -417,48 +428,54 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		run(SKAction.sequence([SKAction.group([SKAction.wait(forDuration: 0.4), physics]), load ]))
 	}
 
-	private func finish(_ wait: TimeInterval = 0) {
+	private func end(_ delay: TimeInterval = 0) {
 		ended = true
-		Audio.playSound("hurt")
 		let action = SKAction.run {
 			self.sliderTouch = nil
 			self.manager.menuVisiblity(true)
-//			self.platforms.clean()
-				
 			let scale = SKAction.scale(to: 0.25, duration: 1)
-			scale.timingMode = SKActionTimingMode.easeIn
-			scale.speed = 3
-			
-			let angle: CGFloat = self.player.node.position.x > 0 ? -0.3 : 0.3
-			let rotate = SKAction.rotate(toAngle: angle, duration: 1)
-			rotate.timingMode = SKActionTimingMode.easeInEaseOut
-			rotate.speed = 0.6
-			
+			scale.timingMode = .easeIn; scale.speed = 3
+			let rotate = SKAction.rotate(toAngle: self.player.node.position.x > 0 ? -0.3 : 0.3, duration: 1)
+			rotate.timingMode = .easeInEaseOut; rotate.speed = 0.6
 			let stop = SKAction.run {
 				self.physicsWorld.speed = 0
 				self.world.isPaused = true
 			}
-			let scaleStop = SKAction.sequence([scale, stop])
-			self.cam.node.run(SKAction.group([scaleStop, rotate]))
+			
+			self.cam.node.run(SKAction.group([SKAction.sequence([scale, stop]), rotate]))
 			self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.gameScoreLbl)
 		}
-		
-		run(SKAction.sequence([SKAction.wait(forDuration: wait), action]))
+		run(SKAction.sequence([SKAction.wait(forDuration: delay), action]))
 	}
 	
-	private func pickItem(_ item: Item, _ platform: Platform) {
-		var name = item.node.name!.dropLast(4)
-		name = "\(name.first!.uppercased() + name.dropFirst())Particles"
-		let pos = CGPoint(x: platform.node.position.x + item.node.position.x,
-											y: platform.node.position.y + item.node.position.y)
-		manager.createEmitter(world, String(name), pos)
+	private func pick(_ item: Item, _ platform: Platform) {
+		let key = "\(item.node.name!.dropLast(4))"
+		var name = ""
+		switch item {
+			case is Coin: name = "CoinParticles"
+			case is Food: name = "FoodParticles"
+			case is Potion: name = "PotionParticles"
+			default: break
+		}
+		let em = getEmitter(name, key, CGPoint(x: platform.node.position.x + item.node.position.x,
+																					 y: platform.node.position.y + item.node.position.y))
+		manager.createEmitter(world, em)
 		if item is Coin {
 			manager.createLbl(world, platform.node.position)
 			Audio.playSound("coin-pickup")
 		} else if item is Food {
 			Audio.playSound("food-pickup")
 		}
-		platforms.removeItem(item, from: platform)
+//		platforms.removeItem(item, from: platform)
+	}
+	
+	private func getEmitter(_ name: String, _ key: String, _ pos: CGPoint) -> SKEmitterNode {
+		let em = SKEmitterNode(fileNamed: name)!
+		em.particleColorSequence = nil
+		em.particleColor = dict[key]!
+		em.particleBlendMode = key == "gold" || key == "yellow" ? .add : .alpha
+		em.position = pos
+		return em
 	}
 	
 	private func lerp(_ start: CGFloat, _ end: CGFloat, _ percent: CGFloat) -> CGFloat {

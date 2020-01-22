@@ -16,6 +16,10 @@ class Coin: Item {
 		self.currency = curr
 		super.init(node)
 	}
+	
+	override func execute() {
+		
+	}
 }
 
 enum Currency: String, CaseIterable {

@@ -30,10 +30,20 @@ let ADMOB_AD_ID = "ca-app-pub-5695778104677732/8877221005"
 let TEST_AD_ID = "ca-app-pub-3940256099942544/1712485313"
 var SOUND_ENABLED: Bool!
 
+let dict = [
+	"golden" : UIColor(red: 230/255, green: 176/255, blue: 0, alpha: 1),
+	"bronze" : UIColor(red: 255/255, green: 143/255, blue: 0, alpha: 1),
+	"wood" : UIColor(red: 116/255, green: 86/255, blue: 63/255, alpha: 1),
+	"cheese" : UIColor(red: 243/255, green: 180/255, blue: 87/255, alpha: 1),
+	"egg" : UIColor(red: 253/255, green: 240/255, blue: 231/255, alpha: 1),
+	"chicken" : UIColor(red: 173/255, green: 82/255, blue: 57/255, alpha: 1),
+	"meat" : UIColor(red: 231/255, green: 64/255, blue: 78/255, alpha: 1),
+	"bread" : UIColor(red: 248/255, green: 211/255, blue: 167/255, alpha: 1),
+	"red" : UIColor(red: 222/255, green: 64/255, blue: 56/255, alpha: 1),
+	"yellow" : UIColor(red: 184/255, green: 195/255, blue: 20/255, alpha: 1)
+]
+
 class Colors {
-	static let red = UIColor(red: 231/255, green: 57/255, blue: 43/255, alpha: 1)
-	static let yellow = UIColor(red: 235/255, green: 216/255, blue: 3/255, alpha: 1)
-	static let green = UIColor(red: 0/255, green: 173/255, blue: 2/255, alpha: 1)
 	static let pa1 = UIColor(red: 111/255, green: 123/255, blue: 131/255, alpha: 1)
 	static let pa2 = UIColor(red: 137/255, green: 153/255, blue: 163/255, alpha: 1)
 	static let fa1 = UIColor(red: 188/255, green: 72/255, blue: 53/255, alpha: 1)

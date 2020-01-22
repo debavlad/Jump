@@ -12,8 +12,10 @@ import SpriteKit
 class ItemFactory {
 	private var foodEnergy = [FoodType : Int]()
 	private var coinAnims = [Currency : SKAction]()
+	var set: Set<Item>
 	
 	init() {
+		set = Set<Item>()
 		foodEnergy[FoodType.meat] = 25
 		foodEnergy[FoodType.chicken] = 20
 		foodEnergy[FoodType.cheese] = 20
@@ -30,12 +32,20 @@ class ItemFactory {
 		}
 	}
 	
+	func find(_ node: SKNode) -> Item {
+		return set.first { (item) -> Bool in
+			item.node == node
+		}!
+	}
+	
 	func randomFood() -> Food {
 		let t = FoodType.allCases.randomElement()!
 		let node = SKSpriteNode(imageNamed: t.rawValue)
 			.foodOptions().itemDefaults().randomPos().px()
 		node.name = "\(t.rawValue)item"
-		return Food(node, foodEnergy[t]!)
+		let f = Food(node, foodEnergy[t]!)
+		set.insert(f)
+		return f
 	}
 	
 	func randomCoin(_ available: Set<Currency>) -> Coin {
@@ -43,13 +53,16 @@ class ItemFactory {
 		let node = SKSpriteNode().coinOptions().itemDefaults().px()
 		node.name = "\(c.rawValue)item"
 		node.run(SKAction.repeatForever(coinAnims[c]!))
-		return Coin(node, c)
+		let coin = Coin(node, c)
+		set.insert(coin)
+		return coin
 	}
 	
 	func randomPotion() -> Potion {
 		let t = PotionType.allCases.randomElement()!
 		let potion = Potion(t)
 		potion.node.name = "\(t.rawValue)item"
+		set.insert(potion)
 		return potion
 	}
 }

@@ -17,7 +17,7 @@ class Player {
 	private let green, yellow, red: SKTexture!
 	private let hpBorder, hpLine: SKSpriteNode!
 	private let maxLineWidth: CGFloat
-	private(set) var currentAnim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
+	private(set) var anim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
 	
 	
 	init(_ node: SKNode) {
@@ -31,8 +31,8 @@ class Player {
 		setNodes()
 	}
     
-	func push(power: Int, nullify: Bool) {
-		runAnim(jumpAnim)
+	func push(_ power: Int, nullify: Bool) {
+		animate(jumpAnim)
 		if nullify { node.physicsBody!.velocity = CGVector() }
 		node.physicsBody!.applyImpulse(CGVector(dx: 0, dy: power))
 	}
@@ -70,9 +70,9 @@ class Player {
 		return node.physicsBody!.velocity.dy < 0
 	}
     
-	func runAnim(_ anim: SKAction) {
+	func animate(_ anim: SKAction) {
 		node.run(anim)
-		currentAnim = anim
+		self.anim = anim
 	}
     
 	private func setNodes() {
