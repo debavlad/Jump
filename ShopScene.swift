@@ -73,7 +73,7 @@ class ShopScene: SKScene {
 				actBtn.release()
 				if GameScene.ownedSkins.contains(id) { GameScene.skinIndex = id }
 				else if actBtn.color == .yellow && enoughMoney(for: Skins[id]) { buySkin(id) }
-				GameScene.saveDefaults()
+				GameScene.saveDef()
 			case leftArr:
 				id -= 1
 				leftArr.yScale = 7

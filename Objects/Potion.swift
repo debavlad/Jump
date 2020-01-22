@@ -11,9 +11,11 @@ import SpriteKit
 
 class Potion : Item {
 	let type: PotionType
+	let poisoned: Bool
 	
 	init(_ type: PotionType) {
 		self.type = type
+		poisoned = type == .Red
 		let n = SKSpriteNode(imageNamed: type.rawValue).px()
 		n.setScale(6)
 		n.position.y = 30

@@ -10,7 +10,10 @@ import Foundation
 import SpriteKit
 
 class Trampoline : Item {
-	init() {
+	let anim: SKAction
+	
+	init(_ anim: SKAction) {
+		self.anim = anim
 		let n = SKSpriteNode(imageNamed: "batut0").px()
 		n.position.y = 40
 		n.setScale(6)
@@ -22,5 +25,9 @@ class Trampoline : Item {
 		n.physicsBody?.restitution = 0
 		n.zPosition = 4
 		super.init(n)
+	}
+	
+	override func execute() {
+		node.run(anim)
 	}
 }

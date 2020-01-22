@@ -43,7 +43,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		blockFactory = BlockFactory(world, itemFactory)
 		
 		
-		loadDefaults()
+		loadDef()
 		fade = SKSpriteNode(color: .black, size: frame.size)
 		fade.alpha = GameScene.restarted ? 1 : 0
 		fade.zPosition = 25
@@ -101,19 +101,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.dismissedAd), name: NSNotification.Name(rawValue: "dismissedAd"), object: nil)
 		Audio.playSound("wind")
 		
-		trampolineAnim = SKAction.animate(with: [SKTexture(imageNamed: "batut1"),
-																						 SKTexture(imageNamed: "batut0")], timePerFrame: 0.1)
+//		trampolineAnim = SKAction.animate(with: [SKTexture(imageNamed: "batut1"),
+//																						 SKTexture(imageNamed: "batut0")], timePerFrame: 0.1)
 		blockFactory.produce(20)
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
 		if !player.isAlive { return }
 		let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-//		if col == Collision.playerFood || col == Collision.playerCoin || col == Collision.playerTrampoline
-//		|| col == Collision.playerPotion {
-//			guard let node = extractNode("item", contact) else { return }
-//			platforms.getItem(node)?.wasTouched = true
-//		}
 //		if col == Collision.playerBird {
 //			guard let bird = extractNode("bird", contact) else { return }
 //			manager.createEmitter(world, "BirdParticles", bird.position)
@@ -127,39 +122,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //				player.push(80, nullify: true)
 //			}
 //		}
-		if player.isFalling() {
-			if col == Bit.player | Bit.platform {
-				guard let node = extractNode("platform", contact) else { return }
-				manager.createEmitter(world, "Dust", contact.contactPoint)
-				trail.create(in: world, 30.0)
-				cam.shake(40, 1, 0, 0.125)
-				let block = blockFactory.find(node)
+		if col == (Bit.player | Bit.food) || col == (Bit.player | Bit.coin) ||
+			col == (Bit.player | Bit.potion) || col == (Bit.player | Bit.trampoline) {
+			guard let node = extractNode("item", contact) else { return }
+			let item = itemFactory.find(node)
+			item.intersected = true
+		}
+		else if player.isFalling() && col == Bit.player | Bit.platform {
+			guard let node = extractNode("platform", contact) else { return }
+			manager.createEmitter(world, "Dust", contact.contactPoint)
+			trail.create(in: world, 30.0)
+			cam.shake(40, 1, 0, 0.125)
+			DispatchQueue.global(qos: .background).async {
+				let block = self.blockFactory.find(node)
+				var power = block.power
 				if let items = block.items?.filter({ (item) -> Bool in return item.intersected }) {
-					for item in items { item.execute() }
+					for item in items {
+						switch item {
+							case is Coin: self.manager.collectCoin((item as? Coin)!.currency)
+							case is Food: self.player.editHp((item as? Food)!.energy)
+							case is Potion: self.player.editHp(self.player.health/2 * ((item as? Potion)!.poisoned ? -1 : 1))
+							case is Trampoline: power = 92
+							default: break
+						}
+						item.execute()
+						block.items!.remove(item)
+						self.itemFactory.set.remove(item)
+					}
 				}
-				player.editHp(-block.damage)
-				player.push(block.power, nullify: true)
-			}
-			else if col == (Bit.player | Bit.food) || col == (Bit.player | Bit.coin) || col == (Bit.player | Bit.potion) {
-				guard let node = extractNode("item", contact) else { return }
-				let item = itemFactory.find(node)
-				item.intersected = true
+				self.player.editHp(-block.damage)
+				if self.player.isAlive {
+					self.player.push(power, nullify: true)
+				} else { self.end(0.5) }
+				if block.type == .Sand { block.fall(contact.contactPoint.x) }
+				if self.blockFactory.set.count < 10 {
+					self.blockFactory.produce(10 - self.blockFactory.set.count)
+					self.removeThingsLowerThan(bounds.minY)
+				}
 			}
 		}
-//		if col == Collision.playerPlatform && player.isFalling() {
-//			guard let node = extractNode("platform", contact) else { return }
-//			let block = blockFactory.find(node)
-//			player.editHp(-block.damage)
-//			player.push(block.power, nullify: true)
-//		}
-//			removeThingsLowerThan(bounds.minY)
-//			player.animate(player.landAnim)
-//			trail.create(in: world, 30.0)
-//			manager.createEmitter(world, "DustParticles", contact.contactPoint)
-//			guard let node = extractNode("platform", contact) else { return }
-//			let platform = platforms.getPlatform(node)
-//			Audio.playSounds("\(platform.type)-footstep", "wind")
-//
 //			let action = SKAction.scaleX(to: CGFloat(7.5) * (platforms.stage.current >= 1 ?
 //				CGFloat(manager.score + 3 - platforms.stage.current*100) : CGFloat(manager.score + 3)),
 //				y: 12, duration: 1)
@@ -167,35 +168,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //			action.speed = 3
 //			progress.run(action)
 //
-//			var power = CGFloat(platform.power)
-//			if platform.hasItems() {
-//				cam.shake(40, 1, 0, 0.125)
-//				if let f = platform.getItem(Food.self) as? Food {
-//					let e = CGFloat(f.energy) * (Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1)
-//					player.editHp(Int(e))
-//					pick(f, platform)
-//				}
-//				if let c = platform.getItem(Coin.self) as? Coin {
-//					pick(c, platform)
-//					manager.collectCoin(c.currency)
-//				}
-//				if let t = platform.getItem(Trampoline.self) {
-//					t.node.run(trampolineAnim)
-//					power = 92
-//				}
-//				if let p = platform.getItem(Potion.self) as? Potion {
-//					player.editHp(p.type == PotionType.red ? -player.health/2 : player.health/2)
-//					pick(p, platform)
-//				}
-//			} else { cam.punch(30) }
+//			if let f = platform.getItem(Food.self) as? Food {
+//				let e = CGFloat(f.energy) * (Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1)
+//				player.editHp(Int(e))
+//				pick(f, platform)
+//			}
+//			if let t = platform.getItem(Trampoline.self) {
+//				t.node.run(trampolineAnim)
+//				power = 92
+//			}
 //
-//			player.editHp(-platform.damage)
 //			if player.isAlive {
 //				power *= Skins[GameScene.skinIndex].name == "ninja" ? 1.125 : 1
 //				player.push(power: Int(power), nullify: true)
 //			} else { end(0.5) }
-//
-//			if platform.type == .sand { platform.fall(contact.contactPoint.x) }
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -206,7 +192,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			SOUND_ENABLED = !SOUND_ENABLED
 			manager.soundButton.pressed = true
 			manager.soundButton.node.texture = manager.soundButton.textures[SOUND_ENABLED ? 3 : 1].px()
-			GameScene.saveDefaults()
+			GameScene.saveDef()
 		}
 		
 		if !started {
@@ -311,6 +297,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func update(_ currentTime: TimeInterval) {
 		cam.shake(1.25, 1, 0, 1.5)
+		print(itemFactory.set.count)
 		if started {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
 			if player.isFalling() && player.anim != player.fallAnim {
@@ -321,8 +308,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if started && !ended {
-//			platforms.create(player.node.position.y)
-//			platforms.removeLowerThan(bounds.minY)
+			blockFactory.dispose(bounds.minY)
 			if player.node.position.y < minY { end() }
 		}
 		
@@ -450,35 +436,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		run(SKAction.sequence([SKAction.wait(forDuration: delay), action]))
 	}
 	
-	private func pick(_ item: Item, _ platform: Platform) {
-		let key = "\(item.node.name!.dropLast(4))"
-		var name = ""
-		switch item {
-			case is Coin: name = "CoinParticles"
-			case is Food: name = "FoodParticles"
-			case is Potion: name = "PotionParticles"
-			default: break
-		}
-		let em = getEmitter(name, key, CGPoint(x: platform.node.position.x + item.node.position.x,
-																					 y: platform.node.position.y + item.node.position.y))
-		manager.createEmitter(world, em)
-		if item is Coin {
-			manager.createLbl(world, platform.node.position)
-			Audio.playSound("coin-pickup")
-		} else if item is Food {
-			Audio.playSound("food-pickup")
-		}
-//		platforms.removeItem(item, from: platform)
-	}
+//	private func pick(_ item: Item, _ platform: Platform) {
+//		let key = "\(item.node.name!.dropLast(4))"
+//		var name = ""
+//		switch item {
+//			case is Coin: name = "CoinParticles"
+//			case is Food: name = "FoodParticles"
+//			case is Potion: name = "PotionParticles"
+//			default: break
+//		}
+//		let em = getEmitter(name, key, CGPoint(x: platform.node.position.x + item.node.position.x,
+//																					 y: platform.node.position.y + item.node.position.y))
+//		manager.createEmitter(world, em)
+//		if item is Coin {
+//			manager.createLbl(world, platform.node.position)
+//			Audio.playSound("coin-pickup")
+//		} else if item is Food {
+//			Audio.playSound("food-pickup")
+//		}
+////		platforms.removeItem(item, from: platform)
+//	}
 	
-	private func getEmitter(_ name: String, _ key: String, _ pos: CGPoint) -> SKEmitterNode {
-		let em = SKEmitterNode(fileNamed: name)!
-		em.particleColorSequence = nil
-//		em.particleColor = dict[key]!
-		em.particleBlendMode = key == "gold" || key == "yellow" ? .add : .alpha
-		em.position = pos
-		return em
-	}
+//	private func getEmitter(_ name: String, _ key: String, _ pos: CGPoint) -> SKEmitterNode {
+//		let em = SKEmitterNode(fileNamed: name)!
+//		em.particleColorSequence = nil
+////		em.particleColor = dict[key]!
+//		em.particleBlendMode = key == "gold" || key == "yellow" ? .add : .alpha
+//		em.position = pos
+//		return em
+//	}
 	
 	private func lerp(_ start: CGFloat, _ end: CGFloat, _ percent: CGFloat) -> CGFloat {
 			return start + percent * (end - start)
@@ -489,13 +475,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				contact.bodyA.node : contact.bodyB.node
 	}
 	
-	static func saveDefaults() {
+	static func saveDef() {
 		UserDefaults.standard.set(GameScene.ownedSkins, forKey: "ownedSkins")
 		UserDefaults.standard.set(GameScene.skinIndex, forKey: "skinIndex")
 		UserDefaults.standard.set(SOUND_ENABLED, forKey: "soundEnabled")
 	}
 	
-	func loadDefaults() {
+	func loadDef() {
 		GameScene.ownedSkins = UserDefaults.standard.value(forKey: "ownedSkins") as? [Int] ?? [0]
 		GameScene.skinIndex = UserDefaults.standard.value(forKey: "skinIndex") as? Int ?? 0
 		SOUND_ENABLED = UserDefaults.standard.value(forKey: "soundEnabled") as? Bool ?? true

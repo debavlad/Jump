@@ -12,6 +12,7 @@ import SpriteKit
 class ItemFactory {
 	private var foodEnergy = [FoodType : Int]()
 	private var coinAnims = [Currency : SKAction]()
+	private let trampAnim: SKAction
 	var set: Set<Item>
 	
 	init() {
@@ -31,6 +32,8 @@ class ItemFactory {
 			coinAnims[currency] = SKAction.animate(with: textures, timePerFrame: 0.1)
 			textures.removeAll(keepingCapacity: true)
 		}
+		trampAnim = SKAction.animate(with: [SKTexture(imageNamed: "batut1"),
+		  SKTexture(imageNamed: "batut0")], timePerFrame: 0.1)
 	}
 	
 	func find(_ node: SKNode) -> Item {
@@ -47,6 +50,10 @@ class ItemFactory {
 		let f = Food(node, foodEnergy[t]!)
 		set.insert(f)
 		return f
+	}
+	
+	func getTrampoline() -> Trampoline {
+		return Trampoline(trampAnim)
 	}
 	
 	func getCoin() -> Coin {

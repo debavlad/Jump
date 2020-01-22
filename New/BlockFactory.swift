@@ -13,7 +13,7 @@ class BlockFactory {
 	var y, width: CGFloat
 	let data: Dictionary<BlockType, (Int, Int)>
 	let itemFactory: ItemFactory
-	var set: Set<Block>
+	var set: [Block]
 	let world: SKNode
 	
 	init(_ world: SKNode, _ itemFactory: ItemFactory) {
@@ -22,12 +22,12 @@ class BlockFactory {
 		y = UIScreen.main.bounds.height
 		width = UIScreen.main.bounds.width - 100
 		data = [
-			.Dirt : (73, 3),
-			.Sand : (78, 4),
-			.Wooden : (83, 5),
+			.Dirt : (76, 3),
+			.Sand : (80, 4),
+			.Wooden : (84, 5),
 			.Stone : (88, 6)
 		]
-		set = Set<Block>()
+		set = []
 	}
 	
 	func produce(_ amount: Int) {
@@ -36,9 +36,14 @@ class BlockFactory {
 			let block = Block(type, data[type]!)
 			addRandomLoot(to: block)
 			block.node.position = CGPoint(x: CGFloat.random(in: -width...width), y: y)
-			y += CGFloat.random(in: 125...200)
+			y += CGFloat.random(in: 125...200) + (type == .Dirt ? 150 : 0)
+			switch type {
+				case .Dirt: block.vertMove(150)
+				case .Wooden, .Stone: block.horMove(width)
+				default: break
+			}
 			world.addChild(block.node)
-			set.insert(block)
+			set.append(block)
 		}
 	}
 	
@@ -48,9 +53,20 @@ class BlockFactory {
 		}!
 	}
 	
+	func dispose(_ minY: CGFloat) {
+		guard let b = set.first else { return }
+		let top = b.node.frame.maxY + (b.isEmpty() ? 0 : b.items!.first!.node.frame.maxY)
+		if top < minY {
+			b.node.removeFromParent()
+			set.removeFirst()
+		}
+	}
+	
 	private func addRandomLoot(to block: Block) {
-		let food = itemFactory.getFood()
-		block.addItem(food)
+		// keep order: coin-potion-food
+		// to calculate top of block frame truly
+		// TO-DO: let coinChance, potChance, foodChance
+		
 		if Bool.random() {
 			let coin = itemFactory.getCoin()
 			block.addItem(coin)
@@ -59,5 +75,12 @@ class BlockFactory {
 			let pot = itemFactory.getPotion()
 			block.addItem(pot)
 		}
+		let food = itemFactory.getFood()
+		block.addItem(food)
+	}
+	
+	private func random(_ chance: Double) -> Bool {
+		let x = Double.random(in: 0...1)
+		return x <= chance
 	}
 }

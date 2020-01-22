@@ -11,7 +11,7 @@ import SpriteKit
 
 class Stage {
 	var id, foodFreq: Int
-	var blocks: Set<PlatformType>
+	var blocks: Set<BlockType>
 	var coins: Set<Currency>
 	
 	init() {
