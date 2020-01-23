@@ -48,18 +48,19 @@ class CloudFactory {
 			c.position = rand
 			highestY = rand.y
 		}
+		c.run(SKAction.moveTo(x: w + c.frame.width, duration: dist <= 500 ? 15 : 25))
 		set.insert(c)
 		return c
 	}
 	
-	func move() {
-		// TO-DO: Make clouds move via SKAction
-		for c in set {
-			if c.frame.maxY > bounds.minY {
-				c.position.x += speed
-			}
-		}
-	}
+//	func move() {
+//		// TO-DO: Make clouds move via SKAction
+//		for c in set {
+//			if c.frame.maxY > bounds.minY {
+//				c.position.x += speed
+//			}
+//		}
+//	}
 	
 	func dispose() {
 		set.forEach { (c) in

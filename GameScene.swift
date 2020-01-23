@@ -81,7 +81,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		trail = Trail(player.node, Skins[GameScene.skinIndex].trailColors)
 		trail.create(in: world)
 		
-		bg = CloudFactory(250, -frame.height)
+		bg = CloudFactory(300, -frame.height)
 		fg = CloudFactory(1200, -frame.height/1.25)
 //		platforms = PlatformFactory(world, frame.height/2, 125...200)
 		bounds = Bounds()
@@ -326,7 +326,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if !stopped && !ended {
 			if bg.canSpawn(player.node.position.y, started) { world.addChild(bg.create()) }
 			if fg.canSpawn(player.node.position.y, started) { world.addChild(fg.create()) }
-			bg.dispose(); bg.move(); fg.dispose(); fg.move()
+//			bg.dispose(); bg.move(); fg.dispose(); fg.move()
+			bg.dispose(); fg.dispose()
 		}
 		
 		if ended {
