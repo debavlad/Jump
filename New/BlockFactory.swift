@@ -13,11 +13,13 @@ class BlockFactory {
 	var y, width: CGFloat
 	let data: Dictionary<BlockType, (Int, Int)>
 	let itemFactory: ItemFactory
+	let stage: Stage
 	var set: [Block]
 	let world: SKNode
 	
 	init(_ world: SKNode, _ itemFactory: ItemFactory) {
 		self.world = world
+		stage = Stage()
 		self.itemFactory = itemFactory
 		y = UIScreen.main.bounds.height
 		width = UIScreen.main.bounds.width - 100

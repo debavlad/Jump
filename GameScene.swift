@@ -161,8 +161,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				self.player.push(power, nullify: true)
 			}
 			if block.type == .Sand { block.fall(contact.contactPoint.x) }
-			if self.blockFactory.set.count < 10 {
-				self.blockFactory.produce(10 - self.blockFactory.set.count)
+			if self.blockFactory.set.count < 15 {
+				self.blockFactory.produce(15 - self.blockFactory.set.count)
 				self.removeThingsLowerThan(bounds.minY)
 			}
 		}
@@ -208,7 +208,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				cam.shake(50, 6, 6, 0.055)
 				cam.node.run(scale)
 				doorTip.node.alpha = 0
-				Audio.playSounds("button", "wood-footstep", "wind")
+//				Audio.playSounds("button", "wood-footstep", "wind")
 				
 			} else if node == manager.door {
 				// go to the shop
@@ -233,7 +233,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				}
 				run(SKAction.sequence([SKAction.group([SKAction.wait(forDuration: 0.4), fade]), load]))
 				cam.node.run(SKAction.group([scale, move]))
-				Audio.playSound("door-open")
+//				Audio.playSound("door-open")
 			}
 		}
 		else if started && !ended {
@@ -242,7 +242,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				sliderTouch = touch
 				offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
 				manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
-				Audio.playSound("button")
+//				Audio.playSound("button")
 			}
 		}
 		else if ended {
@@ -252,17 +252,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
 				manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
 				revive()
-				Audio.playSound("button")
+//				Audio.playSound("button")
 			} else if node == manager.menuBtn.node || node == manager.menuBtn.label {
 				triggeredBtn = manager.menuBtn
 				manager.menuBtn.push()
 				reload()
-				Audio.playSound("button")
+//				Audio.playSound("button")
 			} else if node == manager.advertBtn.node || node == manager.advertBtn.label {
 				triggeredBtn = manager.advertBtn
 				manager.advertBtn.push()
 				NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
-				Audio.playSound("button")
+//				Audio.playSound("button")
 			}
 		}
 	}

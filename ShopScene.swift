@@ -43,12 +43,12 @@ class ShopScene: SKScene {
 				case .yellow: sound = "purchase"
 				default: sound = "button"
 			}
-			Audio.playSound(sound)
+//			Audio.playSound(sound)
 		}
 		else if node == backBtn.node || node == backBtn.label {
 			backBtn.push()
 			touchedNode = backBtn.node
-			Audio.playSound("button")
+//			Audio.playSound("button")
 			reload()
 		}
 		else {
@@ -61,7 +61,7 @@ class ShopScene: SKScene {
 			touchedNode?.yScale = 7
 			arrow?.yScale = -7
 			touchedNode = arrow
-			if touchedNode != nil { Audio.playSound("button") }
+//			if touchedNode != nil { Audio.playSound("button") }
 		}
 	}
 	
