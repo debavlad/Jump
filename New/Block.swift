@@ -11,7 +11,7 @@ import SpriteKit
 
 class Block: Hashable {
 	let node: SKSpriteNode
-	var items: Set<Item>?
+	var items: [Item]?
 	let type: BlockType
 	let power, damage: Int
 	
@@ -46,10 +46,17 @@ class Block: Hashable {
 	
 	func addItem(_ item: Item) {
 		if items == nil {
-			items = Set<Item>()
+			items = []
 		}
-		items!.insert(item)
+		items!.append(item)
 		node.addChild(item.node)
+	}
+	
+	func removeItem(_ item: Item) {
+		if let index = items?.firstIndex(of: item) {
+			item.execute()
+			items?.remove(at: index)
+		}
 	}
 	
 	func fall(_ contactX: CGFloat) {
@@ -61,17 +68,6 @@ class Block: Hashable {
 			item.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -20))
 		}
 	}
-	//	func fall(_ contactX: CGFloat) {
-	//		node.zPosition = -1
-	//		node.fall()
-	//		node.physicsBody?.applyAngularImpulse(contactX > node.position.x ? -0.1 : 0.1)
-	//
-	//		if !hasItems() { return }
-	//		for item in items {
-	//			item.node.fall()
-	//			item.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -20))
-	//		}
-	//	}
 	
 	func hash(into hasher: inout Hasher) {
 		hasher.combine(node)

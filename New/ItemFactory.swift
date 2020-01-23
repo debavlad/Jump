@@ -13,10 +13,10 @@ class ItemFactory {
 	private var foodEnergy = [FoodType : Int]()
 	private var coinAnims = [Currency : SKAction]()
 	private let trampAnim: SKAction
-	var set: Set<Item>
+//	var set: Set<Item>
 	
 	init() {
-		set = Set<Item>()
+//		set = Set<Item>()
 		foodEnergy = [
 			.Meat: 25,
 			.Chicken: 20,
@@ -36,11 +36,11 @@ class ItemFactory {
 		  SKTexture(imageNamed: "batut0")], timePerFrame: 0.1)
 	}
 	
-	func find(_ node: SKNode) -> Item {
-		return set.first { (item) -> Bool in
-			item.node == node
-		}!
-	}
+//	func find(_ node: SKNode) -> Item {
+//		return set.first { (item) -> Bool in
+//			item.node == node
+//		}!
+//	}
 	
 	func getFood() -> Food {
 		let t = FoodType.allCases.randomElement()!
@@ -48,7 +48,7 @@ class ItemFactory {
 			.foodOptions().itemDefaults().randPos().px()
 		node.name = "\(t.rawValue)item"
 		let f = Food(node, foodEnergy[t]!)
-		set.insert(f)
+//		set.insert(f)
 		return f
 	}
 	
@@ -62,7 +62,7 @@ class ItemFactory {
 		node.name = "\(t.rawValue)item"
 		node.run(SKAction.repeatForever(coinAnims[t]!))
 		let c = Coin(node, t)
-		set.insert(c)
+//		set.insert(c)
 		return c
 	}
 	
@@ -70,7 +70,7 @@ class ItemFactory {
 		let t = PotionType.allCases.randomElement()!
 		let potion = Potion(t)
 		potion.node.name = "\(t.rawValue)item"
-		set.insert(potion)
+//		set.insert(potion)
 		return potion
 	}
 }

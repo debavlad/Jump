@@ -125,40 +125,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if col == (Bit.player | Bit.food) || col == (Bit.player | Bit.coin) ||
 			col == (Bit.player | Bit.potion) || col == (Bit.player | Bit.trampoline) {
 			guard let node = extractNode("item", contact) else { return }
-			let item = itemFactory.find(node)
-			item.intersected = true
+			if let item = blockFactory.findItem(node) {
+				item.intersected = true
+			}
 		}
 		else if player.isFalling() && col == Bit.player | Bit.platform {
 			guard let node = extractNode("platform", contact) else { return }
 			manager.createEmitter(world, "Dust", contact.contactPoint)
 			trail.create(in: world, 30.0)
-			cam.shake(40, 1, 0, 0.125)
-			DispatchQueue.global(qos: .background).async {
-				let block = self.blockFactory.find(node)
-				var power = block.power
-				if let items = block.items?.filter({ (item) -> Bool in return item.intersected }) {
-					for item in items {
-						switch item {
-							case is Coin: self.manager.collectCoin((item as? Coin)!.currency)
-							case is Food: self.player.editHp((item as? Food)!.energy)
-							case is Potion: self.player.editHp(self.player.health/2 * ((item as? Potion)!.poisoned ? -1 : 1))
-							case is Trampoline: power = 92
-							default: break
-						}
-						item.execute()
-						block.items!.remove(item)
-						self.itemFactory.set.remove(item)
+			cam.shake(45, 1, 0, 0.125)
+			
+			let block = self.blockFactory.find(node)
+			var power = CGFloat(block.power)
+			if let items = block.items?.filter({ (item) -> Bool in return item.intersected }) {
+				for item in items {
+					switch item {
+						case is Coin:
+							self.manager.collectCoin((item as? Coin)!.currency)
+						case is Food:
+							var energy = (item as? Food)!.energy
+							energy *= Int(Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1)
+							self.player.editHp(energy)
+						case is Potion:
+							self.player.editHp(self.player.health/2 * ((item as? Potion)!.poisoned ? -1 : 1))
+						case is Trampoline:
+							power = 92
+						default: break
 					}
+					block.removeItem(item)
 				}
-				self.player.editHp(-block.damage)
-				if self.player.isAlive {
-					self.player.push(power, nullify: true)
-				} else { self.end(0.5) }
-				if block.type == .Sand { block.fall(contact.contactPoint.x) }
-				if self.blockFactory.set.count < 10 {
-					self.blockFactory.produce(10 - self.blockFactory.set.count)
-					self.removeThingsLowerThan(bounds.minY)
-				}
+			}
+			self.player.editHp(-block.damage)
+			if self.player.isAlive {
+				power *= Skins[GameScene.skinIndex].name == "ninja" ? 1.125 : 1
+				self.player.push(power, nullify: true)
+			}
+			if block.type == .Sand { block.fall(contact.contactPoint.x) }
+			if self.blockFactory.set.count < 10 {
+				self.blockFactory.produce(10 - self.blockFactory.set.count)
+				self.removeThingsLowerThan(bounds.minY)
 			}
 		}
 //			let action = SKAction.scaleX(to: CGFloat(7.5) * (platforms.stage.current >= 1 ?
@@ -168,20 +173,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //			action.speed = 3
 //			progress.run(action)
 //
-//			if let f = platform.getItem(Food.self) as? Food {
-//				let e = CGFloat(f.energy) * (Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1)
-//				player.editHp(Int(e))
-//				pick(f, platform)
-//			}
 //			if let t = platform.getItem(Trampoline.self) {
 //				t.node.run(trampolineAnim)
 //				power = 92
 //			}
-//
-//			if player.isAlive {
-//				power *= Skins[GameScene.skinIndex].name == "ninja" ? 1.125 : 1
-//				player.push(power: Int(power), nullify: true)
-//			} else { end(0.5) }
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -297,7 +292,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func update(_ currentTime: TimeInterval) {
 		cam.shake(1.25, 1, 0, 1.5)
-		print(itemFactory.set.count)
+//		print(itemFactory.set.count)
 		if started {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
 			if player.isFalling() && player.anim != player.fallAnim {

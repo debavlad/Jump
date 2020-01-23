@@ -53,12 +53,21 @@ class BlockFactory {
 		}!
 	}
 	
+	func findItem(_ node: SKNode) -> Item? {
+		for block in set.filter({ (b) -> Bool in return !b.isEmpty() }) {
+			if let item = block.items?.first(where: { (i) -> Bool in i.node == node }) {
+				return item
+			}
+		}
+		return nil
+	}
+	
 	func dispose(_ minY: CGFloat) {
 		guard let b = set.first else { return }
 		let top = b.node.frame.maxY + (b.isEmpty() ? 0 : b.items!.first!.node.frame.maxY)
 		if top < minY {
-			b.node.removeFromParent()
 			set.removeFirst()
+			b.node.removeFromParent()
 		}
 	}
 	

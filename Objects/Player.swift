@@ -31,7 +31,7 @@ class Player {
 		setNodes()
 	}
     
-	func push(_ power: Int, nullify: Bool) {
+	func push(_ power: CGFloat, nullify: Bool) {
 		animate(jumpAnim)
 		if nullify { node.physicsBody!.velocity = CGVector() }
 		node.physicsBody!.applyImpulse(CGVector(dx: 0, dy: power))
