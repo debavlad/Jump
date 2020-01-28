@@ -15,7 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var blockFactory: BlockFactory!
 	private var cam: Camera!
 	private var manager: SceneManager!
-	private var bg, fg: CloudFactory!
+	private var cloudFactory: CloudFactory!
 	private var world: SKNode!
 	private var player: Player!
 	private var trail: Trail!
@@ -75,8 +75,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		trail = Trail(player.node, Skins[GameScene.skinIndex].trailColors)
 		trail.create(in: world)
 		
-		bg = CloudFactory(300, -frame.height)
-		fg = CloudFactory(1200, -frame.height/1.25)
+		cloudFactory = CloudFactory(300, -frame.height)
 		bounds = Bounds()
 		minY = player.node.position.y
 		
@@ -172,7 +171,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
 				bonusPoints = Skins[GameScene.skinIndex].name == "bman" ? 100 : 0
 				player.node.removeAllActions()
-				bg.speed *= 2.5; fg.speed *= 2.5
+				cloudFactory.speed *= 2.5;
 				manager.show(manager.line, manager.hpBorder, manager.gameScoreLbl)
 				manager.hide(sliderTip.node, manager.soundButton.node, manager.w, manager.b, manager.g)
 				
@@ -300,8 +299,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if !stopped && !ended {
-			if bg.canSpawn(player.node.position.y, started) { world.addChild(bg.create()) }
-			bg.dispose(); bg.move()
+			if cloudFactory.canSpawn(player.node.position.y, started) { world.addChild(cloudFactory.create()) }
+			cloudFactory.dispose(); cloudFactory.move()
 		}
 		
 		if ended {
