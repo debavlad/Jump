@@ -9,10 +9,6 @@
 import Foundation
 import SpriteKit
 
-protocol Removable {
-	func remove()
-}
-
 class BlockFactory {
 	var y, width: CGFloat
 	let data: Dictionary<BlockType, (Int, CGFloat)>
