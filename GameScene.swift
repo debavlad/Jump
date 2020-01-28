@@ -43,7 +43,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		fade.zPosition = 25
 		
 		physicsWorld.contactDelegate = self
-		physicsWorld.gravity = CGVector(dx: 0, dy: -24.5)
+		physicsWorld.gravity = CGVector(dx: 0, dy: -24)
 		
 		cam = Camera(self)
 		cam.node.addChild(fade)
@@ -301,8 +301,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		if !stopped && !ended {
 			if bg.canSpawn(player.node.position.y, started) { world.addChild(bg.create()) }
-//			if fg.canSpawn(player.node.position.y, started) { world.addChild(fg.create()) }
-//			bg.dispose(); bg.move(); fg.dispose(); fg.move()
 			bg.dispose(); bg.move()
 		}
 		

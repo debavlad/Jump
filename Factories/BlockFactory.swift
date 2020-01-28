@@ -10,7 +10,7 @@ import Foundation
 import SpriteKit
 
 class BlockFactory {
-	var y, width: CGFloat
+	var y, width, height: CGFloat
 	let data: Dictionary<BlockType, (Int, CGFloat)>
 	let distance: ClosedRange<CGFloat>
 	
@@ -25,15 +25,16 @@ class BlockFactory {
 	let world: SKNode
 	
 	init(_ world: SKNode) {
+		distance = 125...200
 		y = UIScreen.main.bounds.height
 		width = UIScreen.main.bounds.width - 100
+		height = UIScreen.main.bounds.height + distance.lowerBound
 		data = [
 			.Dirt : (76, 3),
 			.Sand : (80, 4),
 			.Wooden : (84, 5),
 			.Stone : (88, 6)
 		]
-		distance = 125...200
 		foodFactory = FoodFactory()
 		coinFactory = CoinFactory()
 		potionFactory = PotionFactory()
@@ -47,7 +48,7 @@ class BlockFactory {
 	}
 	
 	func can(_ playerY: CGFloat) -> Bool {
-		return y + distance.lowerBound < playerY + UIScreen.main.bounds.height
+		return y + distance.lowerBound < playerY + height
 	}
 	
 	func produce() {
