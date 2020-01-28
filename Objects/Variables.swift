@@ -54,13 +54,3 @@ class Bit {
 	static let trampoline: UInt32 = 0x1 << 8
 	static let potion: UInt32 = 0x1 << 9
 }
-
-//class Collision {
-//	static let playerPlatform = Categories.player | Categories.platform
-//	static let playerGround = Categories.player | Categories.ground
-//	static let playerCoin = Categories.player | Categories.coin
-//	static let playerFood = Categories.player | Categories.food
-//	static let playerBird = Categories.player | Categories.bird
-//	static let playerTrampoline = Categories.player | Categories.trampoline
-//	static let playerPotion = Categories.player | Categories.potion
-//}

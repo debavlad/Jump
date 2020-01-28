@@ -38,13 +38,3 @@ class Item: Hashable {
 		return lhs.hashValue == rhs.hashValue
 	}
 }
-
-extension SKSpriteNode {
-	func fall() {
-		physicsBody?.collisionBitMask = 0
-		physicsBody?.contactTestBitMask = 0
-		physicsBody?.categoryBitMask = 0
-		physicsBody?.allowsRotation = true
-		physicsBody?.isDynamic = true
-	}
-}

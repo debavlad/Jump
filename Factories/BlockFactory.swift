@@ -9,18 +9,30 @@
 import Foundation
 import SpriteKit
 
+protocol Removable {
+	func remove()
+}
+
 class BlockFactory {
 	var y, width: CGFloat
-	let data: Dictionary<BlockType, (Int, Int)>
-	let itemFactory: ItemFactory
+	let data: Dictionary<BlockType, (Int, CGFloat)>
+	
+	let foodFactory: FoodFactory
+	let coinFactory: CoinFactory
+	let potionFactory: PotionFactory
+	
 	let stage: Stage
 	var set: [Block]
 	let world: SKNode
 	
-	init(_ world: SKNode, _ itemFactory: ItemFactory) {
+	init(_ world: SKNode) {
 		self.world = world
 		stage = Stage()
-		self.itemFactory = itemFactory
+		
+		foodFactory = FoodFactory()
+		coinFactory = CoinFactory()
+		potionFactory = PotionFactory()
+		
 		y = UIScreen.main.bounds.height
 		width = UIScreen.main.bounds.width - 100
 		data = [
@@ -79,15 +91,12 @@ class BlockFactory {
 		// TO-DO: let coinChance, potChance, foodChance
 		
 		if Bool.random() {
-			let coin = itemFactory.getCoin()
-			block.addItem(coin)
+			block.addItem(coinFactory.getInstance())
 		}
 		if Bool.random() {
-			let pot = itemFactory.getPotion()
-			block.addItem(pot)
+			block.addItem(potionFactory.getInstance())
 		}
-		let food = itemFactory.getFood()
-		block.addItem(food)
+		block.addItem(foodFactory.getInstance())
 	}
 	
 	private func random(_ chance: Double) -> Bool {

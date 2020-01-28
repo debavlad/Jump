@@ -11,7 +11,7 @@ import SpriteKit
 
 class Player {
 	let node: SKSpriteNode
-	var health, maxHp: Int!
+	var health, maxHp: CGFloat!
 	private(set) var isAlive = true
 	
 	private let green, yellow, red: SKTexture!
@@ -44,26 +44,30 @@ class Player {
 	
 	func revive() {
 		isAlive = true
-		editHp(maxHp)
+		adjustHealth(maxHp)
 	}
 	
-	func editHp(_ amount: Int) {
-		let tmp = health + amount
-		if tmp <= 0 {
+	func adjustHealth(_ points: CGFloat) {
+		let val = health + points
+		if val > 0 && val < maxHp {
+			health = val
+			hpLine.size.width = maxLineWidth / maxHp * val
+		} else if val >= maxHp {
+			health = maxHp
+			hpLine.size.width = maxLineWidth
+		} else if val <= 0 {
 			health = 0
 			isAlive = false
 			hpLine.size.width = 0
-		} else if tmp >= maxHp {
-			health = maxHp
-			hpLine.size.width = maxLineWidth
-		} else {
-			health = tmp
-			hpLine.size.width = maxLineWidth/CGFloat(maxHp)*CGFloat(tmp)
 		}
 		
-		if tmp <= maxHp/4 { hpLine.texture = red }
-		else if tmp <= maxHp/2 { hpLine.texture = yellow }
-		else if tmp <= maxHp { hpLine.texture = green }
+		if val <= maxHp/4 {
+			hpLine.texture = red
+		} else if val <= maxHp/2 {
+			hpLine.texture = yellow
+		} else if val <= maxHp {
+			hpLine.texture = green
+		}
 	}
     
 	func isFalling() -> Bool {
@@ -80,7 +84,7 @@ class Player {
 		node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 50, height: 20), center: CGPoint(x: -5, y: -50))
 		node.physicsBody?.collisionBitMask = Bit.ground
 		node.physicsBody?.categoryBitMask = Bit.player
-		node.physicsBody?.contactTestBitMask = Bit.coin | Bit.food | Bit.platform
+		node.physicsBody?.contactTestBitMask = Bit.potion | Bit.coin | Bit.food | Bit.platform
 		node.physicsBody?.allowsRotation = false
 		node.physicsBody?.friction = 0
 		node.physicsBody?.restitution = GameScene.restarted ? 0.4 : 0

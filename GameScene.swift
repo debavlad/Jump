@@ -13,12 +13,9 @@ import AVFoundation
 class GameScene: SKScene, SKPhysicsContactDelegate {
 	// scene
 	var blockFactory: BlockFactory!
-	var itemFactory: ItemFactory!
-	
 	private var cam: Camera!
 	private var manager: SceneManager!
 	private var bg, fg: CloudFactory!
-//	private var platforms: PlatformFactory!
 	private var world: SKNode!
 	private var player: Player!
 	private var trail: Trail!
@@ -36,14 +33,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	private var movement, offset, minY: CGFloat!
 	private var trampolineAnim: SKAction!
 	
-	
 	override func didMove(to view: SKView) {
-		world = SKNode()
-		itemFactory = ItemFactory()
-		blockFactory = BlockFactory(world, itemFactory)
-		
-		
 		loadDef()
+		world = SKNode()
+		blockFactory = BlockFactory(world)
+		
 		fade = SKSpriteNode(color: .black, size: frame.size)
 		fade.alpha = GameScene.restarted ? 1 : 0
 		fade.zPosition = 25
@@ -143,19 +137,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 						case is Coin:
 							self.manager.collectCoin((item as? Coin)!.currency)
 						case is Food:
-							var energy = (item as? Food)!.energy
-							energy *= Int(Skins[GameScene.skinIndex].name == "farmer" ? 1.25 : 1)
-							self.player.editHp(energy)
+							self.player.adjustHealth((item as? Food)!.energy)
 						case is Potion:
-							self.player.editHp(self.player.health/2 * ((item as? Potion)!.poisoned ? -1 : 1))
-						case is Trampoline:
-							power = 92
+							let val = self.player.health/2 * ((item as! Potion).poisoned ? -1 : 1)
+							self.player.adjustHealth(val)
 						default: break
 					}
 					block.removeItem(item)
 				}
 			}
-			self.player.editHp(-block.damage)
+			self.player.adjustHealth(-block.damage)
 			if self.player.isAlive {
 				power *= Skins[GameScene.skinIndex].name == "ninja" ? 1.125 : 1
 				self.player.push(power, nullify: true)
@@ -303,7 +294,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if started && !ended {
-			blockFactory.dispose(bounds.minY)
+			print(intersects(blockFactory.set.first!.node))
+//			blockFactory.dispose(bounds.minY)
 			if player.node.position.y < minY { end() }
 		}
 		

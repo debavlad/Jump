@@ -48,7 +48,7 @@ class CloudFactory {
 			c.position = rand
 			highestY = rand.y
 		}
-		c.run(SKAction.moveTo(x: w + c.frame.width, duration: dist <= 500 ? 15 : 25))
+//		c.run(SKAction.moveTo(x: w + c.frame.width, duration: dist <= 500 ? 15 : 25))
 		set.insert(c)
 		return c
 	}
