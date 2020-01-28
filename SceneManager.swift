@@ -26,7 +26,6 @@ class SceneManager {
 	var score = 0
 	
 	var emitters: Set<SKEmitterNode>
-	var labels: Set<SKLabelNode>
     
 	
 	init(_ scene: SKScene, _ world: SKNode) {
@@ -41,10 +40,22 @@ class SceneManager {
 		soundButton.node.zPosition = 21
 		
 		emitters = Set<SKEmitterNode>()
-		labels = Set<SKLabelNode>()
 		
 		createAnims()
 		createNodes(world)
+	}
+	
+	func pick(_ item: Item) {
+		let name = "\(item.node.name!.dropLast(4))"
+		guard let em = SKEmitterNode(fileNamed: name) else { return }
+		if let parent = item.node.parent, let world = parent.parent {
+			em.position = CGPoint(x: parent.position.x + item.node.position.x,
+														y: parent.position.y + item.node.position.y)
+			em.zPosition = 3
+			world.addChild(em)
+			emitters.insert(em)
+		}
+		item.node.removeFromParent()
 	}
 	
 	func menuVisiblity(_ visible: Bool) {
@@ -67,72 +78,49 @@ class SceneManager {
 		}
 	}
   
-	func setScore(_ value: Int) {
-		score = value
-		gameScoreLbl.text = String(value)
+	func updateScore(_ val: Int) {
+		score = val
+		gameScoreLbl.text = String(val)
 		gameScoreLbl.position = CGPoint(x: -width + gameScoreLbl.frame.width/2+60,
 																		y: height - gameScoreLbl.frame.height/2-100)
 	}
 	
-	func collectCoin(_ curr: Currency) {
+	func iterateCoin(_ c: Currency) {
 		let lbl: SKLabelNode
-		switch curr {
+		switch c {
 			case .Wood: lbl = woodLbl
 			case .Bronze: lbl = bronzeLbl
 			case .Golden: lbl = goldLbl
 		}
 		lbl.text = String(Int(lbl.text!)! + 1)
 	}
-    
-	func createEmitter(_ parent: SKNode, _ em: SKEmitterNode) {
-		em.name = ""
-		em.particleZPosition = 3
-		parent.addChild(em)
-		emitters.insert(em)
-	}
 	
-	func createEmitter(_ parent: SKNode, _ fileName: String, _ pos: CGPoint) {
-		let e = SKEmitterNode(fileNamed: fileName)!
-		e.name = ""
+	func createEmitter(_ filename: String, _ parent: SKNode, _ pos: CGPoint) {
+		let e = SKEmitterNode(fileNamed: filename)!
 		e.position = pos
+		e.name = ""
 		e.zPosition = 3
 		e.particleZPosition = 3
-
 		parent.addChild(e)
 		emitters.insert(e)
 	}
 	
-	func createLbl(_ parent: SKNode, _ pos: CGPoint) {
-		let l = sampleLbl.copy() as! SKLabelNode
-		l.position = CGPoint(x: pos.x+70, y: pos.y+70)
-		parent.addChild(l)
-		labels.insert(l)
-		
-		l.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 30))
-		let angle = CGFloat.random(in: -0.0005...0.0005)
-		l.physicsBody?.applyAngularImpulse(angle)
-		
-//		l.run(SKAction.sequence([SKAction.wait(forDuration: 2), SKAction.run {
-//			if self.blackSprite.alpha == 0 { l.removeFromParent() }
-//			}]))
-	}
-	
 	func show(_ nodes: SKNode...) {
-			fade(1.0, 2, nodes)
+		fade(1.0, 2, nodes)
 	}
 
 	func hide(_ nodes: SKNode...) {
-			fade(0, 0.6, nodes)
+		fade(0, 0.6, nodes)
 	}
 	
 	
 	private func fade(_ alpha: CGFloat, _ duration: TimeInterval, _ nodes: [SKNode]) {
-			let a = SKAction.fadeAlpha(to: alpha, duration: duration)
-			a.timingMode = SKActionTimingMode.easeOut
-			a.speed = 4
-			for node in nodes {
-					node.run(a)
-			}
+		let a = SKAction.fadeAlpha(to: alpha, duration: duration)
+		a.timingMode = SKActionTimingMode.easeOut
+		a.speed = 4
+		for node in nodes {
+			node.run(a)
+		}
 	}
 	
 	private func createNodes(_ world: SKNode) {

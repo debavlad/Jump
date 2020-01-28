@@ -53,9 +53,8 @@ class Block: Hashable {
 		node.addChild(item.node)
 	}
 	
-	func removeItem(_ item: Item) {
+	func remove(_ item: Item) {
 		if let index = items?.firstIndex(of: item) {
-			item.execute()
 			items?.remove(at: index)
 		}
 	}

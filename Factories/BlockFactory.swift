@@ -12,23 +12,19 @@ import SpriteKit
 class BlockFactory {
 	var y, width: CGFloat
 	let data: Dictionary<BlockType, (Int, CGFloat)>
+	let distance: ClosedRange<CGFloat>
 	
 	let foodFactory: FoodFactory
 	let coinFactory: CoinFactory
 	let potionFactory: PotionFactory
+	let coinChance, potionChance: CGFloat
+	var foodCounter: Int
 	
 	let stage: Stage
 	var set: [Block]
 	let world: SKNode
 	
 	init(_ world: SKNode) {
-		self.world = world
-		stage = Stage()
-		
-		foodFactory = FoodFactory()
-		coinFactory = CoinFactory()
-		potionFactory = PotionFactory()
-		
 		y = UIScreen.main.bounds.height
 		width = UIScreen.main.bounds.width - 100
 		data = [
@@ -37,24 +33,36 @@ class BlockFactory {
 			.Wooden : (84, 5),
 			.Stone : (88, 6)
 		]
+		distance = 125...200
+		foodFactory = FoodFactory()
+		coinFactory = CoinFactory()
+		potionFactory = PotionFactory()
+		coinChance = 0.5
+		potionChance = 0.2
+		foodCounter = 0
+		
+		stage = Stage()
 		set = []
+		self.world = world
 	}
 	
-	func produce(_ amount: Int) {
-		for _ in 0..<amount {
-			let type = BlockType.allCases.randomElement()!
-			let block = Block(type, data[type]!)
-			addRandomLoot(to: block)
-			block.node.position = CGPoint(x: CGFloat.random(in: -width...width), y: y)
-			y += CGFloat.random(in: 125...200) + (type == .Dirt ? 150 : 0)
-			switch type {
-				case .Dirt: block.vertMove(150)
-				case .Wooden, .Stone: block.horMove(width)
-				default: break
-			}
-			world.addChild(block.node)
-			set.append(block)
+	func can(_ playerY: CGFloat) -> Bool {
+		return y + distance.lowerBound < playerY + UIScreen.main.bounds.height
+	}
+	
+	func produce() {
+		let type = stage.blocks.randomElement()!
+		let block = Block(type, data[type]!)
+		addRandomLoot(to: block)
+		block.node.position = CGPoint(x: CGFloat.random(in: -width...width), y: y)
+		y += CGFloat.random(in: distance) + (type == .Dirt ? 150 : 0)
+		switch type {
+			case .Dirt: block.vertMove(150)
+			case .Wooden, .Stone: block.horMove(width)
+			default: break
 		}
+		world.addChild(block.node)
+		set.append(block)
 	}
 	
 	func find(_ node: SKNode) -> Block {
@@ -64,8 +72,9 @@ class BlockFactory {
 	}
 	
 	func findItem(_ node: SKNode) -> Item? {
-		for block in set.filter({ (b) -> Bool in return !b.isEmpty() }) {
-			if let item = block.items?.first(where: { (i) -> Bool in i.node == node }) {
+		guard let parent = node.parent else { return nil }
+		for item in find(parent).items! {
+			if item.node == node {
 				return item
 			}
 		}
@@ -84,19 +93,23 @@ class BlockFactory {
 	private func addRandomLoot(to block: Block) {
 		// keep order: coin-potion-food
 		// to calculate top of block frame truly
-		// TO-DO: let coinChance, potChance, foodChance
 		
-		if Bool.random() {
+		if random(coinChance) {
 			block.addItem(coinFactory.getInstance())
 		}
-		if Bool.random() {
+		if random(potionChance) {
 			block.addItem(potionFactory.getInstance())
 		}
-		block.addItem(foodFactory.getInstance())
+		if foodCounter >= stage.foodFreq {
+			foodCounter = 0
+			block.addItem(foodFactory.getInstance())
+		} else {
+			foodCounter += 1
+		}
 	}
 	
-	private func random(_ chance: Double) -> Bool {
-		let x = Double.random(in: 0...1)
+	private func random(_ chance: CGFloat) -> Bool {
+		let x = CGFloat.random(in: 0...1)
 		return x <= chance
 	}
 }
