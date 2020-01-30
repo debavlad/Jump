@@ -17,7 +17,7 @@ class BlockFactory {
 	let foodFactory: FoodFactory
 	let coinFactory: CoinFactory
 	let potionFactory: PotionFactory
-	let coinChance, potionChance: CGFloat
+	let coinChance, potionChance, birdChance: CGFloat
 	var foodCounter: Int
 	
 	let stage: Stage
@@ -40,6 +40,7 @@ class BlockFactory {
 		potionFactory = PotionFactory()
 		coinChance = 0.5
 		potionChance = 0.2
+		birdChance = 1
 		foodCounter = 0
 		
 		stage = Stage()
@@ -98,15 +99,15 @@ class BlockFactory {
 		if random(coinChance) {
 			block.addItem(coinFactory.getInstance())
 		}
-		if random(potionChance) {
-			block.addItem(potionFactory.getInstance())
-		}
-		if foodCounter >= stage.foodFreq {
-			foodCounter = 0
-			block.addItem(foodFactory.getInstance())
-		} else {
-			foodCounter += 1
-		}
+//		if random(potionChance) {
+//			block.addItem(potionFactory.getInstance())
+//		}
+//		if foodCounter >= stage.foodFreq {
+//			foodCounter = 0
+//			block.addItem(foodFactory.getInstance())
+//		} else {
+//			foodCounter += 1
+//		}
 	}
 	
 	private func random(_ chance: CGFloat) -> Bool {

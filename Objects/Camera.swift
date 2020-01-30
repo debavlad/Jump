@@ -39,15 +39,4 @@ class Camera {
 		}
 		node.run(SKAction.sequence(actions))
 	}
-	
-	func earthquake() {
-		var actions: [SKAction] = []
-		for _ in 0..<2 {
-			let x = CGFloat.random(in: 15...20) * (Bool.random() ? 1 : -1)
-			let act = SKAction.moveBy(x: x, y: -CGFloat.random(in: 15...20), duration: 0.075)
-			act.timingMode = .easeOut
-			actions.append(contentsOf: [act, act.reversed()])
-		}
-		node.run(SKAction.sequence(actions))
-	}
 }

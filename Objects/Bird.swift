@@ -12,13 +12,13 @@ import SpriteKit
 class Bird : Hashable {
 	let node: SKSpriteNode
 	
-	init(_ width: CGFloat, _ diff: CGFloat) {
+	init(_ width: CGFloat, _ y: CGFloat) {
 		let rand = Bool.random()
 		node = SKSpriteNode(imageNamed: "bird0").px()
 		node.name = "bird"
 		node.zPosition = 3
 		node.size = CGSize(width: 70, height: 50)
-		node.position = CGPoint(x: rand ? width : -width, y: diff)
+		node.position = CGPoint(x: rand ? width : -width, y: y)
 		node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: node.size.width, height: 5))
 		node.physicsBody?.categoryBitMask = Bit.bird
 		node.physicsBody?.contactTestBitMask = Bit.player

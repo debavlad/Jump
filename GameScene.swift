@@ -43,7 +43,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		fade.zPosition = 25
 		
 		physicsWorld.contactDelegate = self
-		physicsWorld.gravity = CGVector(dx: 0, dy: -24)
+		physicsWorld.gravity = CGVector(dx: 0, dy: -25)
 		
 		cam = Camera(self)
 		cam.node.addChild(fade)
@@ -65,11 +65,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		player.turn(left: true)
 		
 		sliderTip = Tip("HOLD AND MOVE", CGPoint(x: 35, y: 70))
-		manager.slider.addChild(sliderTip.node)
+//		manager.slider.addChild(sliderTip.node)
 		
 		doorTip = Tip("SKIN SHOP", CGPoint(x: -50, y: 100))
 		doorTip.flip(0.75)
-		manager.door.addChild(doorTip.node)
+//		manager.door.addChild(doorTip.node)
 		
 		addChild(world)
 		trail = Trail(player.node, Skins[GameScene.skinIndex].trailColors)
@@ -133,7 +133,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 						case is Food:
 							player.adjustHealth((item as! Food).energy)
 						case is Potion:
-							let val = player.health/2 * ((item as! Potion).poisoned ? -1 : 1)
+							let val = CGFloat(30) * ((item as! Potion).poisoned ? -1 : 1)
 							player.adjustHealth(val)
 						default: break
 					}
@@ -172,7 +172,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				bonusPoints = Skins[GameScene.skinIndex].name == "bman" ? 100 : 0
 				player.node.removeAllActions()
 				cloudFactory.speed *= 2.5;
-				manager.show(manager.line, manager.hpBorder, manager.gameScoreLbl)
+				manager.show(manager.line, manager.hpStripe, manager.gameScoreLbl)
 				manager.hide(sliderTip.node, manager.soundButton.node, manager.w, manager.b, manager.g)
 				
 				let scale = SKAction.scale(to: 0.95, duration: 1.25)
@@ -183,7 +183,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				doorTip.node.alpha = 0
 //				Audio.playSounds("button", "wood-footstep", "wind")
 				
-			} else if node == manager.door {
+			} else if node == manager.door || node == manager.house {
 				// go to the shop
 				doorOpens = true
 				manager.door.run(manager.doorAnim)
@@ -298,10 +298,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		}
 		
-		if !stopped && !ended {
-			if cloudFactory.canSpawn(player.node.position.y, started) { world.addChild(cloudFactory.create()) }
-			cloudFactory.dispose(); cloudFactory.move()
-		}
+//		if !stopped && !ended {
+//			if cloudFactory.canSpawn(player.node.position.y, started) { world.addChild(cloudFactory.create()) }
+//			cloudFactory.dispose(); cloudFactory.move()
+//		}
 		
 		if ended {
 			cam.node.position.x = lerp(cam.node.position.x, player.node.position.x, cam.easing/4)
@@ -394,7 +394,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 			
 			self.cam.node.run(SKAction.group([SKAction.sequence([scale, stop]), rotate]))
-			self.manager.hide(self.manager.line, self.manager.hpBorder, self.manager.gameScoreLbl)
+			self.manager.hide(self.manager.line, self.manager.hpStripe, self.manager.gameScoreLbl)
 		}
 		run(SKAction.sequence([SKAction.wait(forDuration: delay), action]))
 	}

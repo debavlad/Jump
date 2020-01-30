@@ -26,7 +26,8 @@ class CoinFactory: ItemFactory {
 	}
 	
 	func getInstance() -> Item {
-		let type = Currency.allCases.randomElement()!
+		let type = Currency.Wood
+//		let type = Currency.allCases.randomElement()!
 		let node = SKSpriteNode().coinOptions().itemDefaults().px()
 		node.name = "\(type.rawValue)item"
 		node.run(SKAction.repeatForever(anims[type]!))

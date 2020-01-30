@@ -26,7 +26,7 @@ class Trail {
 		particle.colorBlendFactor = 1
 		
 		anim = SKAction.group([SKAction.fadeOut(withDuration: 1),
-													 SKAction.scale(to: 0.7, duration: 1.25)])
+													 SKAction.scale(to: 0.7, duration: 1.15)])
 		anim.timingMode = .easeIn
 	}
 	

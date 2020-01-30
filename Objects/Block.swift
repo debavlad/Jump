@@ -18,7 +18,7 @@ class Block: Hashable {
 	
 	init(_ type: BlockType, _ data: (Int, CGFloat)) {
 		self.type = type
-		node = SKSpriteNode(imageNamed: type.rawValue).blockOptions().px()
+		node = SKSpriteNode(imageNamed: "Block").blockOptions().px()
 		items = nil
 		power = data.0
 		damage = data.1
@@ -61,7 +61,7 @@ class Block: Hashable {
 	
 	func fall(_ contactX: CGFloat) {
 		node.fall()
-		node.physicsBody?.applyAngularImpulse(contactX > node.position.x ? -0.1 : 0.1)
+		node.physicsBody?.applyAngularImpulse(contactX > node.position.x ? -0.2 : 0.2)
 		if isEmpty() { return }
 		for item in items! {
 			item.node.fall()

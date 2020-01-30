@@ -67,7 +67,7 @@ class SceneManager {
 			ptsScoreLbl.position.x = scoreLbl.frame.maxX + ptsScoreLbl.frame.width/2 + 15
 			mScore.position = CGPoint(x: largeGameOverLbl.position.x - ptsScoreLbl.frame.width/2,
 																y: largeGameOverLbl.position.y - 100)
-			hide(line, hpBorder)
+			hide(line, hpStripe)
 			for (icon, label) in [(wIcon, woodLbl), (bIcon, bronzeLbl), (gIcon, goldLbl)] {
 					icon!.position.x = -label!.frame.width/2
 					label!.position.x = icon!.frame.maxX + label!.frame.width + 30
@@ -125,7 +125,7 @@ class SceneManager {
 	
 	private func createNodes(_ world: SKNode) {
 		let cam = scene.childNode(withName: "Cam") as! SKCameraNode
-		cam.addChild(soundButton.node)
+//		cam.addChild(soundButton.node)
 		
 		// Scene world objects
 		
@@ -175,19 +175,21 @@ class SceneManager {
 			
 		// UI
 			
-		hpBorder = SKSpriteNode(imageNamed: "hp-border").px()
-		hpBorder.size = CGSize(width: 84, height: 11)
-		hpBorder.position = CGPoint(x: 0, y: player.frame.height/2 + 10)
-		hpBorder.alpha = 0
+//		hpBorder = SKSpriteNode(imageNamed: "hp-border").px()
+//		hpBorder.size = CGSize(width: 84, height: 11)
+//		hpBorder.position = CGPoint(x: 0, y: player.frame.height/2 + 10)
+//		hpBorder.alpha = 0
 		
 		hpStripe = SKSpriteNode(imageNamed: "hp-green").px()
-		hpStripe.size = CGSize(width: hpBorder.frame.width - 4, height: hpBorder.frame.height - 4)
-		hpStripe.anchorPoint = CGPoint(x: 0, y: 0.5)
-		hpStripe.position.x = hpBorder.frame.minX + 2
+		hpStripe.size = CGSize(width: 100, height: 11)
+		hpStripe.position = CGPoint(x: hpStripe.frame.midX, y: player.frame.height/2 + 10)
+		hpStripe.anchorPoint = CGPoint(x: 0.5, y: 0.5)
 		hpStripe.zPosition = -1
+		hpStripe.alpha = 0
 		
-		hpBorder.addChild(hpStripe)
-		player.addChild(hpBorder)
+		player.addChild(hpStripe)
+//		hpBorder.addChild(hpStripe)
+//		player.addChild(hpBorder)
 		world.addChild(player)
 			
 		line = SKSpriteNode(imageNamed: "slider-line").px()
@@ -318,7 +320,7 @@ class SceneManager {
 			
 		wl = SKLabelNode(fontNamed: Fonts.pixelf)
 		wl.text = String((defaults.value(forKey: "wooden") ?? 0) as! Int)
-		wl.fontSize = 66
+		wl.fontSize = 62
 		wl.position.x = w.frame.width/2 + wl.frame.width/2 + 25
 		wl.position.y = -wl.frame.height/2 + 2
 		wl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
@@ -328,29 +330,29 @@ class SceneManager {
 		b.size = CGSize(width: 72, height: 81)
 		b.position.y = w.frame.minY - 70
 		b.position.x = -width + 100
-		cam.addChild(b)
+//		cam.addChild(b)
 		
 		bl = SKLabelNode(fontNamed: Fonts.pixelf)
 		bl.text = String((defaults.value(forKey: "bronze") ?? 0) as! Int)
-		bl.fontSize = 66
+		bl.fontSize = 62
 		bl.position.x = b.frame.width/2 + bl.frame.width/2 + 25
 		bl.position.y = -bl.frame.height/2 + 2
 		bl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
-		b.addChild(bl)
+//		b.addChild(bl)
 		
 		g = SKSpriteNode(imageNamed: "Golden0").px()
 		g.size = CGSize(width: 72, height: 81)
 		g.position.y = b.frame.minY - 70
 		g.position.x = -width + 100
-		cam.addChild(g)
+//		cam.addChild(g)
 		
 		gl = SKLabelNode(fontNamed: Fonts.pixelf)
 		gl.text = String((defaults.value(forKey: "golden") ?? 0) as! Int)
-		gl.fontSize = 66
+		gl.fontSize = 62
 		gl.position.x = g.frame.width/2 + gl.frame.width/2 + 25
 		gl.position.y = -gl.frame.height/2 + 2
 		gl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
-		g.addChild(gl)
+//		g.addChild(gl)
 			
 		menuBtn = Button("BACK TO MENU", .gray, CGPoint(x: 0, y: -500))
 		menuBtn.node.alpha = 0

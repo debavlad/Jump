@@ -17,7 +17,7 @@ class Tip {
 		label = SKLabelNode(fontNamed: "pixelFJ8pt1")
 		label.text = text
 		label.fontColor = .black
-		label.fontSize = 34
+		label.fontSize = 32
 		label.zPosition = 2
 		
 		// Gathering parts into one node

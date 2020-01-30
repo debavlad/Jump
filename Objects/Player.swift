@@ -15,7 +15,7 @@ class Player {
 	private(set) var isAlive = true
 	
 	private let green, yellow, red: SKTexture!
-	private let hpBorder, hpLine: SKSpriteNode!
+	private let hpLine: SKSpriteNode!
 	private let maxLineWidth: CGFloat
 	private(set) var anim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
 	
@@ -25,8 +25,8 @@ class Player {
 		green = SKTexture(imageNamed: "hp-green")
 		yellow = SKTexture(imageNamed: "hp-yellow")
 		red = SKTexture(imageNamed: "hp-red")
-		hpBorder = node.children.first! as? SKSpriteNode
-		hpLine = hpBorder.children.first! as? SKSpriteNode
+//		hpBorder = node.children.first! as? SKSpriteNode
+		hpLine = node.children.first! as? SKSpriteNode
 		maxLineWidth = hpLine.size.width
 		setNodes()
 	}
@@ -39,7 +39,8 @@ class Player {
 	
 	func turn(left: Bool) {
 		node.xScale = left ? -1 : 1
-		hpBorder.xScale = node.xScale
+		hpLine.xScale = left ? -1 : 1
+//		hpLine.xScale = node.xScale
 	}
 	
 	func revive() {
@@ -59,14 +60,6 @@ class Player {
 			health = 0
 			isAlive = false
 			hpLine.size.width = 0
-		}
-		
-		if val <= maxHp/4 {
-			hpLine.texture = red
-		} else if val <= maxHp/2 {
-			hpLine.texture = yellow
-		} else if val <= maxHp {
-			hpLine.texture = green
 		}
 	}
     
@@ -103,13 +96,13 @@ class Player {
 		jumpAnim = SKAction.animate(with: textures, timePerFrame: 0.11)
 		textures.removeAll(keepingCapacity: true)
 		
-		for i in 4...5 {
+		for i in 4...4 {
 			textures.append(SKTexture(imageNamed: "\(skinName)-jump\(i)").px())
 		}
 		fallAnim = SKAction.animate(with: textures, timePerFrame: 0.11)
 		textures.removeAll(keepingCapacity: true)
 		
-		for i in 6...8 {
+		for i in 5...6 {
 			textures.append(SKTexture(imageNamed: "\(skinName)-jump\(i)").px())
 		}
 		landAnim = SKAction.animate(with: textures, timePerFrame: 0.06)
