@@ -20,7 +20,7 @@ class SceneManager {
 		wl: SKLabelNode!
 	private(set) var house, door, controlLine, slider, blackSprite, hpLine, scoreLabel,
 		iconSprite, w: SKSpriteNode!
-	private(set) var smokeAnim, doorAnim: SKAction!
+	private(set) var doorAnim: SKAction!
 	
 	
 	init(_ scene: SKScene, _ world: SKNode) {
@@ -116,14 +116,7 @@ class SceneManager {
 		door.position = CGPoint(x: -119, y: -220)
 		door.zPosition = 1
 		house.addChild(door)
-			
-		let smoke = SKSpriteNode(imageNamed: "smoke0").px()
-		smoke.size = CGSize(width: 119, height: 97)
-		house.addChild(smoke)
-		smoke.zPosition = -1
-		smoke.position = CGPoint(x: -115, y: 363)
-		smoke.run(SKAction.repeatForever(smokeAnim))
-			
+		
 		let bench = SKSpriteNode()
 		bench.size = CGSize(width: 161, height: 34)
 		bench.position = CGPoint(x: -173, y: -347)
@@ -251,10 +244,6 @@ class SceneManager {
 	
 	private func loadAnims() {
 		var textures = [SKTexture]()
-		for i in 0...3 { textures.append(SKTexture(imageNamed: "smoke\(i)").px()) }
-		smokeAnim = SKAction.animate(with: textures, timePerFrame: 0.12)
-		textures.removeAll(keepingCapacity: true)
-		
 		for i in 1...6 { textures.append(SKTexture(imageNamed: "door\(i)").px()) }
 		doorAnim = SKAction.animate(with: textures, timePerFrame: 0.07)
 		doorAnim.timingMode = .easeOut
