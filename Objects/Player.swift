@@ -25,7 +25,6 @@ class Player {
 		green = SKTexture(imageNamed: "hp-green")
 		yellow = SKTexture(imageNamed: "hp-yellow")
 		red = SKTexture(imageNamed: "hp-red")
-//		hpBorder = node.children.first! as? SKSpriteNode
 		hpLine = node.children.first! as? SKSpriteNode
 		maxLineWidth = hpLine.size.width
 		setNodes()
@@ -83,6 +82,18 @@ class Player {
 		node.physicsBody?.restitution = GameScene.restarted ? 0.4 : 0
 		node.physicsBody?.linearDamping = 0
 		node.physicsBody?.angularDamping = 0
+		
+		let tmp = SKSpriteNode(imageNamed: "light").px()
+		tmp.setScale(5.5)
+		let up = SKAction.scale(to: 5.6, duration: 0.15)
+		let down = SKAction.scale(to: 5.5, duration: 0.15)
+		up.timingMode = .easeOut; down.timingMode = .easeOut
+		tmp.run(SKAction.repeatForever(SKAction.sequence([up, down])))
+//		var t = [SKTexture]()
+//		for i in 1...2 { t.append(SKTexture(imageNamed: "lighting\(i)").px()) }
+//		let anim = SKAction.animate(with: t, timePerFrame: 0.12)
+//		tmp.run(SKAction.repeatForever(anim))
+		node.addChild(tmp)
 		
 		// Animations
 		let skinName = "\(Skins[GameScene.skinIndex].name)"

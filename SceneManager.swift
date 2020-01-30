@@ -227,15 +227,17 @@ class SceneManager {
 		
 		w = SKSpriteNode(imageNamed: "Wood0").px()
 		w.size = CGSize(width: 72, height: 81)
-		w.position.y = height - 100
-		w.position.x = -width + 100
+		w.position.y = height - 130
+		w.zPosition = 20
 		cam.addChild(w)
+		
 		wl = SKLabelNode(fontNamed: Fonts.pixelf)
 		wl.text = String((defaults.value(forKey: "wooden") ?? 0) as! Int)
 		wl.fontSize = 62
 		wl.position.x = w.frame.width/2 + wl.frame.width/2 + 25
 		wl.position.y = -wl.frame.height/2 + 2
 		wl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+		w.position.x -= wl.frame.width/2 + 25
 		w.addChild(wl)
 			
 		menuBtn = Button("TO MENU", .gray, CGPoint(x: 0, y: -500))
