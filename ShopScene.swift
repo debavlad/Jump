@@ -43,12 +43,10 @@ class ShopScene: SKScene {
 				case .yellow: sound = "purchase"
 				default: sound = "button"
 			}
-//			Audio.playSound(sound)
 		}
 		else if node == backBtn.node || node == backBtn.label {
 			backBtn.push()
 			touchedNode = backBtn.node
-//			Audio.playSound("button")
 			reload()
 		}
 		else {
@@ -61,7 +59,6 @@ class ShopScene: SKScene {
 			touchedNode?.yScale = 7
 			arrow?.yScale = -7
 			touchedNode = arrow
-//			if touchedNode != nil { Audio.playSound("button") }
 		}
 	}
 	
@@ -122,18 +119,15 @@ class ShopScene: SKScene {
 	private func setSkinBtn(_ skinId: Int) {
 		if GameScene.skinIndex == skinId {
 			actBtn.textContent("current skin")
-//			actBtn.setText("current skin")
 			actBtn.setColor(.blue)
 			actBtn.coin?.isHidden = true
 		} else if GameScene.ownedSkins.contains(skinId) {
 			actBtn.textContent("set skin")
-//			actBtn.setText("set skin")
 			actBtn.setColor(.green)
 			actBtn.coin?.isHidden = true
 		} else {
 			let skin = Skins[skinId]
 			actBtn.priceContent(skin.price, skin.currency)
-//			actBtn.setPrice(skin.price, skin.currency)
 			actBtn.setColor(enoughMoney(for: skin) ? .yellow : .gray)
 		}
 	}
@@ -201,16 +195,13 @@ class ShopScene: SKScene {
 		black.zPosition = 30
 		addChild(black)
 		
-//		backBtn = Button("back to menu", .gray, -UIScreen.main.bounds.height+150)
 		backBtn = Button("BACK TO MENU", .gray, CGPoint(x: 0, y: -UIScreen.main.bounds.height + 150))
 		cam.node.addChild(backBtn.node)
 		
-//		actBtn = Button("current skin", .blue, backBtn.node.position.y+180)
 		actBtn = Button(90, .Wood, backBtn.node.position.y + 180)
 		cam.node.addChild(actBtn.node)
 		
 		let pageCounter = SKNode()
-//        pageCounter.position = CGPoint(x: -75, y: bg.position.y + 170)
 		pageCounter.position.y = title.position.y - 30
 		pageCounter.zPosition = 2
 		for i in 0..<Skins.count {

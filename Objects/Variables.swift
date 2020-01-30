@@ -19,7 +19,7 @@ class Fonts {
 
 let Skins = [
 	Skin(name: "pauper", title: "Pauper", dsc: "Default", 0, .Wood, colors: [Colors.pa1, Colors.pa2]),
-	Skin(name: "zombie", title: "Zombie", dsc: "150 hp", 60, .Wood, colors: [UIColor.white]),
+	Skin(name: "zombie", title: "Zombie", dsc: "150 hp", 0, .Wood, colors: [UIColor.white]),
 	Skin(name: "farmer", title: "Farmer", dsc: "Food x1.25", 80, .Wood, colors: [Colors.fa1, Colors.fa2]),
 	Skin(name: "bman", title: "Businessman", dsc: "Has 100 pts", 40, .Bronze, colors: [UIColor.white, Colors.bu1, Colors.bu2]),
 	Skin(name: "ninja", title: "Ninja", dsc: "Jump x1.25", 20, .Golden, colors: [Colors.ni1, UIColor.gray, Colors.ni2, Colors.ni3])

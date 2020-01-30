@@ -11,7 +11,6 @@ import GameplayKit
 import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-	// scene
 	var blockFactory: BlockFactory!
 	private var cam: Camera!
 	private var manager: SceneManager!
@@ -19,12 +18,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	private var world: SKNode!
 	private var player: Player!
 	private var trail: Trail!
-	// ui
-	private var sliderTip, doorTip: Tip!
-	private var fade, progress: SKSpriteNode!
-	private var sliderTouch: UITouch?
 	private var triggeredBtn: Button!
-	// raw
+	private var fade: SKSpriteNode!
+	private var sliderTouch: UITouch?
+	
 	static var restarted = false
 	static var skinIndex: Int!
 	static var ownedSkins: [Int]!
@@ -32,6 +29,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	private var started = false, stopped = false, ended = false
 	private var movement, offset, minY: CGFloat!
 	private var trampolineAnim: SKAction!
+	
 	
 	override func didMove(to view: SKView) {
 		loadDef()
@@ -48,28 +46,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		cam = Camera(self)
 		cam.node.addChild(fade)
 		cam.node.position.y = -60
-
-		progress = SKSpriteNode(imageNamed: "particle").px()
-		progress.anchorPoint = CGPoint(x: 0, y: 1)
-		progress.xScale = 0; progress.yScale = 12
-		progress.position = CGPoint(x: frame.minX, y: frame.maxY)
-		progress.colorBlendFactor = 1
-		progress.zPosition = 16
-		progress.color = UIColor.black
-		cam.node.addChild(progress)
 		
 		manager = SceneManager(self, world)
-		manager.show(manager.line)
+		manager.show(manager.controlLine)
 		
 		player = Player(world.childNode(withName: "Character")!)
 		player.turn(left: true)
-		
-		sliderTip = Tip("HOLD AND MOVE", CGPoint(x: 35, y: 70))
-//		manager.slider.addChild(sliderTip.node)
-		
-		doorTip = Tip("SKIN SHOP", CGPoint(x: -50, y: 100))
-		doorTip.flip(0.75)
-//		manager.door.addChild(doorTip.node)
 		
 		addChild(world)
 		trail = Trail(player.node, Skins[GameScene.skinIndex].trailColors)
@@ -83,15 +65,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		movement = player.node.position.x
 		cam.node.setScale(0.75)
 		
-		if GameScene.restarted {
-			let a = SKAction.fadeOut(withDuration: 0.25)
-			a.timingMode = .easeOut
-			fade.run(a)
-		}
+		let fadeOut = SKAction.fadeOut(withDuration: 0.3)
+		fadeOut.timingMode = .easeOut
+		fade.run(fadeOut)
 		
-		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.watchedAd), name: NSNotification.Name(rawValue: "watchedAd"), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.dismissedAd), name: NSNotification.Name(rawValue: "dismissedAd"), object: nil)
-		Audio.playSound("wind")
+//		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.watchedAd), name: NSNotification.Name(rawValue: "watchedAd"), object: nil)
+//		NotificationCenter.default.addObserver(self, selector: #selector(GameScene.dismissedAd), name: NSNotification.Name(rawValue: "dismissedAd"), object: nil)
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
@@ -119,7 +98,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		else if player.isFalling() && col == Bit.player | Bit.platform {
 			guard let node = extractNode("platform", contact) else { return }
-			manager.createEmitter("Dust", world, contact.contactPoint)
+			manager.addEmitter("Dust", world, contact.contactPoint)
 			trail.create(in: world, 30.0)
 			cam.shake(45, 1, 0, 0.125)
 			
@@ -129,7 +108,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				for item in items {
 					switch item {
 						case is Coin:
-							manager.iterateCoin((item as! Coin).currency)
+							manager.iconLabel.text = String(Int(manager.iconLabel.text!)! + 1)
 						case is Food:
 							player.adjustHealth((item as! Food).energy)
 						case is Potion:
@@ -156,38 +135,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let touch = touches.first!
 		let node = atPoint(touch.location(in: self))
 		
-		if node == manager.soundButton.node {
-			SOUND_ENABLED = !SOUND_ENABLED
-			manager.soundButton.pressed = true
-			manager.soundButton.node.texture = manager.soundButton.textures[SOUND_ENABLED ? 3 : 1].px()
-			GameScene.saveDef()
-		}
-		
 		if !started {
 			if node == manager.slider && !doorOpens {
-				// when the game starts
 				sliderTouch = touch
 				offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
 				manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
 				bonusPoints = Skins[GameScene.skinIndex].name == "bman" ? 100 : 0
 				player.node.removeAllActions()
 				cloudFactory.speed *= 2.5;
-				manager.show(manager.line, manager.hpStripe, manager.gameScoreLbl)
-				manager.hide(sliderTip.node, manager.soundButton.node, manager.w, manager.b, manager.g)
+				manager.show(manager.controlLine, manager.hpLine, manager.gameScoreLbl)
+				manager.hide(manager.w)
 				
 				let scale = SKAction.scale(to: 0.95, duration: 1.25)
 				scale.timingMode = .easeInEaseOut
 				player.push(170, nullify: true)
 				cam.shake(50, 6, 6, 0.055)
 				cam.node.run(scale)
-				doorTip.node.alpha = 0
-//				Audio.playSounds("button", "wood-footstep", "wind")
 				
 			} else if node == manager.door || node == manager.house {
-				// go to the shop
 				doorOpens = true
 				manager.door.run(manager.doorAnim)
-				manager.hide(manager.line, manager.w, manager.b, manager.g)
+				manager.hide(manager.controlLine, manager.w)
 				let scale = SKAction.scale(to: 0.025, duration: 0.6)
 				scale.timingMode = SKActionTimingMode.easeInEaseOut
 				let targetPos = CGPoint(x: manager.house.position.x + manager.door.frame.maxX,
@@ -206,36 +174,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				}
 				run(SKAction.sequence([SKAction.group([SKAction.wait(forDuration: 0.4), fade]), load]))
 				cam.node.run(SKAction.group([scale, move]))
-//				Audio.playSound("door-open")
 			}
 		}
 		else if started && !ended {
 			if node == manager.slider {
-				// slider triggered during the game
 				sliderTouch = touch
 				offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
 				manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
-//				Audio.playSound("button")
 			}
 		}
 		else if ended {
-			// when the game is finished
 			if node == manager.slider {
 				sliderTouch = touch
 				offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
 				manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
 				revive()
-//				Audio.playSound("button")
 			} else if node == manager.menuBtn.node || node == manager.menuBtn.label {
 				triggeredBtn = manager.menuBtn
 				manager.menuBtn.push()
 				reload()
-//				Audio.playSound("button")
 			} else if node == manager.advertBtn.node || node == manager.advertBtn.label {
 				triggeredBtn = manager.advertBtn
 				manager.advertBtn.push()
-				NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
-//				Audio.playSound("button")
+//				NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showAd"), object: nil)
 			}
 		}
 	}
@@ -243,7 +204,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let st = sliderTouch else { return }
 		let touchX = st.location(in: cam.node).x
-		let halfLine = manager.line.size.width / 2
+		let halfLine = manager.controlLine.size.width / 2
 		if touchX > -halfLine && touchX < halfLine {
 			manager.slider.position.x = touchX + offset
 			player.turn(left: player.node.position.x >= manager.slider.position.x)
@@ -251,10 +212,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if manager.soundButton.pressed {
-			manager.soundButton.pressed = false
-			manager.soundButton.node.texture = manager.soundButton.textures[SOUND_ENABLED ? 0 : 2].px()
-		} else if let st = sliderTouch, touches.contains(st) {
+		if let st = sliderTouch, touches.contains(st) {
 			sliderTouch = nil
 			manager.slider.texture = SKTexture(imageNamed: "slider-0").px()
 		} else if triggeredBtn != nil {
@@ -298,17 +256,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		}
 		
-//		if !stopped && !ended {
-//			if cloudFactory.canSpawn(player.node.position.y, started) { world.addChild(cloudFactory.create()) }
-//			cloudFactory.dispose(); cloudFactory.move()
-//		}
-		
 		if ended {
-			cam.node.position.x = lerp(cam.node.position.x, player.node.position.x, cam.easing/4)
+			cam.node.position.x = lerp(cam.node.position.x, player.node.position.x, cam.easing/3)
 		}
 	}
 	
-	// Imp
 	
 	func removeThingsLowerThan(_ minY: CGFloat) {
 		manager.emitters.forEach { (e) in
@@ -326,11 +278,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	private func revive() {
-		manager.menuVisiblity(false)
+		manager.fadeMenu(false)
 		player.revive()
 		ended = false
 		player.push(170, nullify: true)
-//		platforms.highestY = player.node.position.y + 100
 		cam.node.run(SKAction.moveTo(x: 0, duration: 1))
 		minY = self.player.node.position.y - 100
 		
@@ -344,8 +295,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		cam.shake(50, 6, 6, 0.055)
 		cam.node.run(SKAction.group([scale, go, rotate]))
-		manager.show(manager.line, manager.hpBorder, manager.gameScoreLbl)
-		manager.hide(manager.continueLbl)
+		manager.show(manager.controlLine, manager.hpLine, manager.gameScoreLbl)
 	}
 	
 	private func reload() {
@@ -362,14 +312,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			GameScene.restarted = true
 			let defaults = UserDefaults.standard
 			var wq : Int = defaults.value(forKey: "wooden") as? Int ?? 0
-			wq += Int(self.manager.woodLbl.text!)!
+			wq += Int(self.manager.iconLabel.text!)!
 			defaults.set(wq, forKey: "wooden")
-			var bq : Int = defaults.value(forKey: "bronze") as? Int ?? 0
-			bq += Int(self.manager.bronzeLbl.text!)!
-			defaults.set(bq, forKey: "bronze")
-			var gq : Int = defaults.value(forKey: "golden") as? Int ?? 0
-			gq += Int(self.manager.goldLbl.text!)!
-			defaults.set(gq, forKey: "golden")
 			
 			let scene = GameScene(size: self.frame.size)
 			scene.scaleMode = SKSceneScaleMode.aspectFill
@@ -383,7 +327,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		ended = true
 		let action = SKAction.run {
 			self.sliderTouch = nil
-			self.manager.menuVisiblity(true)
+			self.manager.fadeMenu(true)
 			let scale = SKAction.scale(to: 0.25, duration: 1)
 			scale.timingMode = .easeIn; scale.speed = 3
 			let rotate = SKAction.rotate(toAngle: self.player.node.position.x > 0 ? -0.3 : 0.3, duration: 1)
@@ -394,7 +338,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 			
 			self.cam.node.run(SKAction.group([SKAction.sequence([scale, stop]), rotate]))
-			self.manager.hide(self.manager.line, self.manager.hpStripe, self.manager.gameScoreLbl)
+			self.manager.hide(self.manager.controlLine, self.manager.hpLine, self.manager.gameScoreLbl)
 		}
 		run(SKAction.sequence([SKAction.wait(forDuration: delay), action]))
 	}
@@ -420,13 +364,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		SOUND_ENABLED = UserDefaults.standard.value(forKey: "soundEnabled") as? Bool ?? true
 	}
 	
-	// AdMob
 	
 	@objc func watchedAd() {
 		manager.advertBtn.node.isHidden = true
-		manager.continueLbl.isHidden = false
 		manager.menuBtn.node.position = manager.advertBtn.node.position
-		manager.show(manager.line)
+		manager.show(manager.controlLine)
 	}
 	
 	@objc func dismissedAd() { manager.hide(manager.advertBtn.node) }
