@@ -75,21 +75,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			guard let node = extractNode("platform", contact) else { return }
 			manager.addEmitter("Dust", world, contact.contactPoint)
 			trail.create(in: world, 30)
-			cam.shake(45, 1, 0, 0.125)
 			
 			let block = blockFactory.find(node)
-			if let items = block.items?.filter({ (i) -> Bool in return i.intersected }) {
-				for item in items {
-					switch item {
-						case is Coin:
-							manager.iconLabel.text = String(Int(manager.iconLabel.text!)! + 1)
-						case is Food:
-							player.adjustHealth((item as! Food).energy)
-						default: break
-					}
-					block.remove(item)
-					manager.pick(item)
-				}
+			cam.shake(block.isEmpty() ? 30 : 50, 1, 0, 0.15)
+			if let c = block.items?.first(where: { (i) -> Bool in return i is Coin }), c.intersected {
+				manager.iconLabel.text = String(Int(manager.iconLabel.text!)! + 1)
+				block.remove(c); manager.pick(c)
+			} else if let f = block.items?.first(where: { (i) -> Bool in return i is Food }), f.intersected {
+				player.adjustHealth((f as! Food).energy)
+				block.remove(f); manager.pick(f)
 			}
 			
 			player.adjustHealth(-block.damage)
@@ -146,49 +140,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func update(_ currentTime: TimeInterval) {
 		cam.shake(1.25, 1, 0, 1.5)
-		if !started { started = player.node.position.y > 0 }
-		else {
+		if started {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
+			if !ended {
+				if player.node.position.y < minY {
+					end()
+				} else if blockFactory.can(player.node.position.y) {
+					blockFactory.produce()
+				}
+				blockFactory.dispose(bounds.minY)
+			}
+			
 			if player.falling && player.anim != player.fallAnim {
 				player.animate(player.fallAnim)
 			}
+		} else {
+			started = player.node.position.y > 0
 		}
-		
-		if started && !ended {
-			if player.node.position.y < minY { end() }
-			else if blockFactory.can(player.node.position.y) { blockFactory.produce() }
-			blockFactory.dispose(bounds.minY)
-		}
-		
-//		if started {
-//			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
-//			if player.falling && player.anim != player.fallAnim {
-//				player.animate(player.fallAnim)
-//			}
-//		} else {
-//			started = player.node.position.y > 0
-//		}
-		
-//		if started && !ended {
-//			if blockFactory.can(player.node.position.y) { blockFactory.produce() }
-//			blockFactory.dispose(bounds.minY)
-//			if player.node.position.y < minY { end() }
-//		}
 		
 		if !stopped {
-			movement = lerp(player.node.position.x, manager.slider.position.x, 0.28)
+			movement = lerp(player.node.position.x, manager.slider.position.x, 0.29)
 			player.node.position.x = movement
-			bounds.minX = -frame.size.width/2 + cam.node.position.x
 			bounds.minY = cam.node.frame.minY - frame.height/2
-			bounds.maxX = frame.size.width/2 + cam.node.position.x
-			bounds.maxY = cam.node.frame.maxY + frame.height/2
 			if bounds.minY > minY { minY = bounds.minY }
 			if trail.distance() > 80 { trail.create(in: world) }
-			let s = Int(player.node.position.y/100)
-			if s > manager.score {
-				manager.updateScore(s)
-				if s%100 == 0 {
-					blockFactory.stage.upgrade(to: s/100)
+			
+			let score = Int(player.node.position.y/100)
+			if score > manager.score {
+				manager.updateScore(score)
+				if score%100 == 0 {
+					Stage.shared.upgrade(to: score/100)
 				}
 			}
 		}
@@ -248,6 +229,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				coins += Int(self.manager.iconLabel.text!)!
 				UserDefaults.standard.set(coins, forKey: "coins")
 				
+				self.player.lighting.run(SKAction.fadeOut(withDuration: 0.5))
 				self.cam.node.run(SKAction.group([SKAction.sequence([scale, stop]), rotate]))
 				self.manager.hide(self.manager.sliderPath, self.manager.hp, self.manager.curPtsLabel)
 			}

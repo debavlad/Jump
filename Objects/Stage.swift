@@ -10,10 +10,11 @@ import Foundation
 import SpriteKit
 
 class Stage {
+	static let shared = Stage()
 	var id, foodFreq: Int
 	var blocks: Set<BlockType>
 	
-	init() {
+	private init() {
 		id = 0
 		foodFreq = 3
 		blocks = [.Sand]

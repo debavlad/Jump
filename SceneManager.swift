@@ -54,7 +54,7 @@ class SceneManager {
 			iconSprite.position.x = -iconLabel.frame.width/2
 			iconLabel.position.x = iconSprite.frame.maxX + iconLabel.frame.width + 30
 			show(menuBtn.node, iconSprite, gameOverLbl, scoreParent)
-			blackSprite.run(SKAction.fadeAlpha(to: 0.5, duration: 1))
+			blackSprite.run(SKAction.fadeAlpha(to: 0.7, duration: 0.5))
 			hide(hp, sliderPath)
 		}
 	}

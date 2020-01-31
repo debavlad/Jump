@@ -15,10 +15,8 @@ class BlockFactory {
 	let data: Dictionary<BlockType, (Int, CGFloat)>
 	let coinChance, potionChance, birdChance: CGFloat
 	var foodCounter: Int
-	
-	let stage: Stage
-	var set: [Block]
 	let world: SKNode
+	var set: [Block]
 	
 	init(_ world: SKNode) {
 		distance = 125...200
@@ -36,7 +34,6 @@ class BlockFactory {
 		birdChance = 1
 		foodCounter = 0
 		
-		stage = Stage()
 		set = []
 		self.world = world
 	}
@@ -46,7 +43,7 @@ class BlockFactory {
 	}
 	
 	func produce() {
-		let type = stage.blocks.randomElement()!
+		let type = Stage.shared.blocks.randomElement()!
 		let block = Block(type, data[type]!)
 		addRandomLoot(to: block)
 		block.node.position = CGPoint(x: CGFloat.random(in: -width...width), y: y)
@@ -85,21 +82,15 @@ class BlockFactory {
 	}
 	
 	private func addRandomLoot(to block: Block) {
-		// keep order: coin-potion-food
-		// to calculate top of block frame truly
-		
-		if random(coinChance) {
-			block.addItem(CoinFactory.shared.produce())
+		if foodCounter >= Stage.shared.foodFreq {
+			foodCounter = 0
+			block.addItem(FoodFactory.shared.produce())
+		} else {
+			foodCounter += 1
+			if random(coinChance) {
+				block.addItem(CoinFactory.shared.produce())
+			}
 		}
-//		if random(potionChance) {
-//			block.addItem(potionFactory.getInstance())
-//		}
-//		if foodCounter >= stage.foodFreq {
-//			foodCounter = 0
-//			block.addItem(foodFactory.getInstance())
-//		} else {
-//			foodCounter += 1
-//		}
 	}
 	
 	private func random(_ chance: CGFloat) -> Bool {

@@ -27,7 +27,7 @@ class FoodFactory : ItemFactory {
 		let type = FoodType.allCases.randomElement()!
 		let node = SKSpriteNode(imageNamed: type.rawValue)
 			.foodOptions().itemDefaults().randPos().px()
-		node.name = "\(type.rawValue)item"
+		node.name = "Fooditem"
 		return Food(node, foodEnergy[type]!)
 	}
 }
