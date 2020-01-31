@@ -230,6 +230,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 	private func end(_ delay: TimeInterval = 0) {
 		ended = true
+		player.node.physicsBody?.contactTestBitMask = 0
 		run(SKAction.sequence([
 			SKAction.wait(forDuration: delay),
 			SKAction.run {

@@ -21,6 +21,7 @@ class Player {
 	private let hpLine: SKSpriteNode
 	private let maxLineWidth: CGFloat
 	private(set) var anim, jumpAnim, fallAnim, landAnim, sitAnim: SKAction!
+	private(set) var lighting: SKSpriteNode!
 	
 	
 	init(_ node: SKNode) {
@@ -78,13 +79,13 @@ class Player {
 		node.physicsBody?.linearDamping = 0
 		node.physicsBody?.angularDamping = 0
 		
-		let tmp = SKSpriteNode(imageNamed: "light").px()
-		tmp.setScale(5.5)
+		lighting = SKSpriteNode(imageNamed: "light").px()
+		lighting.setScale(5.5)
 		let up = SKAction.scale(to: 5.6, duration: 0.15)
 		let down = SKAction.scale(to: 5.5, duration: 0.15)
 		up.timingMode = .easeOut; down.timingMode = .easeOut
-		tmp.run(SKAction.repeatForever(SKAction.sequence([up, down])))
-		node.addChild(tmp)
+		lighting.run(SKAction.repeatForever(SKAction.sequence([up, down])))
+		node.addChild(lighting)
 		
 		// Animations
 		var textures = [SKTexture]()

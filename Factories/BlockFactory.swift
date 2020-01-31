@@ -78,8 +78,7 @@ class BlockFactory {
 	
 	func dispose(_ minY: CGFloat) {
 		guard let b = set.first else { return }
-		let top = b.node.frame.maxY + (b.isEmpty() ? 0 : b.items!.first!.node.frame.maxY)
-		if top < minY {
+		if b.node.position.y < minY {
 			set.removeFirst()
 			b.node.removeFromParent()
 		}
