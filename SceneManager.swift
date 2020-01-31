@@ -12,15 +12,13 @@ import SpriteKit
 class SceneManager {
 	private let scene: SKScene
 	private var width, height: CGFloat
-	private(set) var menuBtn, advertBtn: Button!
+	private(set) var menuBtn: Button!
 	var emitters: Set<SKEmitterNode>
-	var score = 0
+	var score: Int
 	
-	private(set) var gameOverLbl, gameScoreLbl, menuScoreLbl, pointsLbl, scoreLbl, iconLabel,
-		wl: SKLabelNode!
-	private(set) var house, door, controlLine, slider, blackSprite, hpLine, scoreLabel,
-		iconSprite, w, overlay: SKSpriteNode!
-	private(set) var doorAnim: SKAction!
+	private(set) var gameOverLbl, curPtsLabel, menuScoreLbl, scorePts, scoreTxt, iconLabel,
+		coinLabel: SKLabelNode!
+	private(set) var sliderPath, slider, blackSprite, hp, scoreParent, iconSprite, coinIcon: SKSpriteNode!
 	
 	
 	init(_ scene: SKScene, _ world: SKNode) {
@@ -28,6 +26,7 @@ class SceneManager {
 		width = UIScreen.main.bounds.width
 		height = UIScreen.main.bounds.height
 		emitters = Set<SKEmitterNode>()
+		score = 0
 		setNodes(world)
 	}
 	
@@ -44,20 +43,19 @@ class SceneManager {
 		item.node.removeFromParent()
 	}
 	
-	func fadeMenu(_ visible: Bool) {
+	func menu(_ visible: Bool) {
 		if !visible {
-			fade(0, 2, [blackSprite, menuBtn.node, gameOverLbl, scoreLabel, iconSprite])
-			show(hpLine, controlLine)
+			fade(0, 2, [blackSprite, menuBtn.node, gameOverLbl, scoreParent, iconSprite])
+			show(hp, sliderPath)
 		} else {
-			pointsLbl.text = "\(score)"
-			pointsLbl.position.x = scoreLbl.frame.maxX + pointsLbl.frame.width/2 + 15
-			scoreLabel.position.x = gameOverLbl.position.x - pointsLbl.frame.width/2
+			scorePts.text = "\(score)"
+			scorePts.position.x = scoreTxt.frame.maxX + scorePts.frame.width/2 + 15
+			scoreParent.position.x = gameOverLbl.position.x - scorePts.frame.width/2
 			iconSprite.position.x = -iconLabel.frame.width/2
 			iconLabel.position.x = iconSprite.frame.maxX + iconLabel.frame.width + 30
-			show(menuBtn.node, iconSprite, gameOverLbl, scoreLabel)
-//			overlay.run(SKAction.fadeIn(withDuration: 0.3))
+			show(menuBtn.node, iconSprite, gameOverLbl, scoreParent)
 			blackSprite.run(SKAction.fadeAlpha(to: 0.5, duration: 1))
-			hide(hpLine, controlLine)
+			hide(hp, sliderPath)
 		}
 	}
 	
@@ -71,11 +69,11 @@ class SceneManager {
 		emitters.insert(e)
 	}
 	
-	func updateScore(_ val: Int) {
-		score = val
-		gameScoreLbl.text = String(val)
-		gameScoreLbl.position = CGPoint(x: -width + gameScoreLbl.frame.width/2+60,
-																		y: height - gameScoreLbl.frame.height/2-100)
+	func updateScore(_ value: Int) {
+		score = value
+		curPtsLabel.text = String(value)
+		curPtsLabel.position = CGPoint(x: -width + curPtsLabel.frame.width/2+60,
+																		y: height - curPtsLabel.frame.height/2-100)
 	}
 	
 	
@@ -91,6 +89,7 @@ class SceneManager {
 		let a = SKAction.fadeAlpha(to: alpha, duration: duration)
 		a.timingMode = SKActionTimingMode.easeOut
 		a.speed = 4
+		
 		for node in nodes {
 			node.run(a)
 		}
@@ -105,14 +104,6 @@ class SceneManager {
 		sky.zPosition = -10
 		cam.addChild(sky)
 		
-		overlay = SKSpriteNode(imageNamed: "overlay").px()
-		overlay.size = scene.frame.size
-		overlay.setScale(1.5)
-		overlay.zPosition = 20
-		overlay.alpha = 0
-		
-		cam.addChild(overlay)
-		
 		let bench = SKSpriteNode()
 		bench.size = CGSize(width: 161, height: 34)
 		bench.position = CGPoint(x: -173, y: -347)
@@ -121,43 +112,43 @@ class SceneManager {
 		bench.physicsBody?.isDynamic = false
 		world.addChild(bench)
 			
-		let ground = SKSpriteNode(imageNamed: "ground").px()
-		ground.size = CGSize(width: 826, height: 945)
-		ground.position = CGPoint(x: 30, y: -323)
-		ground.zPosition = -1
-		world.addChild(ground)
+		let hood = SKSpriteNode(imageNamed: "hood").px()
+		hood.size = CGSize(width: 826, height: 945)
+		hood.position = CGPoint(x: 30, y: -323)
+		hood.zPosition = -1
+		world.addChild(hood)
 			
-		let player = SKSpriteNode(imageNamed: "zombie-sit0").px()
+		let player = SKSpriteNode(imageNamed: "sit0").px()
 		player.name = "Character"
 		player.size = CGSize(width: 132, height: 140)
 		player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
 		player.zPosition = 10
-		
-			
-		hpLine = SKSpriteNode(imageNamed: "hp-green").px()
-		hpLine.size = CGSize(width: 100, height: 11)
-		hpLine.position = CGPoint(x: hpLine.frame.midX, y: player.frame.height/2 + 10)
-		hpLine.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-		hpLine.zPosition = -1
-		hpLine.alpha = 0
-		
-		player.addChild(hpLine)
 		world.addChild(player)
+		
+		// UI
+		hp = SKSpriteNode(imageNamed: "hp").px()
+		hp.size = CGSize(width: 100, height: 11)
+		hp.position = CGPoint(x: hp.frame.midX, y: player.frame.height/2 + 10)
+		hp.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+		hp.zPosition = -1
+		hp.alpha = 0
+		player.addChild(hp)
 			
-		controlLine = SKSpriteNode(imageNamed: "slider-line").px()
-		controlLine.size = CGSize(width: 610, height: 28)
-		controlLine.position.y = -height + 90
-		controlLine.zPosition = 20
-		controlLine.alpha = 0
+		sliderPath = SKSpriteNode(imageNamed: "slider-line").px()
+		sliderPath.size = CGSize(width: 610, height: 28)
+		sliderPath.position.y = -height + 90
+		sliderPath.zPosition = 20
+		sliderPath.alpha = 0
 		
 		slider = SKSpriteNode(imageNamed: "slider-0").px()
 		slider.size = CGSize(width: 54, height: 54)
 		slider.position.y = 4
 		slider.zPosition = 21
 			
-		controlLine.addChild(slider)
-		cam.addChild(controlLine)
+		sliderPath.addChild(slider)
+		cam.addChild(sliderPath)
 		
+		// Dead menu nodes
 		blackSprite = SKSpriteNode()
 		blackSprite.size = scene.frame.size
 		blackSprite.alpha = 0
@@ -172,38 +163,39 @@ class SceneManager {
 		gameOverLbl.alpha = 0
 		cam.addChild(gameOverLbl)
 			
-		scoreLabel = SKSpriteNode()
-		scoreLabel.zPosition = 21
-		scoreLabel.alpha = 0
-		scoreLabel.position = CGPoint(x: gameOverLbl.position.x, y: gameOverLbl.frame.minY - 115)
-		scoreLbl = SKLabelNode(fontNamed: Fonts.pixelf)
-		scoreLbl.text = "SCORE:"
-		scoreLbl.fontSize = 55
-		scoreLabel.addChild(scoreLbl)
-			
-		pointsLbl = SKLabelNode(fontNamed: Fonts.pixelf)
-		pointsLbl.text = "0"
-		pointsLbl.fontSize = 55
-		pointsLbl.fontColor = UIColor(red: 253/255, green: 255/255, blue: 115/255, alpha: 1)
-		pointsLbl.position.x = scoreLbl.frame.maxX + pointsLbl.frame.width/2 + 15
-		scoreLabel.addChild(pointsLbl)
-		cam.addChild(scoreLabel)
+		scoreParent = SKSpriteNode()
+		scoreParent.zPosition = 21
+		scoreParent.alpha = 0
+		scoreParent.position = CGPoint(x: gameOverLbl.position.x, y: gameOverLbl.frame.minY - 115)
 		
-		gameScoreLbl = SKLabelNode(fontNamed: Fonts.forwa)
-		gameScoreLbl.zPosition = 21
-		gameScoreLbl.alpha = 0
-		gameScoreLbl.text = "0"
-		gameScoreLbl.fontSize = 50
-		gameScoreLbl.position = CGPoint(x: -width + gameScoreLbl.frame.width/2 + 100, y: height - gameScoreLbl.frame.height/2 - 100)
-		gameScoreLbl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
-		cam.addChild(gameScoreLbl)
+		scoreTxt = SKLabelNode(fontNamed: Fonts.pixelf)
+		scoreTxt.text = "SCORE:"
+		scoreTxt.fontSize = 55
+		scoreParent.addChild(scoreTxt)
 			
-		// Dead menu icons
+		scorePts = SKLabelNode(fontNamed: Fonts.pixelf)
+		scorePts.text = "0"
+		scorePts.fontSize = 55
+		scorePts.fontColor = UIColor(red: 253/255, green: 255/255, blue: 115/255, alpha: 1)
+		scorePts.position.x = scoreTxt.frame.maxX + scorePts.frame.width/2 + 15
+		scoreParent.addChild(scorePts)
+		cam.addChild(scoreParent)
+		
+		curPtsLabel = SKLabelNode(fontNamed: Fonts.forwa)
+		curPtsLabel.zPosition = 21
+		curPtsLabel.alpha = 0
+		curPtsLabel.text = "0"
+		curPtsLabel.fontSize = 50
+		curPtsLabel.position = CGPoint(x: -width + curPtsLabel.frame.width/2 + 100, y: height - curPtsLabel.frame.height/2 - 100)
+		curPtsLabel.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+		cam.addChild(curPtsLabel)
+			
 		iconSprite = SKSpriteNode(imageNamed: "Coin0").px()
 		iconSprite.size = CGSize(width: 90, height: 99)
 		iconSprite.position.y = gameOverLbl.frame.maxY + 80
 		iconSprite.zPosition = 21
 		iconSprite.alpha = 0
+		
 		iconLabel = SKLabelNode(fontNamed: Fonts.pixelf)
 		iconLabel.text = "0"
 		iconLabel.fontSize = 76
@@ -211,27 +203,25 @@ class SceneManager {
 		iconSprite.addChild(iconLabel)
 		cam.addChild(iconSprite)
 		
-		// Left upper corner
-		let defaults = UserDefaults.standard
-		
-		w = SKSpriteNode(imageNamed: "Coin0").px()
-		w.size = CGSize(width: 72, height: 81)
-		w.position.y = height - 130
-		w.zPosition = 20
-		cam.addChild(w)
-		
-		wl = SKLabelNode(fontNamed: Fonts.pixelf)
-		wl.text = String((defaults.value(forKey: "wooden") ?? 0) as! Int)
-		wl.fontSize = 62
-		wl.position.x = w.frame.width/2 + wl.frame.width/2 + 25
-		wl.position.y = -wl.frame.height/2 + 2
-		wl.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
-		w.position.x -= wl.frame.width/2 + 25
-		w.addChild(wl)
-			
 		menuBtn = Button("TO MENU", CGPoint(x: 0, y: -500))
 		menuBtn.node.alpha = 0
 		cam.addChild(menuBtn.node)
+		
+		// Middle upper corner
+		coinIcon = SKSpriteNode(imageNamed: "Coin0").px()
+		coinIcon.size = CGSize(width: 72, height: 81)
+		coinIcon.position.y = height - 130
+		coinIcon.zPosition = 20
+		cam.addChild(coinIcon)
+		
+		coinLabel = SKLabelNode(fontNamed: Fonts.pixelf)
+		coinLabel.text = String((UserDefaults.standard.value(forKey: "coins") ?? 0) as! Int)
+		coinLabel.fontSize = 62
+		coinLabel.position.x = coinIcon.frame.width/2 + coinLabel.frame.width/2 + 25
+		coinLabel.position.y = -coinLabel.frame.height/2 + 2
+		coinLabel.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+		coinIcon.position.x -= coinLabel.frame.width/2 + 25
+		coinIcon.addChild(coinLabel)
 	}
 }
 

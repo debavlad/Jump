@@ -11,15 +11,15 @@ import GameplayKit
 import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-	var blockFactory: BlockFactory!
 	private var cam: Camera!
-	private var manager: SceneManager!
 	private var world: SKNode!
-	private var player: Player!
-	private var trail: Trail!
+	var blockFactory: BlockFactory!
+	private var manager: SceneManager!
 	private var triggeredBtn: Button!
 	private var fade: SKSpriteNode!
 	private var sliderTouch: UITouch?
+	private var player: Player!
+	private var trail: Trail!
 
 	static var restarted = false
 	private var started = false, stopped = false, ended = false
@@ -42,7 +42,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		cam.node.position.y = -80
 		
 		manager = SceneManager(self, world)
-		manager.show(manager.controlLine)
+		manager.show(manager.sliderPath)
 		
 		player = Player(world.childNode(withName: "Character")!)
 		player.turn(left: true)
@@ -64,46 +64,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
-		if !player.isAlive { return }
+		if !player.alive { return }
 		let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-//		if col == Collision.playerBird {
-//			guard let bird = extractNode("bird", contact) else { return }
-//			manager.createEmitter(world, "BirdParticles", bird.position)
-//			cam.shake(40, 1, 0, 0.12)
-//			bird.removeFromParent()
-//			if player.node.physicsBody!.velocity.dy >= 0 {
-//				player.editHp(-20)
-//				Audio.playSound("hurt")
-//				player.push(10, nullify: false)
-//			} else {
-//				player.push(80, nullify: true)
-//			}
-//		}
-		if col == (Bit.player | Bit.food) || col == (Bit.player | Bit.coin) ||
-			col == (Bit.player | Bit.potion) || col == (Bit.player | Bit.trampoline) {
+		if col == Bit.player | Bit.item {
 			guard let node = extractNode("item", contact) else { return }
 			if let item = blockFactory.findItem(node) {
 				item.intersected = true
 			}
-		}
-		else if player.isFalling() && col == Bit.player | Bit.platform {
+		} else if col == Bit.player | Bit.platform && player.falling {
 			guard let node = extractNode("platform", contact) else { return }
 			manager.addEmitter("Dust", world, contact.contactPoint)
-			trail.create(in: world, 30.0)
+			trail.create(in: world, 30)
 			cam.shake(45, 1, 0, 0.125)
 			
-			let block = self.blockFactory.find(node)
-			var power = CGFloat(block.power)
-			if let items = block.items?.filter({ (item) -> Bool in return item.intersected }) {
+			let block = blockFactory.find(node)
+			if let items = block.items?.filter({ (i) -> Bool in return i.intersected }) {
 				for item in items {
 					switch item {
 						case is Coin:
 							manager.iconLabel.text = String(Int(manager.iconLabel.text!)! + 1)
 						case is Food:
 							player.adjustHealth((item as! Food).energy)
-						case is Potion:
-							let val = CGFloat(30) * ((item as! Potion).poisoned ? -1 : 1)
-							player.adjustHealth(val)
 						default: break
 					}
 					block.remove(item)
@@ -112,9 +93,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 			
 			player.adjustHealth(-block.damage)
-			if player.isAlive {
-				player.push(power, nullify: true)
-			}
+			if player.alive { player.push(block.power, nullify: true) }
 			if block.type == .Sand { block.fall(contact.contactPoint.x) }
 			removeThingsLowerThan(bounds.minY)
 		}
@@ -123,7 +102,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touch = touches.first!
 		let node = atPoint(touch.location(in: self))
-		
 		if node == manager.slider && !ended {
 			sliderTouch = touch
 			offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
@@ -131,9 +109,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			if !started {
 				player.node.removeAllActions()
-				manager.show(manager.controlLine, manager.hpLine, manager.gameScoreLbl)
-				manager.hide(manager.w)
-				
+				manager.show(manager.sliderPath, manager.hp, manager.curPtsLabel)
+				manager.hide(manager.coinIcon)
 				player.push(170, nullify: true)
 				cam.shake(50, 6, 6, 0.055)
 				let scale = SKAction.scale(to: 0.95, duration: 1.25)
@@ -150,7 +127,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let st = sliderTouch else { return }
 		let touchX = st.location(in: cam.node).x
-		let lineHalf = manager.controlLine.size.width / 2
+		let lineHalf = manager.sliderPath.size.width / 2
 		if touchX > -lineHalf && touchX < lineHalf {
 			manager.slider.position.x = touchX + offset
 			player.turn(left: player.node.position.x >= manager.slider.position.x)
@@ -169,21 +146,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func update(_ currentTime: TimeInterval) {
 		cam.shake(1.25, 1, 0, 1.5)
-		cam.shake(manager.overlay, 2, 1, 0, 0.8)
-		if started {
+		if !started { started = player.node.position.y > 0 }
+		else {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
-			if player.isFalling() && player.anim != player.fallAnim {
+			if player.falling && player.anim != player.fallAnim {
 				player.animate(player.fallAnim)
 			}
-		} else {
-			started = player.node.position.y > 0
 		}
 		
 		if started && !ended {
-			if blockFactory.can(player.node.position.y) { blockFactory.produce() }
-			blockFactory.dispose(bounds.minY)
 			if player.node.position.y < minY { end() }
+			else if blockFactory.can(player.node.position.y) { blockFactory.produce() }
+			blockFactory.dispose(bounds.minY)
 		}
+		
+//		if started {
+//			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
+//			if player.falling && player.anim != player.fallAnim {
+//				player.animate(player.fallAnim)
+//			}
+//		} else {
+//			started = player.node.position.y > 0
+//		}
+		
+//		if started && !ended {
+//			if blockFactory.can(player.node.position.y) { blockFactory.produce() }
+//			blockFactory.dispose(bounds.minY)
+//			if player.node.position.y < minY { end() }
+//		}
 		
 		if !stopped {
 			movement = lerp(player.node.position.x, manager.slider.position.x, 0.28)
@@ -216,16 +206,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				manager.emitters.remove(e)
 			}
 		}
-//		platforms.birds.forEach { (b) in
-//			if b.node.position.y < minY {
-//				b.node.removeFromParent()
-//				platforms.birds.remove(b)
-//			}
-//		}
 	}
 	
 	private func reload() {
-		let physics = SKAction.run {
+		let enablePhysics = SKAction.run {
 			self.player.node.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
 			self.physicsWorld.gravity = CGVector(dx: 0, dy: -18)
 			self.physicsWorld.speed = 1
@@ -234,40 +218,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			a.timingMode = .easeIn
 			self.fade.run(a)
 		}
-		let load = SKAction.run {
+		let loadScene = SKAction.run {
 			GameScene.restarted = true
-			let defaults = UserDefaults.standard
-			var wq : Int = defaults.value(forKey: "wooden") as? Int ?? 0
-			wq += Int(self.manager.iconLabel.text!)!
-			defaults.set(wq, forKey: "wooden")
-			
 			let scene = GameScene(size: self.frame.size)
 			scene.scaleMode = SKSceneScaleMode.aspectFill
 			self.view!.presentScene(scene)
 			self.removeAllChildren()
 		}
-		run(SKAction.sequence([SKAction.group([SKAction.wait(forDuration: 0.4), physics]), load ]))
+		run(SKAction.sequence([SKAction.group([SKAction.wait(forDuration: 0.4), enablePhysics]), loadScene ]))
 	}
 
 	private func end(_ delay: TimeInterval = 0) {
 		ended = true
-		let action = SKAction.run {
-			self.sliderTouch = nil
-//			self.player.node.children.first!.run(SKAction.fadeOut(withDuration: 1))
-			self.manager.fadeMenu(true)
-			let scale = SKAction.scale(to: 0.25, duration: 1)
-			scale.timingMode = .easeIn; scale.speed = 3
-			let rotate = SKAction.rotate(toAngle: self.player.node.position.x > 0 ? -0.3 : 0.3, duration: 1)
-			rotate.timingMode = .easeInEaseOut; rotate.speed = 0.6
-			let stop = SKAction.run {
-				self.physicsWorld.speed = 0
-				self.world.isPaused = true
+		run(SKAction.sequence([
+			SKAction.wait(forDuration: delay),
+			SKAction.run {
+				self.sliderTouch = nil
+				self.manager.menu(true)
+				let scale = SKAction.scale(to: 0.25, duration: 1)
+				scale.timingMode = .easeIn; scale.speed = 3
+				let rotate = SKAction.rotate(toAngle: self.player.node.position.x > 0 ? -0.3 : 0.3, duration: 1)
+				rotate.timingMode = .easeInEaseOut; rotate.speed = 0.6
+				let stop = SKAction.run {
+					self.physicsWorld.speed = 0
+					self.world.isPaused = true
+				}
+				var coins = UserDefaults.standard.value(forKey: "coins") as? Int ?? 0
+				coins += Int(self.manager.iconLabel.text!)!
+				UserDefaults.standard.set(coins, forKey: "coins")
+				
+				self.cam.node.run(SKAction.group([SKAction.sequence([scale, stop]), rotate]))
+				self.manager.hide(self.manager.sliderPath, self.manager.hp, self.manager.curPtsLabel)
 			}
-			
-			self.cam.node.run(SKAction.group([SKAction.sequence([scale, stop]), rotate]))
-			self.manager.hide(self.manager.controlLine, self.manager.hpLine, self.manager.gameScoreLbl)
-		}
-		run(SKAction.sequence([SKAction.wait(forDuration: delay), action]))
+		]))
 	}
 	
 	private func lerp(_ start: CGFloat, _ end: CGFloat, _ percent: CGFloat) -> CGFloat {

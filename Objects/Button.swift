@@ -12,9 +12,6 @@ import SpriteKit
 class Button {
 	let node: SKSpriteNode
 	let label: SKLabelNode
-	var coin: SKNode? {
-			get { return label.children.first }
-	}
 	
 	init(_ text: String, _ pos: CGPoint) {
 		node = SKSpriteNode(imageNamed: "btn1").px()

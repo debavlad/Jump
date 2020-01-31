@@ -25,7 +25,7 @@ extension SKSpriteNode {
 		setScale(5.4)
 		physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: size.width, height: size.height))
 		physicsBody?.affectedByGravity = true
-		physicsBody?.categoryBitMask = Bit.food
+		physicsBody?.categoryBitMask = Bit.item
 		return self
 	}
 	
@@ -34,7 +34,7 @@ extension SKSpriteNode {
 		size = CGSize(width: 54, height: 59.4)
 		position = CGPoint(x: CGFloat.random(in: -20...20), y: 52)
 		physicsBody = SKPhysicsBody(circleOfRadius: 25)
-		physicsBody?.categoryBitMask = Bit.coin
+		physicsBody?.categoryBitMask = Bit.item
 		return self
 	}
 	
@@ -42,7 +42,7 @@ extension SKSpriteNode {
 		setScale(6)
 		position.y = 40
 		physicsBody = SKPhysicsBody(rectangleOf: frame.size)
-		physicsBody?.categoryBitMask = Bit.potion
+		physicsBody?.categoryBitMask = Bit.item
 		zPosition = 3
 		return self
 	}
@@ -69,7 +69,7 @@ extension SKSpriteNode {
 		physicsBody?.angularDamping = 0
 		physicsBody?.contactTestBitMask = Bit.player
 		physicsBody?.categoryBitMask = Bit.platform
-		physicsBody?.collisionBitMask = Bit.coin | Bit.food | Bit.potion
+		physicsBody?.collisionBitMask = Bit.item
 		physicsBody?.isDynamic = false
 		return self
 	}

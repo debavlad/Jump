@@ -39,16 +39,4 @@ class Camera {
 		}
 		node.run(SKAction.sequence(actions))
 	}
-	
-	func shake(_ node: SKNode, _ amp: CGFloat, _ amount: Int, _ step: CGFloat, _ dur: CGFloat) {
-		var a = amp, actions: [SKAction] = []
-		for _ in 0..<amount {
-			let act = SKAction.moveBy(x: Bool.random() ? a : -a,
-																y: Bool.random() ? a : -a, duration: TimeInterval(dur))
-			act.timingMode = .easeOut
-			actions.append(contentsOf: [act, act.reversed()])
-			a -= step
-		}
-		node.run(SKAction.sequence(actions))
-	}
 }
