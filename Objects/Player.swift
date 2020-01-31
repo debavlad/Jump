@@ -89,14 +89,10 @@ class Player {
 		let down = SKAction.scale(to: 5.5, duration: 0.15)
 		up.timingMode = .easeOut; down.timingMode = .easeOut
 		tmp.run(SKAction.repeatForever(SKAction.sequence([up, down])))
-//		var t = [SKTexture]()
-//		for i in 1...2 { t.append(SKTexture(imageNamed: "lighting\(i)").px()) }
-//		let anim = SKAction.animate(with: t, timePerFrame: 0.12)
-//		tmp.run(SKAction.repeatForever(anim))
 		node.addChild(tmp)
 		
 		// Animations
-		let skinName = "\(Skins[GameScene.skinIndex].name)"
+		let skinName = "zombie"
 		maxHp = skinName == "zombie" ? 150 : 100
 		health = maxHp
 		

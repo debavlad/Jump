@@ -11,12 +11,8 @@ import SpriteKit
 
 class BlockFactory {
 	var y, width, height: CGFloat
-	let data: Dictionary<BlockType, (Int, CGFloat)>
 	let distance: ClosedRange<CGFloat>
-	
-	let foodFactory: FoodFactory
-	let coinFactory: CoinFactory
-	let potionFactory: PotionFactory
+	let data: Dictionary<BlockType, (Int, CGFloat)>
 	let coinChance, potionChance, birdChance: CGFloat
 	var foodCounter: Int
 	
@@ -35,9 +31,6 @@ class BlockFactory {
 			.Wooden : (84, 5),
 			.Stone : (88, 6)
 		]
-		foodFactory = FoodFactory()
-		coinFactory = CoinFactory()
-		potionFactory = PotionFactory()
 		coinChance = 0.5
 		potionChance = 0.2
 		birdChance = 1
@@ -97,7 +90,7 @@ class BlockFactory {
 		// to calculate top of block frame truly
 		
 		if random(coinChance) {
-			block.addItem(coinFactory.getInstance())
+			block.addItem(CoinFactory.shared.produce())
 		}
 //		if random(potionChance) {
 //			block.addItem(potionFactory.getInstance())

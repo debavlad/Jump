@@ -10,7 +10,7 @@ import Foundation
 import SpriteKit
 
 protocol ItemFactory {
-	func getInstance() -> Item
+	func produce() -> Item
 }
 
 extension SKSpriteNode {

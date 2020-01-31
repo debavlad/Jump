@@ -9,19 +9,8 @@
 import UIKit
 import SpriteKit
 import GameplayKit
-import GoogleMobileAds
 
-class GameViewController: UIViewController, GADRewardedAdDelegate {
-	func rewardedAd(_ rewardedAd: GADRewardedAd, userDidEarn reward: GADAdReward) {
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "watchedAd"), object: nil)
-	}
-	
-	func rewardedAdDidDismiss(_ rewardedAd: GADRewardedAd) {
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "dismissedAd"), object: nil)
-	}
-	
-	var rewardedAd: GADRewardedAd!
-	
+class GameViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
@@ -31,17 +20,9 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
 				scene.scaleMode = .aspectFill
 				view.presentScene(scene)
 				
-//				view.showsPhysics = true
-//				view.showsFPS = true
 				view.showsNodeCount = true
 				view.showsDrawCount = true
-					
-//				rewardedAd = GADRewardedAd(adUnitID: TEST_AD_ID)
-//				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.showAd), name: NSNotification.Name(rawValue: "showAd"), object: nil)
-//				NotificationCenter.default.addObserver(self, selector: #selector(GameViewController.loadAd), name: NSNotification.Name(rawValue: "loadAd"), object: nil)
-//				loadAd()
 			}
-			
 			view.ignoresSiblingOrder = true
 		}
 	}
@@ -60,15 +41,5 @@ class GameViewController: UIViewController, GADRewardedAdDelegate {
 
 	override var prefersStatusBarHidden: Bool {
 		return true
-	}
-	
-	@objc func loadAd() {
-//		rewardedAd.load(GADRequest(), completionHandler: nil)
-	}
-
-	@objc func showAd() {
-//		if rewardedAd.isReady {
-//			rewardedAd.present(fromRootViewController: self, delegate: self)
-//		}
 	}
 }

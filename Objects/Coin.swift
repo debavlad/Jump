@@ -9,15 +9,4 @@
 import Foundation
 import SpriteKit
 
-class Coin: Item {
-	private(set) var currency: Currency
-	
-	init(_ node: SKSpriteNode, _ curr: Currency) {
-		self.currency = curr
-		super.init(node)
-	}
-}
-
-enum Currency: String, CaseIterable {
-	case Wood, Bronze, Golden
-}
+class Coin: Item { }

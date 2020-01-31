@@ -19,7 +19,7 @@ class SceneManager {
 	private(set) var gameOverLbl, gameScoreLbl, menuScoreLbl, pointsLbl, scoreLbl, iconLabel,
 		wl: SKLabelNode!
 	private(set) var house, door, controlLine, slider, blackSprite, hpLine, scoreLabel,
-		iconSprite, w: SKSpriteNode!
+		iconSprite, w, overlay: SKSpriteNode!
 	private(set) var doorAnim: SKAction!
 	
 	
@@ -28,7 +28,6 @@ class SceneManager {
 		width = UIScreen.main.bounds.width
 		height = UIScreen.main.bounds.height
 		emitters = Set<SKEmitterNode>()
-		loadAnims()
 		setNodes(world)
 	}
 	
@@ -56,7 +55,7 @@ class SceneManager {
 			iconSprite.position.x = -iconLabel.frame.width/2
 			iconLabel.position.x = iconSprite.frame.maxX + iconLabel.frame.width + 30
 			show(menuBtn.node, iconSprite, gameOverLbl, scoreLabel)
-			fade(0.7, 1, [blackSprite])
+			overlay.run(SKAction.fadeIn(withDuration: 0.3))
 			hide(hpLine, controlLine)
 		}
 	}
@@ -100,22 +99,18 @@ class SceneManager {
 	private func setNodes(_ world: SKNode) {
 		let cam = scene.childNode(withName: "Cam") as! SKCameraNode
 		
-		let sky = SKSpriteNode(imageNamed: "sky").px()
+		let sky = SKSpriteNode(imageNamed: "sky")
 		sky.size = scene.frame.size
 		sky.zPosition = -10
 		cam.addChild(sky)
 		
-		house = SKSpriteNode(imageNamed: "house").px()
-		house.size = CGSize(width: 543, height: 632)
-		house.position = CGPoint(x: 200, y: -47)
-		house.zPosition = 0
-		world.addChild(house)
-			
-		door = SKSpriteNode(imageNamed: "door0").px()
-		door.size = CGSize(width: 112, height: 134)
-		door.position = CGPoint(x: -119, y: -220)
-		door.zPosition = 1
-		house.addChild(door)
+		overlay = SKSpriteNode(imageNamed: "overlay").px()
+		overlay.size = scene.frame.size
+		overlay.setScale(1.5)
+		overlay.zPosition = 20
+		overlay.alpha = 0
+		
+		cam.addChild(overlay)
 		
 		let bench = SKSpriteNode()
 		bench.size = CGSize(width: 161, height: 34)
@@ -126,12 +121,12 @@ class SceneManager {
 		world.addChild(bench)
 			
 		let ground = SKSpriteNode(imageNamed: "ground").px()
-		ground.size = CGSize(width: 826, height: 518)
-		ground.position = CGPoint(x: 30, y: -530)
+		ground.size = CGSize(width: 826, height: 945)
+		ground.position = CGPoint(x: 30, y: -323)
 		ground.zPosition = -1
 		world.addChild(ground)
 			
-		let player = SKSpriteNode(imageNamed: "\(Skins[GameScene.skinIndex].name)-sit0").px()
+		let player = SKSpriteNode(imageNamed: "zombie-sit0").px()
 		player.name = "Character"
 		player.size = CGSize(width: 132, height: 140)
 		player.position = CGPoint(x: -160, y: GameScene.restarted ? -200 : -250)
@@ -203,7 +198,7 @@ class SceneManager {
 		cam.addChild(gameScoreLbl)
 			
 		// Dead menu icons
-		iconSprite = SKSpriteNode(imageNamed: "Wood0").px()
+		iconSprite = SKSpriteNode(imageNamed: "Coin0").px()
 		iconSprite.size = CGSize(width: 90, height: 99)
 		iconSprite.position.y = gameOverLbl.frame.maxY + 80
 		iconSprite.zPosition = 21
@@ -218,7 +213,7 @@ class SceneManager {
 		// Left upper corner
 		let defaults = UserDefaults.standard
 		
-		w = SKSpriteNode(imageNamed: "Wood0").px()
+		w = SKSpriteNode(imageNamed: "Coin0").px()
 		w.size = CGSize(width: 72, height: 81)
 		w.position.y = height - 130
 		w.zPosition = 20
@@ -233,20 +228,9 @@ class SceneManager {
 		w.position.x -= wl.frame.width/2 + 25
 		w.addChild(wl)
 			
-		menuBtn = Button("TO MENU", .gray, CGPoint(x: 0, y: -500))
+		menuBtn = Button("TO MENU", CGPoint(x: 0, y: -500))
 		menuBtn.node.alpha = 0
 		cam.addChild(menuBtn.node)
-		
-//		advertBtn = Button("CONTINUE", .blue, CGPoint(x: 0, y: menuBtn.node.frame.maxY + 100))
-//		advertBtn.node.alpha = 0
-//		cam.addChild(advertBtn.node)
-	}
-	
-	private func loadAnims() {
-		var textures = [SKTexture]()
-		for i in 1...6 { textures.append(SKTexture(imageNamed: "door\(i)").px()) }
-		doorAnim = SKAction.animate(with: textures, timePerFrame: 0.07)
-		doorAnim.timingMode = .easeOut
 	}
 }
 

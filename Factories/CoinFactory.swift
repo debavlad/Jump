@@ -10,27 +10,22 @@ import Foundation
 import SpriteKit
 
 class CoinFactory: ItemFactory {
-	private var anims: [Currency : SKAction]
+	static let shared = CoinFactory()
+	private var anim: SKAction
 	
-	init() {
-		anims = [Currency : SKAction]()
+	private init() {
 		var arr = [SKTexture]()
-		for c in Currency.allCases {
-			for i in 0...7 {
-				arr.append(SKTexture(imageNamed: "\(c.rawValue)\(i)").px())
-			}
-			anims[c] = SKAction.animate(with: arr, timePerFrame: 0.1)
-			arr.removeAll(keepingCapacity: true)
+		for i in 0...7 {
+			arr.append(SKTexture(imageNamed: "Coin\(i)").px())
 		}
+		anim = SKAction.animate(with: arr, timePerFrame: 0.1)
 		arr.removeAll()
 	}
 	
-	func getInstance() -> Item {
-		let type = Currency.Wood
-//		let type = Currency.allCases.randomElement()!
+	func produce() -> Item {
 		let node = SKSpriteNode().coinOptions().itemDefaults().px()
-		node.name = "\(type.rawValue)item"
-		node.run(SKAction.repeatForever(anims[type]!))
-		return Coin(node, type)
+		node.name = "Coinitem"
+		node.run(SKAction.repeatForever(anim))
+		return Coin(node)
 	}
 }

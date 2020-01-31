@@ -10,7 +10,9 @@ import Foundation
 import SpriteKit
 
 class PotionFactory: ItemFactory {
-	func getInstance() -> Item {
+	static let shared = PotionFactory()
+	
+	func produce() -> Item {
 		let type = PotionType.allCases.randomElement()!
 		let node = SKSpriteNode(imageNamed: type.rawValue)
 			.potionOptions().itemDefaults().px()
