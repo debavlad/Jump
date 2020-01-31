@@ -77,7 +77,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			trail.create(in: world, 30)
 			
 			let block = blockFactory.find(node)
-			cam.shake(block.isEmpty() ? 30 : 50, 1, 0, 0.15)
+			cam.shake(block.isEmpty() ? 30 : 50, 1, 0, 0.14)
 			if let c = block.items?.first(where: { (i) -> Bool in return i is Coin }), c.intersected {
 				manager.iconLabel.text = String(Int(manager.iconLabel.text!)! + 1)
 				block.remove(c); manager.pick(c)
