@@ -48,7 +48,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		player.turn(left: true)
 		
 		addChild(world)
-		trail = Trail(player.node, UIColor.white)
+		trail = Trail(player.node, UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1))
 		trail.create(in: world)
 		
 		bounds = Bounds()
@@ -228,6 +228,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let physics = SKAction.run {
 			self.player.node.physicsBody!.velocity = CGVector(dx: 0, dy: 50)
 			self.physicsWorld.gravity = CGVector(dx: 0, dy: -18)
+			self.physicsWorld.speed = 1
+			self.world.isPaused = false
 			let a = SKAction.fadeIn(withDuration: 0.4)
 			a.timingMode = .easeIn
 			self.fade.run(a)
@@ -251,8 +253,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		ended = true
 		let action = SKAction.run {
 			self.sliderTouch = nil
+//			self.player.node.children.first!.run(SKAction.fadeOut(withDuration: 1))
 			self.manager.fadeMenu(true)
-			let scale = SKAction.scale(to: 0.025, duration: 1)
+			let scale = SKAction.scale(to: 0.25, duration: 1)
 			scale.timingMode = .easeIn; scale.speed = 3
 			let rotate = SKAction.rotate(toAngle: self.player.node.position.x > 0 ? -0.3 : 0.3, duration: 1)
 			rotate.timingMode = .easeInEaseOut; rotate.speed = 0.6

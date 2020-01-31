@@ -55,7 +55,8 @@ class SceneManager {
 			iconSprite.position.x = -iconLabel.frame.width/2
 			iconLabel.position.x = iconSprite.frame.maxX + iconLabel.frame.width + 30
 			show(menuBtn.node, iconSprite, gameOverLbl, scoreLabel)
-			overlay.run(SKAction.fadeIn(withDuration: 0.3))
+//			overlay.run(SKAction.fadeIn(withDuration: 0.3))
+			blackSprite.run(SKAction.fadeAlpha(to: 0.5, duration: 1))
 			hide(hpLine, controlLine)
 		}
 	}
