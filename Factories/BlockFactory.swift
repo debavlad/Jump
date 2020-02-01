@@ -13,10 +13,10 @@ class BlockFactory {
 	var y, width, height: CGFloat
 	let distance: ClosedRange<CGFloat>
 	let data: Dictionary<BlockType, (Int, CGFloat)>
-	let coinChance, potionChance, birdChance: CGFloat
+	let coinChance: CGFloat
 	var foodCounter: Int
 	let world: SKNode
-	var set: [Block]
+	var array: [Block]
 	
 	init(_ world: SKNode) {
 		distance = 125...200
@@ -30,11 +30,9 @@ class BlockFactory {
 			.Stone : (88, 6)
 		]
 		coinChance = 0.5
-		potionChance = 0.2
-		birdChance = 1
 		foodCounter = 0
 		
-		set = []
+		array = []
 		self.world = world
 	}
 	
@@ -45,38 +43,31 @@ class BlockFactory {
 	func produce() {
 		let type = Stage.shared.blocks.randomElement()!
 		let block = Block(type, data[type]!)
-		addRandomLoot(to: block)
 		block.node.position = CGPoint(x: CGFloat.random(in: -width...width), y: y)
 		y += CGFloat.random(in: distance) + (type == .Dirt ? 150 : 0)
+		addRandomLoot(to: block)
 		switch type {
 			case .Dirt: block.vertMove(150)
 			case .Wooden, .Stone: block.horMove(width)
 			default: break
 		}
 		world.addChild(block.node)
-		set.append(block)
+		array.append(block)
 	}
 	
 	func find(_ node: SKNode) -> Block {
-		return set.first { (block) -> Bool in
-			block.node == node
-		}!
+		return array.first(where: { $0.node == node })!
 	}
 	
 	func findItem(_ node: SKNode) -> Item? {
-		guard let parent = node.parent else { return nil }
-		for item in find(parent).items! {
-			if item.node == node {
-				return item
-			}
-		}
-		return nil
+		guard let p = node.parent, let items = find(p).items else { return nil }
+		return items.first(where: { $0.node == node })
 	}
 	
 	func dispose(_ minY: CGFloat) {
-		guard let b = set.first else { return }
+		guard let b = array.first else { return }
 		if b.node.position.y < minY {
-			set.removeFirst()
+			array.removeFirst()
 			b.node.removeFromParent()
 		}
 	}

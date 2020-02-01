@@ -32,6 +32,7 @@ class Player {
 		hpLine = node.children.first! as! SKSpriteNode
 		maxLineWidth = hpLine.size.width
 		setNodes()
+		turn(left: true)
 	}
     
 	func push(_ power: Int, nullify: Bool) {
