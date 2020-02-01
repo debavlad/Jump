@@ -25,18 +25,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	private var started = false, stopped = false, ended = false
 	private var movement, offset, minY: CGFloat!
 	
-	lazy var backgroundMusic: AVAudioPlayer? = {
-		guard let url = Bundle.main.url(forResource: "background", withExtension: "mp3") else { return nil
-		}
-		do {
-			let player = try AVAudioPlayer(contentsOf: url)
-			player.numberOfLoops = -1
-			return player
-		} catch {
-			return nil
-		}
-	}()
-	
 	
 	override func didMove(to view: SKView) {
 		physicsWorld.contactDelegate = self
@@ -67,7 +55,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		out.timingMode = .easeOut
 		fade.run(out)
 		
-		backgroundMusic?.play()
+		Audio.shared.start()
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
