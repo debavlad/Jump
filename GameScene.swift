@@ -70,20 +70,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			guard let node = extractNode("platform", contact) else { return }
 			manager.addEmitter("Dust", world, contact.contactPoint)
 			trail.create(in: world, 30)
+			Audio.shared.play("step.wav", node)
 			
 			let block = blockFactory.find(node)
 			cam.shake(block.isEmpty() ? 30 : 50, 1, 0, 0.14)
 			if let c = block.items?.first(where: { (i) -> Bool in return i is Coin }), c.intersected {
+				Audio.shared.play("coin.wav", world)
 				manager.iconLabel.text = String(Int(manager.iconLabel.text!)! + 1)
 				block.remove(c); manager.pick(c)
 			} else if let f = block.items?.first(where: { (i) -> Bool in return i is Food }), f.intersected {
+				Audio.shared.play("food.wav", world)
 				player.adjustHealth((f as! Food).energy)
 				block.remove(f); manager.pick(f)
 			}
 			
 			player.adjustHealth(-block.damage)
 			if player.alive { player.push(block.power, nullify: true) }
-			if block.type == .Sand { block.fall(contact.contactPoint.x) }
+			if block.type == .Sand {
+				block.fall(contact.contactPoint.x)
+			}
 			disposeLowerThan(bounds.minY)
 		}
 	}
@@ -136,6 +141,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			sliderTouch = touch
 			offset = manager.slider.position.x - sliderTouch!.location(in: cam.node).x
 			manager.slider.texture = SKTexture(imageNamed: "slider-1").px()
+			Audio.shared.play("button.wav", node)
 			
 			if !started {
 				player.node.removeAllActions()
@@ -143,11 +149,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				manager.hide(manager.coinIcon)
 				player.push(170, nullify: true)
 				cam.shake(50, 6, 6, 0.055)
+				Audio.shared.play("swoosh.wav", player.node)
 				let scale = SKAction.scale(to: 0.95, duration: 1.25)
 				scale.timingMode = .easeInEaseOut
 				cam.node.run(scale)
 			}
 		} else if ended && node == manager.menuBtn.node || node == manager.menuBtn.label {
+			Audio.shared.play("button.wav", node)
 			triggeredBtn = manager.menuBtn
 			manager.menuBtn.push()
 			reloadScene()
@@ -217,6 +225,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				let rotate = SKAction.rotate(toAngle: self.player.node.position.x > 0 ? -0.3 : 0.3, duration: 1)
 				rotate.timingMode = .easeInEaseOut; rotate.speed = 0.6
 				let stop = SKAction.run {
+					Audio.shared.play("gameover.wav", self.fade)
 					self.physicsWorld.speed = 0
 					self.world.isPaused = true
 				}

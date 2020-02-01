@@ -12,7 +12,6 @@ import SpriteKit
 class Fonts {
 	static let forwa = "FFFForward"
 	static let pixelf = "pixelFJ8pt1"
-	static let droid = "DisposableDroidBB"
 }
 
 var bounds: Bounds!

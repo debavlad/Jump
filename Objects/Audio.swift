@@ -8,6 +8,7 @@
 
 import Foundation
 import AVFoundation
+import SpriteKit
 
 class Audio {
 	static let shared = Audio()
@@ -19,11 +20,17 @@ class Audio {
 		do {
 			let tmp = try AVAudioPlayer(contentsOf: url)
 			tmp.numberOfLoops = -1
+			tmp.volume = 0
 			return tmp
 		} catch { return nil }
 	}()
 	
+	func play(_ sound: String, _ node: SKNode) {
+		node.run(SKAction.playSoundFileNamed(sound, waitForCompletion: false))
+	}
+	
 	func start() {
 		player?.play()
+		player?.setVolume(1, fadeDuration: 10)
 	}
 }
