@@ -19,9 +19,8 @@ class GameViewController: UIViewController {
 				scene.size = CGSize(width: view.frame.width*2, height: view.frame.height*2)
 				scene.scaleMode = .aspectFill
 				view.presentScene(scene)
-				
-				view.showsNodeCount = true
-				view.showsDrawCount = true
+//				view.showsNodeCount = true
+//				view.showsDrawCount = true
 			}
 			view.ignoresSiblingOrder = true
 		}

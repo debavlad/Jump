@@ -12,6 +12,11 @@ import SpriteKit
 
 class Audio {
 	static let shared = Audio()
+	private init() {
+		isEnabled = UserDefaults.standard.bool(forKey: "soundState") 
+	}
+	
+	var isEnabled: Bool
 	
 	private lazy var player: AVAudioPlayer? = {
 		guard let url = Bundle.main.url(forResource: "background", withExtension: "mp3") else {
@@ -26,11 +31,19 @@ class Audio {
 	}()
 	
 	func play(_ sound: String, _ node: SKNode) {
-		node.run(SKAction.playSoundFileNamed(sound, waitForCompletion: false))
+		if isEnabled {
+			node.run(SKAction.playSoundFileNamed(sound, waitForCompletion: false))
+		}
 	}
 	
 	func start() {
 		player?.play()
 		player?.setVolume(1, fadeDuration: 10)
+		isEnabled = true
+	}
+	
+	func stop() {
+		player?.stop()
+		isEnabled = false
 	}
 }

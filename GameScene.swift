@@ -55,7 +55,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		out.timingMode = .easeOut
 		fade.run(out)
 		
-		Audio.shared.start()
+		// loading empty.wav in order to preload other sounds
+		world.run(SKAction.playSoundFileNamed("empty.wav", waitForCompletion: false))
+		if Audio.shared.isEnabled {
+			Audio.shared.start()
+		}
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
@@ -85,7 +89,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 			
 			player.adjustHealth(-block.damage)
-			if player.alive { player.push(block.power, nullify: true) }
+			if player.alive {
+				player.push(block.power, nullify: true)
+			} else {
+				Audio.shared.play("death.wav", player.node)
+			}
+			
 			if block.type == .Sand {
 				block.fall(contact.contactPoint.x)
 			}
@@ -97,6 +106,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		cam.shake(1.25, 1, 0, 1.5)
 		if started {
 			cam.node.position.y = lerp(cam.node.position.y, player.node.position.y, cam.easing)
+			if !manager.toRemove.isEmpty {
+				manager.toRemove.filter({ $0.position.y < bounds.minY }).forEach({
+					$0.removeFromParent()
+					manager.toRemove.remove($0)
+				})
+			}
+			
 			if !ended {
 				if player.node.position.y < minY {
 					gameOver()
@@ -119,7 +135,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			bounds.minY = cam.node.frame.minY - frame.height/2
 			if bounds.minY > minY { minY = bounds.minY }
 			if trail.distance() > 80 { trail.create(in: world) }
-			
 			let score = Int(player.node.position.y/100)
 			if score > manager.score {
 				manager.updateScore(score)
@@ -146,7 +161,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if !started {
 				player.node.removeAllActions()
 				manager.show(manager.sliderPath, manager.hp, manager.curPtsLabel)
-				manager.hide(manager.coinIcon)
+				manager.hide(manager.coinIcon, manager.soundStats)
 				player.push(170, nullify: true)
 				cam.shake(50, 6, 6, 0.055)
 				Audio.shared.play("swoosh.wav", player.node)
@@ -159,6 +174,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			triggeredBtn = manager.menuBtn
 			manager.menuBtn.push()
 			reloadScene()
+		} else if !started {
+			soundOnOff()
 		}
 	}
 	
@@ -182,6 +199,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 
+	
+	private func soundOnOff() {
+		if Audio.shared.isEnabled {
+			UserDefaults.standard.set(false, forKey: "soundState")
+			manager.soundStats.text = "SOUND OFF"
+			Audio.shared.stop()
+		} else {
+			UserDefaults.standard.set(true, forKey: "soundState")
+			manager.soundStats.text = "SOUND ON"
+			Audio.shared.start()
+		}
+		UserDefaults.standard.synchronize()
+	}
 	
 	private func disposeLowerThan(_ minY: CGFloat) {
 		manager.emitters.forEach( {

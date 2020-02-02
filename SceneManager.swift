@@ -14,10 +14,11 @@ class SceneManager {
 	private var width, height: CGFloat
 	private(set) var menuBtn: Button!
 	var emitters: Set<SKEmitterNode>
+	var toRemove: Set<SKNode>
 	var score: Int
 	
 	private(set) var gameOverLbl, curPtsLabel, menuScoreLbl, scorePts, scoreTxt, iconLabel,
-		coinLabel: SKLabelNode!
+		coinLabel, soundStats: SKLabelNode!
 	private(set) var sliderPath, slider, blackSprite, hp, scoreParent, iconSprite, coinIcon: SKSpriteNode!
 	
 	
@@ -26,6 +27,7 @@ class SceneManager {
 		width = UIScreen.main.bounds.width
 		height = UIScreen.main.bounds.height
 		emitters = Set<SKEmitterNode>()
+		toRemove = Set<SKNode>()
 		score = 0
 		setNodes(world)
 	}
@@ -111,12 +113,14 @@ class SceneManager {
 		bench.physicsBody?.categoryBitMask = Bit.ground
 		bench.physicsBody?.isDynamic = false
 		world.addChild(bench)
+		toRemove.insert(bench)
 			
 		let hood = SKSpriteNode(imageNamed: "hood").px()
 		hood.size = CGSize(width: 826, height: 945)
 		hood.position = CGPoint(x: 30, y: -323)
 		hood.zPosition = -1
 		world.addChild(hood)
+		toRemove.insert(hood)
 			
 		let player = SKSpriteNode(imageNamed: "sit0").px()
 		player.name = "Character"
@@ -219,9 +223,17 @@ class SceneManager {
 		coinLabel.fontSize = 62
 		coinLabel.position.x = coinIcon.frame.width/2 + coinLabel.frame.width/2 + 25
 		coinLabel.position.y = -coinLabel.frame.height/2 + 2
-		coinLabel.fontColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
+		coinLabel.fontColor = UIColor(red: 85/255, green: 85/255, blue: 85/255, alpha: 1)
 		coinIcon.position.x -= coinLabel.frame.width/2 + 25
 		coinIcon.addChild(coinLabel)
+		
+		soundStats = SKLabelNode(fontNamed: Fonts.pixelf)
+		soundStats.text = Audio.shared.isEnabled ? "SOUND ON" : "SOUND OFF"
+		soundStats.fontSize = 43
+		soundStats.position = CGPoint(x: coinIcon.calculateAccumulatedFrame().midX, y: coinIcon.calculateAccumulatedFrame().minY - 70)
+		soundStats.fontColor = UIColor(red: 70/255, green: 70/255, blue: 70/255, alpha: 1)
+		soundStats.zPosition = 20
+		cam.addChild(soundStats)
 	}
 }
 
