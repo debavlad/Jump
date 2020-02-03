@@ -13,31 +13,32 @@ class Button {
 	let node: SKSpriteNode
 	let label: SKLabelNode
 	
-	init(_ text: String, _ y: Int) {
+	init(_ text: String, _ bottom: CGFloat) {
 		node = SKSpriteNode(imageNamed: "btn1").px()
 		node.name = "btn"
 		node.size = CGSize(width: 575, height: 150)
-		node.position = CGPoint(x: 0, y: y)
+		node.position.y = bottom + node.frame.height/2 +
+			UIScreen.main.bounds.width - node.frame.maxX
 		node.zPosition = 21
 		node.alpha = 0
 		
 		label = SKLabelNode(fontNamed: "pixelFJ8pt1")
+		node.addChild(label)
 		label.fontColor = UIColor(red: 85/255, green: 85/255, blue: 85/255, alpha: 1)
 		label.fontSize = 46
 		label.zPosition = 1
-		label.position.y = -8
+		label.position.y = -10
 		label.text = text
 		
-		node.addChild(label)
 	}
 	
 	func release() {
 		node.texture = SKTexture(imageNamed: "\(node.name!)1").px()
-		label.position.y = -8
+		label.position.y = -10
 	}
 	
 	func push() {
 		node.texture = SKTexture(imageNamed: "\(node.name!)2").px()
-		label.position.y = -20
+		label.position.y = -22
 	}
 }

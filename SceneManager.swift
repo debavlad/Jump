@@ -210,7 +210,7 @@ class SceneManager {
 		iconSprite.addChild(iconLabel)
 		cam.addChild(iconSprite)
 		
-		menuBtn = Button("TO MENU", -500)
+		menuBtn = Button("TO MENU", -height)
 		menuBtn.node.alpha = 0
 		cam.addChild(menuBtn.node)
 		
