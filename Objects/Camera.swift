@@ -21,11 +21,14 @@ class Camera {
 		easing = 0.09
 	}
 	
-	func punch(_ amp: CGFloat) {
+	func punch(_ amp: CGFloat, _ dur: CGFloat) {
 		let x = Bool.random() ? amp : -amp
-		let a = SKAction.moveBy(x: x, y: -amp, duration: 0.12)
-		a.timingMode = .easeOut
-		node.run(SKAction.sequence([a, a.reversed()]))
+		let action = SKAction.moveBy(x: x, y: -amp, duration: TimeInterval(dur))
+		action.timingMode = .easeOut
+		let reversed = action.reversed()
+		reversed.duration *= 1.5
+		reversed.timingMode = .linear
+		node.run(SKAction.sequence([action, reversed]))
 	}
 	
 	func shake(_ amp: CGFloat, _ amount: Int, _ step: CGFloat, _ dur: CGFloat) {

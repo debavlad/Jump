@@ -11,7 +11,7 @@ import SpriteKit
 
 class SceneManager {
 	private let scene: SKScene
-	private var width, height: CGFloat
+	var width, height, aspectRatio: CGFloat
 	private(set) var menuBtn: Button!
 	var emitters: Set<SKEmitterNode>
 	var toRemove: Set<SKNode>
@@ -26,6 +26,7 @@ class SceneManager {
 		self.scene = scene
 		width = UIScreen.main.bounds.width
 		height = UIScreen.main.bounds.height
+		aspectRatio = height/width
 		emitters = Set<SKEmitterNode>()
 		toRemove = Set<SKNode>()
 		score = 0
@@ -139,7 +140,9 @@ class SceneManager {
 		player.addChild(hp)
 			
 		sliderPath = SKSpriteNode(imageNamed: "slider-line").px()
-		sliderPath.size = CGSize(width: 610, height: 28)
+		let scale = (width*2 - 130)/sliderPath.frame.width
+//		sliderPath.setScale(scale)
+		sliderPath.size = CGSize(width: sliderPath.frame.width*scale, height: sliderPath.frame.height*scale)
 		sliderPath.position.y = -height + 90
 		sliderPath.zPosition = 20
 		sliderPath.alpha = 0
@@ -207,7 +210,7 @@ class SceneManager {
 		iconSprite.addChild(iconLabel)
 		cam.addChild(iconSprite)
 		
-		menuBtn = Button("TO MENU", CGPoint(x: 0, y: -500))
+		menuBtn = Button("TO MENU", -500)
 		menuBtn.node.alpha = 0
 		cam.addChild(menuBtn.node)
 		

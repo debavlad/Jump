@@ -13,12 +13,13 @@ class Button {
 	let node: SKSpriteNode
 	let label: SKLabelNode
 	
-	init(_ text: String, _ pos: CGPoint) {
+	init(_ text: String, _ y: Int) {
 		node = SKSpriteNode(imageNamed: "btn1").px()
 		node.name = "btn"
 		node.size = CGSize(width: 575, height: 150)
-		node.position = pos
+		node.position = CGPoint(x: 0, y: y)
 		node.zPosition = 21
+		node.alpha = 0
 		
 		label = SKLabelNode(fontNamed: "pixelFJ8pt1")
 		label.fontColor = UIColor(red: 85/255, green: 85/255, blue: 85/255, alpha: 1)

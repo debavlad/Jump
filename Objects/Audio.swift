@@ -13,7 +13,11 @@ import SpriteKit
 class Audio {
 	static let shared = Audio()
 	private init() {
-		isEnabled = UserDefaults.standard.bool(forKey: "soundState") 
+		if UserDefaults.standard.object(forKey: "soundState") != nil {
+			isEnabled = UserDefaults.standard.bool(forKey: "soundState")
+		} else {
+			isEnabled = true
+		}
 	}
 	
 	var isEnabled: Bool

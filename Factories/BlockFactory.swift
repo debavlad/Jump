@@ -24,10 +24,10 @@ class BlockFactory {
 		width = UIScreen.main.bounds.width - 100
 		height = UIScreen.main.bounds.height + distance.lowerBound
 		data = [
-			.Dirt : (76, 3),
-			.Sand : (80, 4),
-			.Wooden : (84, 5),
-			.Stone : (88, 6)
+			.Dirt : (80, 3),
+			.Sand : (84, 4),
+			.Wooden : (88, 5),
+			.Stone : (92, 6)
 		]
 		coinChance = 0.5
 		foodCounter = 0

@@ -28,7 +28,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func didMove(to view: SKView) {
 		physicsWorld.contactDelegate = self
-		physicsWorld.gravity = CGVector(dx: 0, dy: -25)
+		physicsWorld.gravity = CGVector(dx: 0, dy: -27)
 		
 		fade = SKSpriteNode(color: .black, size: frame.size)
 		fade.zPosition = 25
@@ -77,7 +77,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			Audio.shared.play("step.wav", node)
 			
 			let block = blockFactory.find(node)
-			cam.shake(block.isEmpty() ? 30 : 50, 1, 0, 0.14)
+			cam.punch(block.isEmpty() ? 40 : 60, 0.13)
+//			cam.shake(block.isEmpty() ? 40 : 60, 1, 0, 0.13)
 			if let c = block.items?.first(where: { (i) -> Bool in return i is Coin }), c.intersected {
 				Audio.shared.play("coin.wav", world)
 				manager.iconLabel.text = String(Int(manager.iconLabel.text!)! + 1)
@@ -130,7 +131,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if !stopped {
-			movement = lerp(player.node.position.x, manager.slider.position.x, 0.29)
+			movement = lerp(player.node.position.x, manager.slider.position.x, 0.32)
 			player.node.position.x = movement
 			bounds.minY = cam.node.frame.minY - frame.height/2
 			if bounds.minY > minY { minY = bounds.minY }
@@ -162,8 +163,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				player.node.removeAllActions()
 				manager.show(manager.sliderPath, manager.hp, manager.curPtsLabel)
 				manager.hide(manager.coinIcon, manager.soundStats)
-				player.push(170, nullify: true)
-				cam.shake(50, 6, 6, 0.055)
+				player.push(190, nullify: true)
+				cam.shake(70, 6, 8, 0.055)
 				Audio.shared.play("swoosh.wav", player.node)
 				let scale = SKAction.scale(to: 0.95, duration: 1.25)
 				scale.timingMode = .easeInEaseOut
