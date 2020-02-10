@@ -141,7 +141,6 @@ class SceneManager {
 			
 		sliderPath = SKSpriteNode(imageNamed: "slider-line").px()
 		let scale = (width*2 - 130)/sliderPath.frame.width
-//		sliderPath.setScale(scale)
 		sliderPath.size = CGSize(width: sliderPath.frame.width*scale, height: sliderPath.frame.height*scale)
 		sliderPath.position.y = -height + 90
 		sliderPath.zPosition = 20

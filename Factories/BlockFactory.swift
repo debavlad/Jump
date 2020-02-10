@@ -13,10 +13,11 @@ class BlockFactory {
 	var y, width, height: CGFloat
 	let distance: ClosedRange<CGFloat>
 	let data: Dictionary<BlockType, (Int, CGFloat)>
-	let coinChance: CGFloat
+	let coinChance, birdChance: CGFloat
 	var foodCounter: Int
 	let world: SKNode
 	var array: [Block]
+	var birdAnim: SKAction
 	
 	init(_ world: SKNode) {
 		distance = 125...200
@@ -30,10 +31,17 @@ class BlockFactory {
 			.Stone : (92, 6)
 		]
 		coinChance = 0.5
+		birdChance = 0.3
 		foodCounter = 0
 		
 		array = []
 		self.world = world
+		
+		var textures = [SKTexture]()
+		for i in 0...2 {
+			textures.append(SKTexture(imageNamed: "bird\(i)").px())
+		}
+		birdAnim = SKAction.animate(with: textures, timePerFrame: 0.11)
 	}
 	
 	func can(_ playerY: CGFloat) -> Bool {
@@ -73,6 +81,12 @@ class BlockFactory {
 	}
 	
 	private func addRandomLoot(to block: Block) {
+		if random(birdChance) {
+			let bird = Bird(width, block.node.position.y)
+			bird.node.run(SKAction.repeatForever(birdAnim))
+			world.addChild(bird.node)
+		}
+		
 		if foodCounter >= Stage.shared.foodFreq {
 			foodCounter = 0
 			block.addItem(FoodFactory.shared.produce())

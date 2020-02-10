@@ -65,7 +65,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	func didBegin(_ contact: SKPhysicsContact) {
 		if !player.alive { return }
 		let col: UInt32 = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-		if col == Bit.player | Bit.item {
+		
+		if col == Bit.player | Bit.bird {
+			guard let node = extractNode("bird", contact) else { return }
+			manager.addEmitter("Bird", world, node.position)
+			player.push(15, nullify: false)
+			player.adjustHealth(-20)
+			cam.punch(50, 0.13)
+			node.removeFromParent()
+		} else if col == Bit.player | Bit.item {
 			guard let node = extractNode("item", contact) else { return }
 			if let item = blockFactory.findItem(node) {
 				item.intersected = true
@@ -78,7 +86,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			let block = blockFactory.find(node)
 			cam.punch(block.isEmpty() ? 40 : 60, 0.13)
-//			cam.shake(block.isEmpty() ? 40 : 60, 1, 0, 0.13)
 			if let c = block.items?.first(where: { (i) -> Bool in return i is Coin }), c.intersected {
 				Audio.shared.play("coin.wav", world)
 				manager.iconLabel.text = String(Int(manager.iconLabel.text!)! + 1)
